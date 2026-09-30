@@ -1,0 +1,147 @@
+[gd_scene format=3 uid="uid://c47eyaehvxxo6"]
+
+[ext_resource type="Texture2D" uid="uid://6ijp4me2er2u" path="res://assets/textures/saw.png" id="1_7c5v0"]
+[ext_resource type="Script" uid="uid://qqip4h8fb38l" path="res://saw.gd" id="1_m2ud2"]
+[ext_resource type="Shader" uid="uid://cstiahovl8fvm" path="res://saw_holdout.gdshader" id="2_ddabk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u5bk5"]
+shading_mode = 2
+diffuse_mode = 1
+disable_fog = true
+albedo_color = Color(0.6298, 0.66464, 0.67, 1)
+albedo_texture = ExtResource("1_7c5v0")
+emission = Color(0.63375676, 0.6337568, 0.63375676, 1)
+rim_enabled = true
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_offset = Vector3(0.5, 0.5, 0)
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[sub_resource type="Animation" id="Animation_7c5v0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_ddabk"]
+resource_name = "saw_rotation"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 125.664]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_m2ud2"]
+_data = {
+&"RESET": SubResource("Animation_7c5v0"),
+&"saw_rotation": SubResource("Animation_ddabk")
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ycdy4"]
+emission_enabled = true
+emission = Color(0.28, 0.26506665, 0.1904, 1)
+emission_energy_multiplier = 14.12
+
+[sub_resource type="PrismMesh" id="PrismMesh_reoe3"]
+material = SubResource("StandardMaterial3D_ycdy4")
+
+[sub_resource type="Curve" id="Curve_7c5v0"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7c5v0"]
+render_priority = -1
+shader = ExtResource("2_ddabk")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_u5bk5"]
+material = SubResource("ShaderMaterial_7c5v0")
+size = Vector2(500, 50)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_u5bk5"]
+height = 3.43
+radius = 55.357
+
+[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("particles_nx", "particles_px")]
+collision_layer = 3
+script = ExtResource("1_m2ud2")
+particles_nx = NodePath("particles_nx")
+particles_px = NodePath("particles_px")
+
+[node name="saw_rotation_anchor" type="Node3D" parent="." unique_id=1078678954]
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="saw_rotation_anchor" unique_id=992338694]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+radius = 55.722
+sides = 15
+material = SubResource("StandardMaterial3D_u5bk5")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="saw_rotation_anchor" unique_id=1750264574]
+libraries/ = SubResource("AnimationLibrary_m2ud2")
+autoplay = &"saw_rotation"
+
+[node name="particles_nx" type="CPUParticles3D" parent="." unique_id=302334128]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -55, 0, 0)
+emitting = false
+amount = 350
+lifetime = 5.96
+preprocess = 1.0
+draw_order = 2
+mesh = SubResource("PrismMesh_reoe3")
+direction = Vector3(3, 10, 0)
+spread = 10.0
+flatness = 0.45
+gravity = Vector3(0, -51.29, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 50.0
+scale_amount_min = 5.0
+scale_amount_max = 10.0
+scale_amount_curve = SubResource("Curve_7c5v0")
+
+[node name="particles_px" type="CPUParticles3D" parent="." unique_id=1660747517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, 0)
+emitting = false
+amount = 350
+lifetime = 5.96
+preprocess = 1.0
+draw_order = 2
+mesh = SubResource("PrismMesh_reoe3")
+direction = Vector3(3, 10, 0)
+spread = 10.0
+flatness = 0.45
+gravity = Vector3(0, -51.29, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 50.0
+scale_amount_min = 5.0
+scale_amount_max = 10.0
+scale_amount_curve = SubResource("Curve_7c5v0")
+
+[node name="holdout" type="MeshInstance3D" parent="." unique_id=673810200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 149.27164, 0, 0)
+visible = false
+mesh = SubResource("PlaneMesh_u5bk5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1650663486]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_u5bk5")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]
+[connection signal="board_left" from="." to="." method="_on_board_left"]
+[connection signal="board_touched" from="." to="." method="_on_board_touched"]

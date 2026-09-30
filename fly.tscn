@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dj4dah4b2640d"]
+
+[ext_resource type="PackedScene" uid="uid://eatp7y414gk2" path="res://assets/fly/fly-low-poly/Fly_1_mesh.fbx" id="1_mv3iy"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qarim"]
+emission_enabled = true
+emission = Color(0.01666665, 1, 0, 1)
+emission_energy_multiplier = 16.0
+refraction_scale = 1.0
+
+[node name="fly" unique_id=1724164698 instance=ExtResource("1_mv3iy")]
+
+[node name="NurbsPath" parent="." index="0" unique_id=496166524]
+transform = Transform3D(-2.1855694e-06, -50, -2.1855694e-06, 0, -2.1855694e-06, 50, -50, 2.1855694e-06, 9.553427e-14, 0.5127313, 2.333225, -0.24521214)
+material_override = SubResource("StandardMaterial3D_qarim")
