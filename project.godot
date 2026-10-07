@@ -15,6 +15,11 @@ run/main_scene="uid://h4moaku7jyl8"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+PhantomCameraManager="*uid://duq6jhf6unyis"
+GLB="*uid://0qq1kkk5bvqb"
+
 [debug]
 
 gdscript/warnings/untyped_declaration=2
@@ -28,9 +33,19 @@ window/stretch/aspect="expand"
 window/stretch/scale=2.0
 window/stretch/scale_mode="integer"
 
+[editor]
+
+movie_writer/video_quality=1.0
+movie_writer/movie_file="C:/Users/USUARIO/Documents/workshop-bugs/movies/erm.ogv"
+movie_writer/fps=95
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/quick_lock_toolbar/plugin.cfg")
+enabled=PackedStringArray("res://addons/phantom_camera/plugin.cfg", "res://addons/quick_lock_toolbar/plugin.cfg")
+
+[global_group]
+
+boards=""
 
 [input]
 

@@ -1,2 +1,0 @@
-class_name BoardContainer
-extends Node3D
