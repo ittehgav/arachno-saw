@@ -3,13 +3,16 @@ class_name Crawler;
 
 signal died(source:String)
 
-const SPEED := 30.0
+const SPEED := 50.0
 const TURN_SPEED := 2.5      # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 1
 	 # must be a bit more than center-to-surface distance
-
+var bonus_speed:float = 0;
+var speed:float:
+	get():
+		return SPEED + bonus_speed;
 var surface_normal := Vector3.UP;
 
 @export var pcam:PhantomCamera3D
@@ -51,9 +54,9 @@ func _physics_process(delta: float) -> void:
 	# 3. Move along the surface, pulled into it instead of by gravity.
 	var tangent_velocity := velocity.slide(surface_normal)
 	if direction:
-		tangent_velocity = direction * SPEED
+		tangent_velocity = direction * speed
 	else:
-		tangent_velocity = tangent_velocity.move_toward(Vector3.ZERO, SPEED)
+		tangent_velocity = tangent_velocity.move_toward(Vector3.ZERO, speed)
 
 	velocity = tangent_velocity - surface_normal * STICK_SPEED
 	move_and_slide()
@@ -111,9 +114,11 @@ func board_death(board:StaticBody3D)->void:
 	set_physics_process(false)
 	die("falling_board")
 
-func _on_saw_collision_scan_area_entered(area: Area3D) -> void:
+func _on_collision_scan_area_entered(area: Area3D) -> void:
 	if area is Saw:
 		die("saw");
+	elif area is Fly:
+		area.apply_effect(self)
 
 func die(source:String)->void:
 	died.emit(source)

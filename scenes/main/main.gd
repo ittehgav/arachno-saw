@@ -5,3 +5,4 @@ extends Node3D
 ## 2: saw - board collision
 ## 3: saw - miss check
 ## 4: path - turn scan
+## 5: boards - fly spawner detection

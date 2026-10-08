@@ -4224,7 +4224,7 @@ _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_kddjp"]
-size = Vector3(2.9033203, 1.7158203, 3.7626953)
+size = Vector3(3.855713, 1.7158203, 7.9279785)
 
 [sub_resource type="Resource" id="Resource_mbgft"]
 script = ExtResource("6_uj1gu")
@@ -6027,16 +6027,16 @@ angular_velocity_max = 90.0
 scale_amount_max = 2.0
 scale_amount_curve = SubResource("Curve_5xyti")
 
-[node name="saw_collision_scan" type="Area3D" parent="." unique_id=1913793736]
+[node name="collision_scan" type="Area3D" parent="." unique_id=1913793736]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7285273, 0.23085737)
 collision_layer = 0
 monitorable = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="saw_collision_scan" unique_id=383301620]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="collision_scan" unique_id=383301620]
 shape = SubResource("BoxShape3D_kddjp")
 
 [node name="camera_anchor" type="Node3D" parent="." unique_id=992098051 node_paths=PackedStringArray("crawler", "pcam", "you_died_screen", "you_died_message")]
-transform = Transform3D(-1, 8.742278e-08, -4.0303894e-15, -2.6798972e-09, -0.03065455, 0.99953, 8.738167e-08, 0.99953, 0.03065455, 0, 21.137518, 34.999718)
+transform = Transform3D(-1, 8.742278e-08, -4.0303894e-15, -2.6798972e-09, -0.03065455, 0.99953, 8.738167e-08, 0.99953, 0.03065455, 0, 23.376238, 46.953934)
 script = ExtResource("5_y1ag1")
 crawler = NodePath("..")
 pcam = NodePath("PhantomCamera3D")
@@ -6045,7 +6045,7 @@ you_died_message = NodePath("PhantomCamera3D/you_died_sceen/VBoxContainer/messag
 
 [node name="Camera3D" type="Camera3D" parent="camera_anchor" unique_id=1786202856]
 physics_interpolation_mode = 1
-transform = Transform3D(1, 2.2797134e-15, -3.7299176e-15, 1.0420233e-15, 0.7043422, 0.7098606, 4.2454172e-15, -0.7098606, 0.7043422, 0, 21.137518, 34.999718)
+transform = Transform3D(1, 2.2797134e-15, -3.7299176e-15, 1.0420233e-15, 0.7043422, 0.7098606, 4.2454172e-15, -0.7098606, 0.7043422, 0, 23.376238, 46.953934)
 top_level = true
 fov = 71.8
 
@@ -6056,7 +6056,7 @@ script = ExtResource("7_mbgft")
 metadata/_custom_type_script = "uid://bd046eokvcnu2"
 
 [node name="PhantomCamera3D" type="Node3D" parent="camera_anchor" unique_id=720880615 node_paths=PackedStringArray("follow_target")]
-transform = Transform3D(0.9999947, 2.279707e-15, -3.7299003e-15, 1.0420178e-15, 0.7043401, 0.70985734, 4.2453948e-15, -0.70985854, 0.7043389, 0, 21.137518, 34.999718)
+transform = Transform3D(0.9999947, 2.279707e-15, -3.7299003e-15, 1.0420178e-15, 0.7043401, 0.70985734, 4.2453948e-15, -0.70985854, 0.7043389, 0, 23.376238, 46.953934)
 top_level = true
 script = ExtResource("5_mbgft")
 follow_mode = 1
@@ -6110,4 +6110,4 @@ text = "pee pee poo poo"
 
 [connection signal="died" from="." to="body" method="_on_spider_died"]
 [connection signal="died" from="." to="camera_anchor" method="_on_spider_died"]
-[connection signal="area_entered" from="saw_collision_scan" to="." method="_on_saw_collision_scan_area_entered"]
+[connection signal="area_entered" from="collision_scan" to="." method="_on_collision_scan_area_entered"]

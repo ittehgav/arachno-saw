@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://qqip4h8fb38l" path="res://scenes/mill/saw/saw.gd" id="2_bsod6"]
 [ext_resource type="Shader" uid="uid://drvebdp7dbj6" path="res://metal.gdshader" id="2_gvph3"]
-[ext_resource type="AudioStream" uid="uid://bgqqfvpghfrlq" path="res://assets/sound/saw_start.ogg" id="4_875s6"]
-[ext_resource type="AudioStream" uid="uid://c6nmohpbosf72" path="res://assets/sound/saw_loop.ogg" id="5_iagms"]
-[ext_resource type="AudioStream" uid="uid://gng87f6fsbdd" path="res://assets/sound/saw_end.ogg" id="6_mdwkj"]
+[ext_resource type="AudioStream" uid="uid://bgqqfvpghfrlq" path="res://assets/sound/saw/saw_start.ogg" id="4_875s6"]
+[ext_resource type="AudioStream" uid="uid://c6nmohpbosf72" path="res://assets/sound/saw/saw_loop.ogg" id="5_iagms"]
+[ext_resource type="AudioStream" uid="uid://gng87f6fsbdd" path="res://assets/sound/saw/saw_end.ogg" id="6_mdwkj"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
 size = Vector3(3.6279297, 28.499023, 371.05078)

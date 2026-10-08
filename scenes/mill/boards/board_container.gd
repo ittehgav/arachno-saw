@@ -27,32 +27,26 @@ var current_stage:int = -2
 func _enter_tree() -> void:
 	GLB.board_container = self;
 
+func _ready()->void:
+	set_to_drop()
 
 
 var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
+		print("stou ", area)
 		touching = true;
 		saw_touched.emit(area)
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
-		saw_left.emit(area)
+		print("sle ", area)
 		touching = false
-
+		saw_left.emit(area)
 
 var glowing:Array[MeshInstance3D]
 var to_drop:Array[StaticBody3D]
 func _on_saw_touched(_saw: Saw) -> void:
-	to_drop = [];
-	if current_stage < 0:
-		var pre:Array = get_next_boards()
-		for p:NodePath in pre:
-			to_drop.append(get_node(p));
-
-	else:
-		roll_board_drop()
-		
 	for n:Node3D in to_drop:
 		var mesh:MeshInstance3D = n.get_node("MeshInstance3D");
 		generate_glow_material(mesh)
@@ -89,8 +83,26 @@ func generate_glow_material(m:MeshInstance3D)->void:
 		m.mesh.surface_set_material(0, null)
 
 
+
+
+
+
+func filter_dropped_boards(b:StaticBody3D)->bool:
+	return not is_dropped(b)
+
+func set_to_drop()->void:
+	to_drop = [];
+	if current_stage < 0:
+		var pre:Array = get_next_boards()
+		for p:NodePath in pre:
+			to_drop.append(get_node(p));
+	else:
+		roll_board_drop()
+
 func roll_board_drop()->void:
 	var live_boards:Array = get_next_boards();
+	for b:StaticBody3D in live_boards:
+		b.get_node("CollisionShape3D").disabled = false;
 	if len(live_boards) > 1:
 		to_drop = [live_boards.pick_random()]
 
@@ -103,20 +115,27 @@ func get_next_boards()->Array:
 		var pieces: = splitter.get_pieces(current_stage + 1).filter(filter_dropped_boards);
 		return pieces;
 
-
-func filter_dropped_boards(b:StaticBody3D)->bool:
-	return not is_dropped(b)
-
-
 func _on_saw_left(_saw: Saw) -> void:
 	for b:StaticBody3D in to_drop:
 		drop_board(b)
+	print("BEFORE STD ", to_drop)
+	set_to_drop()
+	print("AFTER STD ", to_drop)
+	## rolling board drops immediately so flies can 
+	## spawn on dropping side before next board_touched
+	
+	var stage:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1);
+	for p:StaticBody3D in stage:
+		p.set_collision_layer_value(1, true)
+		p.set_collision_layer_value(5, false)
+
 	splitter.set_stage_enabled(current_stage, false)
 	splitter.set_stage_enabled(current_stage + 1, true)
 
 func _on_saw_missed(saw: Saw) -> void:
 	saw_touched.emit(saw);
 	saw_left.emit(saw)
+
 
 var dropped_boards:Array[StaticBody3D];
 ## boards that have fallen on the ground
@@ -135,6 +154,7 @@ var collected_shapes:Array[CollisionShape3D]
 func drop_board(b:StaticBody3D)->void:
 	dropped_boards.append(b);
 	spider.body.check_board_death(b);
+	b.set_collision_layer_value(5, false)## to not have them get in the way of fly position roll
 	collected_shapes = []
 	get_shapes(b)
 	for c:CollisionShape3D in collected_shapes:
