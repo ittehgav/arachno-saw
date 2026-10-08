@@ -1,6 +1,7 @@
 extends Node3D
 ## design doc or something?
-## COLLISION LAYERS:
+## COLLISION LAYERS/MASKS:
 ## 1: spider - killboxes - flies
-## 2: saw - wood for VFX/SFX
+## 2: saw - board collision
 ## 3: saw - miss check
+## 4: path - turn scan

@@ -9,11 +9,24 @@ const EPS := 0.0001
 
 const MARKER_META := &"split_center_marker"
 
-@export var saw_scene:PackedScene
+@export var circular_saw_scene: PackedScene  # Y and Z cuts
+@export var band_saw_scene: PackedScene  # X cuts
+
 @export var pre_curve:Curve3D;
 @export_tool_button("Generate Splits") var generate_action := generate_splits
 @export_tool_button("Create Split Markers") var markers_action := create_split_markers
 
+
+const TURN_AREA_SIZE := 50.0
+
+@export var floor_plane: MeshInstance3D
+@export var ceiling: MeshInstance3D
+@export var wall_front: MeshInstance3D
+@export var wall_back: MeshInstance3D
+@export var wall_left: MeshInstance3D
+@export var wall_right: MeshInstance3D
+## Extra space between the system and each wall, in meters.
+const room_margin := 500
 
 
 @export var source_body: StaticBody3D
@@ -26,8 +39,10 @@ const MARKER_META := &"split_center_marker"
 ## Move each piece's origin to its own center (children are offset to compensate).
 @export var recenter_pieces := true
 @export_range(0.0, 0.1, 0.001, "suffix:m") var seam_overlap := 0.005
-## Extra distance past the saw before the board may turn, in meters (covers the saw's own size).
-@export var turn_clearance := 10
+## Extra run-out past the saw before turning off a leg that travels along X (Y/Z cuts), in meters.
+@export var turn_clearance_x := 0.25
+## Extra run-out past the saw before turning off a leg that travels along Z (X cuts), in meters.
+@export var turn_clearance_z := 0.25
 ## board path -> [negative_half path, positive_half path] in the next stage.
 ## All paths are relative to this Path3D node, so use get_node(path) to get the board.
 
@@ -261,7 +276,7 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 
 			var mesh := source_mesh.duplicate() as BoxMesh
 			mesh.size = box.size
-			mesh.material = source_mesh.material
+			mesh.material = source_mesh.material.duplicate()
 			child.mesh = mesh
 
 			child.material_override = original.material_override
@@ -320,7 +335,8 @@ func create_split_markers() -> void:
 	if source_body == null or markers == null:
 		push_warning("BodySplitPath: assign source_body and markers first.")
 		return
-
+	
+	var saws: Array[Node3D] = []
 	var valid_cuts: Array[SplitCut] = []
 	for cut in cuts:
 		if cut != null:
@@ -350,6 +366,10 @@ func create_split_markers() -> void:
 	# One point per cut, reached by moving along +X (Y/Z cuts) or +Z (X cuts).
 	var pos := new_curve.get_point_position(new_curve.point_count - 1)
 	var cut_point_indices: Array[int] = []  # curve index of each cut's point
+	var turn_point_indices: Array[int] = []  # curve index of each point where the board turns
+
+
+	
 	const base_point_spacing = 500
 	for i in valid_cuts.size():
 		var travel_axis := _travel_axis(valid_cuts[i])
@@ -364,8 +384,10 @@ func create_split_markers() -> void:
 		if i + 1 < valid_cuts.size() and _travel_axis(valid_cuts[i + 1]) != travel_axis:
 			# Where the saw sits along the board's forward (+X) axis when the cut happens.
 			var saw_x := valid_cuts[i].offset if valid_cuts[i].axis == SplitCut.Axis.X else board_center.x
-			pos += direction * (maxf(0.0, saw_x + turn_radius) + turn_clearance)
+			var clearance := turn_clearance_z if travel_axis == 2 else turn_clearance_x
+			pos += direction * (maxf(0.0, saw_x + turn_radius) + clearance)
 			new_curve.add_point(pos)
+			turn_point_indices.append(new_curve.point_count - 1)
 	curve = new_curve
 
 	# Markers and saws: one per cut, at that cut's point (the run-out points get none).
@@ -389,24 +411,162 @@ func create_split_markers() -> void:
 		if scene_root:
 			marker.owner = scene_root
 
-		if saw_scene != null:
-			# Point on this cut's plane: the board's center, with the cut's axis set to the offset.
-			var plane_point := board_center
-			plane_point[cut.axis] = cut.offset
+		var circular := cut.axis != SplitCut.Axis.X
+		var saw_scene: PackedScene = circular_saw_scene if circular else band_saw_scene
+		if saw_scene == null:
+			push_warning("BodySplitPath: assign %s to create the saw for cut %d." % [
+				"circular_saw_scene" if circular else "band_saw_scene", k + 1])
+			continue
 
-			var saw := saw_scene.instantiate() as Node3D
-			if saw == null:
-				push_warning("BodySplitPath: saw_scene's root isn't a Node3D.")
-				continue
-			saw.name = "Saw"
-			saw.add_to_group("saws", true)
-			marker.add_child(saw)
-			saw.global_transform = Transform3D(
-				board_basis * _saw_alignment(cut.axis),
-				point_global + board_basis * plane_point
-			)
-			if scene_root:
-				saw.owner = scene_root
+		# Point on this cut's plane: the board's center, with the cut's axis set to the offset.
+		var plane_point := board_center
+		plane_point[cut.axis] = cut.offset
+
+		var saw := saw_scene.instantiate() as Node3D
+		if saw == null:
+			push_warning("BodySplitPath: the saw scene's root isn't a Node3D.")
+			continue
+			
+		saw.name = "Saw"
+		var native_basis := saw.basis  # the rotation the scene was authored with;
+		saw.add_to_group("saws", true)
+		saw.add_to_group("circular_saws" if circular else "band_saws", true)
+		saw.set_meta(&"cut_number", k + 1)
+		marker.add_child(saw)
+		saws.append(saw)
+		# Circular saws line up with their cut plane; band saws keep their scene's own rotation.
+		var saw_basis := (board_basis * _saw_alignment(cut.axis)) if circular else native_basis
+		saw.global_transform = Transform3D(saw_basis, point_global + board_basis * plane_point)
+		if scene_root:
+			saw.owner = scene_root
+				
+	# One trigger area at each point where the board turns.
+	for t in turn_point_indices.size():
+		var area := Area3D.new()
+		area.name = "TurnArea_%02d" % (t + 1)
+		area.set_meta(MARKER_META, true)
+		area.monitoring = false
+		area.monitorable = true
+		area.collision_layer = 0
+		area.set_collision_layer_value(4, true)
+
+		var shape_node := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3.ONE * TURN_AREA_SIZE
+		shape_node.shape = box
+		area.add_child(shape_node)
+
+		markers.add_child(area)
+		area.global_position = to_global(curve.get_point_position(turn_point_indices[t]))
+		if scene_root:
+			area.owner = scene_root
+			shape_node.owner = scene_root
+	_fit_room(bounds, turn_radius, turn_point_indices, saws)
+## Sizes and places the room planes around everything in the system.
+func _fit_room(bounds: AABB, turn_radius: float, turn_point_indices: Array[int], saws: Array[Node3D]) -> void:
+	var to_local_xform := global_transform.affine_inverse()
+	var fit: Array[AABB] = []  # everything the room must contain, in this node's local space
+
+	# The board along the whole path. It turns about its origin, so use its full turning
+	# radius in the XZ plane and its real height range.
+	for p in curve.get_baked_points():
+		fit.append(AABB(
+			p + Vector3(-turn_radius, bounds.position.y, -turn_radius),
+			Vector3(2.0 * turn_radius, bounds.size.y, 2.0 * turn_radius)
+		))
+
+	# The saws, including all of their visible geometry.
+	for saw in saws:
+		fit.append(AABB(to_local_xform * saw.global_position, Vector3.ZERO))
+		var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)
+		if saw is VisualInstance3D:
+			visuals.append(saw)
+		for vi:Node in visuals:
+			var global_box: AABB = vi.global_transform * vi.get_aabb()
+			fit.append(to_local_xform * global_box)
+
+	# The turn areas.
+	for idx in turn_point_indices:
+		var center := to_global(curve.get_point_position(idx))
+		var half := Vector3.ONE * TURN_AREA_SIZE * 0.5
+		fit.append(to_local_xform * AABB(center - half, Vector3.ONE * TURN_AREA_SIZE))
+
+	if fit.is_empty():
+		return
+	var room := fit[0]
+	for k in range(1, fit.size()):
+		room = room.merge(fit[k])
+	room = room.grow(room_margin)
+
+	var lo := room.position
+	var hi := room.end
+	var c := room.get_center()
+	var s := room.size
+
+		# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
+	_place_plane(wall_front, Basis(Vector3.BACK, Vector3.LEFT, Vector3.DOWN),
+			Vector3(hi.x, c.y, c.z), Vector2(s.z, s.y), true)
+	_place_plane(wall_back, Basis(Vector3.FORWARD, Vector3.RIGHT, Vector3.DOWN),
+			Vector3(lo.x, c.y, c.z), Vector2(s.z, s.y), true)
+	_place_plane(wall_right, Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN),
+			Vector3(c.x, c.y, hi.z), Vector2(s.x, s.y), true)
+	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
+			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
+
+## Gives the node its own PlaneMesh of the right size and puts it at local_pos (in this
+## node's space), rotated so the plane's visible side faces into the room.
+func _place_plane(node: MeshInstance3D, rotation: Basis, local_pos: Vector3, size: Vector2, fit_texture := false) -> void:
+	if node == null:
+		return
+	var mesh := (node.mesh.duplicate() as PlaneMesh) if node.mesh is PlaneMesh else PlaneMesh.new()
+	mesh.size = size
+	mesh.orientation = PlaneMesh.FACE_Y  # the rotations assume the plane faces +Y
+	mesh.flip_faces = false
+	mesh.center_offset = Vector3.ZERO
+	node.mesh = mesh
+	node.global_transform = global_transform * Transform3D(rotation, local_pos)
+	if fit_texture:
+		_fit_wall_texture(node, mesh, size)
+
+
+## Makes the wall's texture span its full height once and repeat across its width,
+## keeping the texture's aspect ratio. size = (width, height).
+func _fit_wall_texture(node: MeshInstance3D, mesh: PlaneMesh, size: Vector2) -> void:
+	# Find the StandardMaterial3D the node actually renders with.
+	var source: StandardMaterial3D = null
+	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
+	if node.material_override is StandardMaterial3D:
+		source = node.material_override
+		slot = 1
+	elif node.get_surface_override_material(0) is StandardMaterial3D:
+		source = node.get_surface_override_material(0) as StandardMaterial3D
+		slot = 2
+	elif mesh.material is StandardMaterial3D:
+		source = mesh.material as StandardMaterial3D
+		slot = 3
+	if source == null or source.albedo_texture == null or size.y <= 0.0:
+		push_warning("BodySplitPath: '%s' has no StandardMaterial3D with an albedo texture to fit." % node.name)
+		return
+
+	var tex_size := source.albedo_texture.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return
+
+	# One tile is as tall as the wall and (height * texture aspect) wide.
+	var tile_width := size.y * tex_size.x / tex_size.y
+	var repeats := size.x / tile_width
+
+	# A per-wall copy, because the walls usually share one material but each needs its own scale.
+	var material := source.duplicate() as StandardMaterial3D
+	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
+	material.texture_repeat = true
+	material.uv1_offset = Vector3.ZERO
+	material.uv1_scale = Vector3(repeats, 1.0, 1.0)
+
+	match slot:
+		1: node.material_override = material
+		2: node.set_surface_override_material(0, material)
+		3: mesh.material = material
 
 ## Curve-space axis the board moves along to reach a cut: +X for Y/Z cuts, +Z for X cuts.
 func _travel_axis(cut: SplitCut) -> int:
@@ -424,7 +584,7 @@ func _board_basis_at(i: int) -> Basis:
 func _saw_alignment(axis: int) -> Basis:
 	match axis:
 		SplitCut.Axis.X:
-			return Basis(Vector3.BACK, -PI / 2.0)  # Y -> X
+			return Basis(Vector3.UP, PI)  # Y -> X
 		SplitCut.Axis.Y:
 			return Basis(Vector3.RIGHT, PI / 2.0)  # Y -> Z
 	return Basis.IDENTITY  # Y cuts need no rotation

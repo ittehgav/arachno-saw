@@ -4,10 +4,12 @@ extends Node3D
 signal saw_touched(saw:Saw);
 signal saw_left(saw:Saw);
 
+## erm actually is called from another script
+@warning_ignore("unused_signal") 
 signal saw_missed(saw:Saw);
 
 @export var spider:Crawler
-@export var glow_overlay_material:StandardMaterial3D
+
 
 @export var splitter:BodySplitPath;
 
@@ -39,7 +41,7 @@ func board_area_exited(area:Area3D)->void:
 		touching = false
 
 
-
+var glowing:Array[MeshInstance3D]
 var to_drop:Array[StaticBody3D]
 func _on_saw_touched(_saw: Saw) -> void:
 	to_drop = [];
@@ -53,15 +55,44 @@ func _on_saw_touched(_saw: Saw) -> void:
 		
 	for n:Node3D in to_drop:
 		var mesh:MeshInstance3D = n.get_node("MeshInstance3D");
-		mesh.material_overlay = glow_overlay_material.duplicate();
-		glow_loop.bind(mesh).call_deferred()
+		generate_glow_material(mesh)
+		glowing.append(mesh)
+		glow_loop(mesh)
 	current_stage += 1;
+
+func glow_loop(mesh:MeshInstance3D)->void:
+	if mesh not in glowing:
+		return;
+	var m:ShaderMaterial = mesh.material_override
+	var t:=create_tween();
+	t.set_trans(Tween.TRANS_CUBIC)
+	var light_r:float = m.get_shader_parameter("light_color").r;
+
+	var dark_r:float = m.get_shader_parameter("dark_color").r;
+
+	t.tween_property(m, "shader_parameter/light_color:r", 1, .25);
+	t.parallel().tween_property(m, "shader_parameter/dark_color:r", 1, .25)
+	
+	t.tween_property(m, "shader_parameter/light_color:r", light_r, .5);
+	t.parallel().tween_property(m, "shader_parameter/dark_color:r", dark_r, .5);
+	t.tween_callback(glow_loop.bind(mesh))
+
+
+
+func generate_glow_material(m:MeshInstance3D)->void:
+	## also duplicates them here and makes sure the reference is consistent
+	if m.mesh is BoxMesh:
+		m.material_override = m.mesh.material.duplicate()
+		m.mesh.material = null
+	else: ## m.mesh is ArrayMesh
+		m.material_override = m.mesh.surface_get_material(0).duplicate()
+		m.mesh.surface_set_material(0, null)
+
 
 func roll_board_drop()->void:
 	var live_boards:Array = get_next_boards();
 	if len(live_boards) > 1:
-		#to_drop = [live_boards.pick_random()]
-		to_drop = [live_boards[1]]
+		to_drop = [live_boards.pick_random()]
 
 func get_next_boards()->Array:
 	if current_stage < 0:
@@ -75,15 +106,6 @@ func get_next_boards()->Array:
 
 func filter_dropped_boards(b:StaticBody3D)->bool:
 	return not is_dropped(b)
-func glow_loop(target:MeshInstance3D)->void:
-	var m:StandardMaterial3D = target.material_overlay
-	if not m:
-		return;
-	var t:=create_tween();
-	t.set_trans(Tween.TRANS_CUBIC)
-	t.tween_property(m, "albedo_color:a", .75, .25);
-	t.tween_property(m, "albedo_color:a", 0, .5);
-	t.tween_callback(glow_loop.bind(target))
 
 
 func _on_saw_left(_saw: Saw) -> void:
@@ -109,7 +131,6 @@ func is_dropped(b:StaticBody3D)->bool:
 	return false
 		
 
-var finished_loops:Array[Material]
 var collected_shapes:Array[CollisionShape3D]
 func drop_board(b:StaticBody3D)->void:
 	dropped_boards.append(b);
@@ -121,7 +142,6 @@ func drop_board(b:StaticBody3D)->void:
 	
 	## do we just use default names?
 	var mesh:MeshInstance3D = b.get_node("MeshInstance3D");
-	finished_loops.append(mesh.material_overlay)
 	glow_down(mesh)
 	
 	var rs:int=0;# rotation signal
@@ -146,11 +166,13 @@ func drop_board(b:StaticBody3D)->void:
 			drop_board(board)
 
 func glow_down(mesh:MeshInstance3D)->void:
-	var m:StandardMaterial3D = mesh.material_overlay
+	var m:Material = mesh.material_override;
+	if not m:
+		return;
 	var t:= create_tween();
-	t.tween_property(m, "albedo_color:a", 0, 1);
-	await t.finished;
-	mesh.material_overlay = null
+	t.tween_property(m, "shader_parameter/light_color:s", 0, 1);
+	t.tween_property(m, "shader_parameter/dark_color:s", 0, 1);
+	glowing.erase(mesh)
 	
 func get_shapes(b:Node)->void:
 	for c in b.get_children():

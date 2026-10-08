@@ -3,6 +3,8 @@ class_name BoardPathFollow
 ## makes itself move
 @export var moving:bool=false
 
+signal turned(axis:String);
+
 var moving_x:bool=true;
 
 const base_speed = 1;
@@ -18,5 +20,13 @@ func _physics_process(delta: float) -> void:
 			progress += delta *base_speed* z_meters_per_second
 
 
-func _on_board_path_board_reached_turn(turn_index: int) -> void:
-	print("tur?")
+
+func _on_turn_scan_area_entered(_area: Area3D) -> void:
+	## turn = switch from x to z movement
+	moving_x = not moving_x
+	var axis:String;
+	if moving_x:
+		axis = "x";
+	else:
+		axis = "z";
+	turned.emit(axis);

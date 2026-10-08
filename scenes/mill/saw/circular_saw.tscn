@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://c47eyaehvxxo6"]
 
 [ext_resource type="Texture2D" uid="uid://6ijp4me2er2u" path="res://assets/textures/saw.png" id="1_7c5v0"]
-[ext_resource type="Script" uid="uid://qqip4h8fb38l" path="res://scenes/mill/saw/saw.gd" id="1_m2ud2"]
+[ext_resource type="Script" uid="uid://c02btu3ve6jb6" path="res://scenes/mill/saw/circular_saw.gd" id="1_i02ns"]
 [ext_resource type="AudioStream" uid="uid://bgqqfvpghfrlq" path="res://assets/sound/saw_start.ogg" id="2_0djmd"]
 [ext_resource type="AudioStream" uid="uid://c6nmohpbosf72" path="res://assets/sound/saw_loop.ogg" id="3_4a2i8"]
 [ext_resource type="AudioStream" uid="uid://gng87f6fsbdd" path="res://assets/sound/saw_end.ogg" id="4_stl84"]
@@ -92,15 +92,15 @@ radius = 100.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_kddjp"]
 size = Vector3(131.79456, 1, 1)
 
-[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "particles_nx", "particles_px", "collision_shape")]
+[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("particles_nx", "particles_px", "miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
-script = ExtResource("1_m2ud2")
+script = ExtResource("1_i02ns")
+particles_nx = NodePath("particles_nx")
+particles_px = NodePath("particles_px")
 miss_scan = NodePath("miss_check")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
-particles_nx = NodePath("particles_nx")
-particles_px = NodePath("particles_px")
 collision_shape = NodePath("CollisionShape3D")
 
 [node name="sfx" type="Node3D" parent="." unique_id=503496993]
