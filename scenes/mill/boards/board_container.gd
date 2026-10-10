@@ -34,13 +34,11 @@ func _ready()->void:
 var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
-		print("stou ", area)
 		touching = true;
 		saw_touched.emit(area)
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
-		print("sle ", area)
 		touching = false
 		saw_left.emit(area)
 
@@ -102,6 +100,8 @@ func set_to_drop()->void:
 func roll_board_drop()->void:
 	var live_boards:Array = get_next_boards();
 	for b:StaticBody3D in live_boards:
+		## enabling boards from start state 
+		## collsion layer 3
 		b.get_node("CollisionShape3D").disabled = false;
 	if len(live_boards) > 1:
 		to_drop = [live_boards.pick_random()]
@@ -118,9 +118,7 @@ func get_next_boards()->Array:
 func _on_saw_left(_saw: Saw) -> void:
 	for b:StaticBody3D in to_drop:
 		drop_board(b)
-	print("BEFORE STD ", to_drop)
 	set_to_drop()
-	print("AFTER STD ", to_drop)
 	## rolling board drops immediately so flies can 
 	## spawn on dropping side before next board_touched
 	

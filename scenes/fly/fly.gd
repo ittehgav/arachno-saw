@@ -13,7 +13,11 @@ enum Type{
 	shield,
 	teleport
 }
-
+const buff_colors:Dictionary[Type, Color] = {
+	Type.speed: Color(1.0, 1.0, 0.0, 1.0),
+	Type.shield: Color(0.41, 1.0, 1.0, 1.0),
+	Type.teleport: Color(0.774, 0.41, 1.0, 1.0)
+}
 
 
 func apply_effect(spider:Crawler)->void:

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://beaks1crohuc8"
-path="res://.godot/imported/conveyor_wheel.blend-218fbebb769dd9101cb932e324d40d83.scn"
+uid="uid://ebmu5k2s5iu4"
+path="res://.godot/imported/quarter_trunk.blend-44f1ba9d8bec636dc7fd4688b09c471e.scn"
 
 [deps]
 
-source_file="res://assets/3D/conveyor_wheel.blend"
-dest_files=["res://.godot/imported/conveyor_wheel.blend-218fbebb769dd9101cb932e324d40d83.scn"]
+source_file="res://assets/3D/mill/quarter_trunk.blend"
+dest_files=["res://.godot/imported/quarter_trunk.blend-44f1ba9d8bec636dc7fd4688b09c471e.scn"]
 
 [params]
 

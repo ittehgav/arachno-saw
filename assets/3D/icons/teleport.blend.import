@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://ebmu5k2s5iu4"
-path="res://.godot/imported/quarter_trunk.blend-fddc701a6866e6db8c69f6ef6a88d8b8.scn"
+uid="uid://dej1w8ew0efky"
+path="res://.godot/imported/teleport.blend-37294fbf6a397606d591ad8a87b50332.scn"
 
 [deps]
 
-source_file="res://assets/3D/quarter_trunk.blend"
-dest_files=["res://.godot/imported/quarter_trunk.blend-fddc701a6866e6db8c69f6ef6a88d8b8.scn"]
+source_file="res://assets/3D/icons/teleport.blend"
+dest_files=["res://.godot/imported/teleport.blend-37294fbf6a397606d591ad8a87b50332.scn"]
 
 [params]
 

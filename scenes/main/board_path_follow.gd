@@ -11,15 +11,16 @@ var moving_x:bool=true;
 const base_speed = 1;
 const x_meters_per_second = 200
 const z_meters_per_second = 30;
+
 func _ready()->void:
 	board_0.set_collision_layer_value(1, true)
 
 func _physics_process(delta: float) -> void:
 	if moving:
 		if moving_x:
-			progress += delta *base_speed* x_meters_per_second
+			progress += delta * base_speed* x_meters_per_second
 		else:
-			progress += delta *base_speed* z_meters_per_second
+			progress += delta * base_speed* z_meters_per_second
 
 
 

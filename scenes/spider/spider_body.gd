@@ -1,13 +1,15 @@
 extends CharacterBody3D
 class_name Crawler;
 
+signal fly_consumed(fly:Fly)
+
 signal died(source:String)
 
 const SPEED := 50.0
 const TURN_SPEED := 2.5      # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
-const PROBE_LENGTH := 1
+const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
 var bonus_speed:float = 0;
 var speed:float:
@@ -16,22 +18,13 @@ var speed:float:
 var surface_normal := Vector3.UP;
 
 @export var pcam:PhantomCamera3D
-@export var walk_dust:CPUParticles3D
 @export var body:Spider
 
-func _ready() -> void:
-	motion_mode = MOTION_MODE_FLOATING
+@export var buff_glow_mesh:MeshInstance3D
+@export var buff_glow_animation:AnimationPlayer
 
-var moving:bool=false:
-	set(val):
-		
-		if moving != val:
-			if val:
-				walk_dust.emitting = true;
-			else:
-				walk_dust.emitting = false
-		
-		moving = val
+var moving:bool=false;
+
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
@@ -118,7 +111,17 @@ func _on_collision_scan_area_entered(area: Area3D) -> void:
 	if area is Saw:
 		die("saw");
 	elif area is Fly:
+		fly_consumed.emit(area)
 		area.apply_effect(self)
 
 func die(source:String)->void:
 	died.emit(source)
+
+
+func _on_fly_consumed(fly: Fly) -> void:
+	## should never overlap animations?
+	var m:StandardMaterial3D = buff_glow_mesh.mesh.material;
+	var color:Color = Fly.buff_colors[fly.type];
+	m.albedo_color = color
+	m.emission = color;
+	buff_glow_animation.play("buff_glow")

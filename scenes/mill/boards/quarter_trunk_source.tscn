@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bgflew7ibuih7"]
 
-[ext_resource type="PackedScene" uid="uid://ebmu5k2s5iu4" path="res://assets/3D/quarter_trunk.blend" id="1_5ocps"]
+[ext_resource type="PackedScene" uid="uid://ebmu5k2s5iu4" path="res://assets/3D/mill/quarter_trunk.blend" id="1_5ocps"]
 [ext_resource type="Shader" uid="uid://dq132qip0x0iv" path="res://assets/shaders/wood.gdshader" id="2_nshd5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qmn7u"]

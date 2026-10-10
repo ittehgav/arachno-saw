@@ -54,7 +54,6 @@ func generate_fly()->Fly:
 	var hit := get_random_surface_point(aabb)
 	var stop:int = 0;
 	while len(GLB.board_container.to_drop) > 0 and hit.collider not in GLB.board_container.to_drop:
-		print(GLB.board_container.to_drop, hit.collider)
 		hit = get_random_surface_point(aabb)
 		stop += 1;
 		if stop == 10:

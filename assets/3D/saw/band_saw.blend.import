@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b1aldw3fpybqt"
-path="res://.godot/imported/band_saw.blend-78939bb39c4ebb8daa8e3bef5ff8c97c.scn"
+path="res://.godot/imported/band_saw.blend-a6cbfb235afc4cae9c963946adb3f506.scn"
 
 [deps]
 
-source_file="res://assets/3D/band_saw.blend"
-dest_files=["res://.godot/imported/band_saw.blend-78939bb39c4ebb8daa8e3bef5ff8c97c.scn"]
+source_file="res://assets/3D/saw/band_saw.blend"
+dest_files=["res://.godot/imported/band_saw.blend-a6cbfb235afc4cae9c963946adb3f506.scn"]
 
 [params]
 

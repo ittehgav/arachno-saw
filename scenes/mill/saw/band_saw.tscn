@@ -117,7 +117,7 @@ shadow_mesh = SubResource("ArrayMesh_bsod6")
 size = Vector3(17.096985, 1, 1)
 
 [node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape")]
-transform = Transform3D(-1, 2.6226832e-07, -1.1464113e-14, 0, -4.371139e-08, -1, -2.6226832e-07, -1, 4.371139e-08, 0, 0, 0)
+transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, 0, -4.371139e-08, -1, -2.6226832e-07, -1, 4.371139e-08, 0, 0, 0)
 script = ExtResource("2_bsod6")
 miss_scan = NodePath("miss_check")
 sfx_start = NodePath("sfx/sfx_start")

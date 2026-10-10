@@ -274,16 +274,14 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 			var original := source_body.get_node(path) as MeshInstance3D
 			var source_mesh := original.mesh as BoxMesh
 
-			var mesh := source_mesh.duplicate() as BoxMesh
-			mesh.size = box.size
-			mesh.material = source_mesh.material.duplicate()
+			var mesh := _make_piece_mesh(source_mesh, reference[path], box)
+			mesh.surface_set_material(0, source_mesh.material)  # the BoxMesh's own material
 			child.mesh = mesh
 
 			child.material_override = original.material_override
 			child.material_overlay = original.material_overlay
 			for s in original.get_surface_override_material_count():
 				child.set_surface_override_material(s, original.get_surface_override_material(s))
-
 	output_root.add_child(body)
 	body.global_transform = source_body.global_transform * Transform3D(Basis.IDENTITY, center)
 
@@ -296,6 +294,91 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 
 	_set_body_enabled(body, false)
 	return body
+
+const UV_EPS := 0.00001
+const FACE_DIRS := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+
+
+func _axis_of(dir: Vector3) -> int:
+	if absf(dir.x) > 0.5:
+		return 0
+	return 1 if absf(dir.y) > 0.5 else 2
+
+
+## For one face of a box mesh: how its UVs change with position across that face.
+## Works for any UV layout or orientation, because it reads the mapping from the mesh itself.
+func _face_uv_map(arrays: Array, dir: Vector3) -> Dictionary:
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var a := (_axis_of(dir) + 1) % 3
+	var b := (_axis_of(dir) + 2) % 3
+
+	var first := -1
+	for i in verts.size():
+		if normals[i].dot(dir) > 0.99:
+			first = i
+			break
+	if first < 0:
+		return {}
+
+	var p0 := verts[first]
+	var uv0 := uvs[first]
+	var grad_a := Vector2.ZERO
+	var grad_b := Vector2.ZERO
+	var found_a := false
+	var found_b := false
+	for i in verts.size():
+		if normals[i].dot(dir) <= 0.99:
+			continue
+		var d := verts[i] - p0
+		if not found_a and absf(d[a]) > UV_EPS and absf(d[b]) < UV_EPS:
+			grad_a = (uvs[i] - uv0) / d[a]
+			found_a = true
+		elif not found_b and absf(d[b]) > UV_EPS and absf(d[a]) < UV_EPS:
+			grad_b = (uvs[i] - uv0) / d[b]
+			found_b = true
+	if not (found_a and found_b):
+		return {}
+	return {"p0": p0, "uv0": uv0, "a": a, "b": b, "grad_a": grad_a, "grad_b": grad_b}
+
+
+## Builds the piece's mesh: a regular box of the piece's size, except that faces lying on the
+## full board's outside surface get the full board's UVs for that part of the face.
+func _make_piece_mesh(source_mesh: BoxMesh, original_box: AABB, box: AABB) -> ArrayMesh:
+	var full_arrays := source_mesh.get_mesh_arrays()  # the full board's UV mapping
+	var regular := source_mesh.duplicate() as BoxMesh  # what the cut faces keep
+	regular.size = box.size
+	var arrays := regular.get_mesh_arrays()
+
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	# Piece-mesh space -> full-board-mesh space (each mesh is centered on its own box).
+	var delta := box.get_center() - original_box.get_center()
+
+	for dir: Vector3 in FACE_DIRS:
+		var n := _axis_of(dir)
+		var outside: bool
+		if dir[n] > 0.0:
+			outside = absf(box.end[n] - original_box.end[n]) < EPS
+		else:
+			outside = absf(box.position[n] - original_box.position[n]) < EPS
+		var map := _face_uv_map(full_arrays, dir) if outside else {}
+		if map.is_empty():
+			continue  # a face created by a cut, or a map that couldn't be read
+		for i in verts.size():
+			if normals[i].dot(dir) > 0.99:
+				var p := verts[i] + delta
+				uvs[i] = map.uv0 \
+						+ map.grad_a * (p[map.a] - map.p0[map.a]) \
+						+ map.grad_b * (p[map.b] - map.p0[map.b])
+
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
 
 func _detach(node: Node) -> void:
 	var parent := node.get_parent()
@@ -402,41 +485,57 @@ func create_split_markers() -> void:
 		var point_global := to_global(curve.get_point_position(i))
 		# Orientation of the board as it arrives at this point: its +X faces the travel direction.
 		var board_basis := _board_basis_at(i)
+		var circular := cut.axis != SplitCut.Axis.X
+
+		# X-cut markers get an extra -90° turn about their own Y axis on top of the board's
+		# orientation; the band saw's offset runs along the resulting local X.
+		var marker_basis := board_basis if circular else board_basis * Basis(Vector3.UP, -PI / 2.0)
 
 		var marker := Node3D.new()
 		marker.name = "SplitCenter_%02d" % (k + 1)
 		marker.set_meta(MARKER_META, true)
 		markers.add_child(marker)
-		marker.global_position = point_global + board_basis * local_offset
+		marker.global_transform = Transform3D(marker_basis, point_global + board_basis * local_offset)
 		if scene_root:
 			marker.owner = scene_root
 
-		var circular := cut.axis != SplitCut.Axis.X
 		var saw_scene: PackedScene = circular_saw_scene if circular else band_saw_scene
 		if saw_scene == null:
 			push_warning("BodySplitPath: assign %s to create the saw for cut %d." % [
 				"circular_saw_scene" if circular else "band_saw_scene", k + 1])
 			continue
 
-		# Point on this cut's plane: the board's center, with the cut's axis set to the offset.
-		var plane_point := board_center
-		plane_point[cut.axis] = cut.offset
+		# Where the saw sits, in board space (relative to the board's origin on the path point).
+		var plane_point: Vector3
+		if circular:
+			# Y/Z cuts: the board's center, with the cut's axis set to the offset.
+			plane_point = board_center
+			plane_point[cut.axis] = cut.offset
+		else:
+			# X cuts: along the board's length by the cut's offset, at the same height and depth
+			# where the Y/Z cuts are made (the marker's split center).
+			plane_point = Vector3(cut.offset, local_offset.y, local_offset.z)
 
 		var saw := saw_scene.instantiate() as Node3D
 		if saw == null:
 			push_warning("BodySplitPath: the saw scene's root isn't a Node3D.")
 			continue
-			
+
 		saw.name = "Saw"
-		var native_basis := saw.basis  # the rotation the scene was authored with;
+		var native_basis := saw.basis  # the rotation the scene was authored with
 		saw.add_to_group("saws", true)
 		saw.add_to_group("circular_saws" if circular else "band_saws", true)
 		saw.set_meta(&"cut_number", k + 1)
 		marker.add_child(saw)
 		saws.append(saw)
-		# Circular saws line up with their cut plane; band saws keep their scene's own rotation.
+
+		# Rotation (in the world): circular saws line up with their cut plane,
+		# band saws keep their scene's own rotation.
 		var saw_basis := (board_basis * _saw_alignment(cut.axis)) if circular else native_basis
-		saw.global_transform = Transform3D(saw_basis, point_global + board_basis * plane_point)
+		saw.global_transform = Transform3D(saw_basis, marker.global_position)
+		# Position: local to the marker, as the offset from the split center in board axes.
+		saw.position = plane_point - local_offset
+
 		if scene_root:
 			saw.owner = scene_root
 				

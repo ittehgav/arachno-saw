@@ -3,9 +3,11 @@
 [ext_resource type="Script" uid="uid://tmq1vhhw1euw" path="res://scenes/fly/fly.gd" id="2_0d60d"]
 [ext_resource type="AudioStream" uid="uid://n0y7jq75obnq" path="res://assets/sound/fly/fly_contact.wav" id="2_mwawe"]
 [ext_resource type="AudioStream" uid="uid://k2c18slsut3" path="res://assets/sound/fly/speed_buff.wav" id="3_mwawe"]
+[ext_resource type="PackedScene" uid="uid://cpl7cyyctomnn" path="res://assets/3D/icons/speed_up.tscn" id="4_l6is8"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kqwmp"]
 resource_local_to_scene = true
+render_priority = 1
 transparency = 1
 emission_enabled = true
 emission = Color(0.01666665, 1, 0, 1)
@@ -143,6 +145,76 @@ _data = {
 &"consume": SubResource("Animation_0d60d")
 }
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6is8"]
+render_priority = 1
+transparency = 1
+emission_enabled = true
+emission = Color(0.68, 0.68, 0, 1)
+emission_energy_multiplier = 16.0
+rim_tint = 0.28
+
+[sub_resource type="Animation" id="Animation_l6is8"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.435, 2.435, 2.435)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_gyjgb"]
+resource_name = "icon_hl"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.56666666),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(3, 3, 3), Vector3(2, 2, 2)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 3.142, 6.283]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3bc5p"]
+_data = {
+&"RESET": SubResource("Animation_l6is8"),
+&"icon_hl": SubResource("Animation_gyjgb")
+}
+
 [node name="Fly" type="Area3D" unique_id=339986561 node_paths=PackedStringArray("consume_animation", "contact", "speed_sfx")]
 monitoring = false
 script = ExtResource("2_0d60d")
@@ -169,3 +241,22 @@ shape = SubResource("CylinderShape3D_ncjor")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=449397578]
 libraries/ = SubResource("AnimationLibrary_mwawe")
+
+[node name="powerup_icon" type="MeshInstance3D" parent="." unique_id=1454123671]
+
+[node name="speed_up" parent="." unique_id=338723889 instance=ExtResource("4_l6is8")]
+transform = Transform3D(2.435, 0, 0, 0, -1.0643723e-07, 2.435, 0, -2.435, -1.0643723e-07, -1.4725037, 21.10619, 0)
+
+[node name="Cube" parent="speed_up" index="0" unique_id=43427187]
+transform = Transform3D(0.735, 0, 0, 0, 0.735, 0, 0, 0, 0.735, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_l6is8")
+
+[node name="Cube_001" parent="speed_up" index="1" unique_id=1424308751]
+transform = Transform3D(0.735, 0, 0, 0, 0.735, 0, 0, 0, 0.735, 4.488288, 0, 0)
+material_override = SubResource("StandardMaterial3D_l6is8")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="speed_up" unique_id=1277702713]
+libraries/ = SubResource("AnimationLibrary_3bc5p")
+autoplay = &"icon_hl"
+
+[editable path="speed_up"]
