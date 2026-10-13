@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://spy0k20c7020"]
+
+[ext_resource type="Script" uid="uid://67gg4ygs6cjw" path="res://scenes/main/run.gd" id="1_r1vr0"]
+
+[node name="run" type="Node" unique_id=213738533 node_paths=PackedStringArray("score_ticker", "fly_combo_timeout")]
+script = ExtResource("1_r1vr0")
+score_ticker = NodePath("score_ticker")
+fly_combo_timeout = NodePath("fly_combo")
+
+[node name="score_ticker" type="Timer" parent="." unique_id=805679673]
+wait_time = 0.5
+autostart = true
+
+[node name="accelerate" type="Timer" parent="." unique_id=1176603846]
+wait_time = 10.0
+autostart = true
+
+[node name="fly_combo" type="Timer" parent="." unique_id=558977778]
+wait_time = 20.0
+
+[connection signal="timeout" from="score_ticker" to="." method="_on_score_time_ticker_timeout"]
+[connection signal="timeout" from="accelerate" to="." method="_on_accelerate_timeout"]
+[connection signal="timeout" from="fly_combo" to="." method="_on_fly_combo_timeout"]

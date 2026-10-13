@@ -14,58 +14,27 @@ signal board_touched;
 signal board_left;
 
 @export var collision_shape:CollisionShape3D
+@export var miss_shape_cast:ShapeCast3D
 
 
 
 func _on_area_entered(area: Area3D) -> void:
 	## AREA ENTERED = SAW COLLISION MASK
 	## spider will collide with the saw with its mask and the saw's lay
-	var p:Node = area.get_parent().get_parent()
 	if area.get_parent().get_parent() is BoardContainer or area.get_parent() is StaticBody3D:
 		miss_scan.queue_free();
-		## shape name that comes out of the duplicator tool script;
-		## result of duplicating the cs2D before parenting it to the area
-		## its fine 
-		var shape:CollisionShape3D = area.get_node("CollisionShape3D2");
-		
-		var x_size:int = shape.shape.size.x
-		start_sfx_loop(x_size)
 		board_touched.emit();
-		if p.global_position.x > global_position.x:
-			board_x = 1;
-		else:
-			board_x = -1
 
-@onready var start_duration:float = sfx_start.stream.get_length()
-@onready var loop_duration:float = sfx_loop.stream.get_length()
-@onready var end_duration:float = sfx_end.stream.get_length()
-var loop_count:float;
-func start_sfx_loop(board_size:float)->void:
-	const speed = BoardPathFollow.x_meters_per_second as float;
-	var target_length:= board_size/speed;
-	var outer_duration:float = start_duration + end_duration
-	var loop_time:float = target_length - outer_duration;
-	loop_count= loop_time/loop_duration + 2;
-	sfx_start.play();
-	var wait:float = start_duration - .05
-	await get_tree().create_timer(wait).timeout;
-	play_sfx_loop();
-
-func play_sfx_loop()->void:
-	if loop_count > 1:
-		var wait:float = loop_duration -.05
-		sfx_loop.play();
-		loop_count -= 1;
-		await get_tree().create_timer(wait).timeout;
-		play_sfx_loop();
-	else:
-		var wait:float = loop_duration * loop_count - .05;
-		
-		sfx_loop.play();
-		await get_tree().create_timer(wait).timeout;
-		sfx_loop.stop();
-		sfx_end.play();
-
+func play_sfx_loop(speed: float, length: float) -> void:
+	var total_time := length / speed
+	var t0 := Time.get_ticks_msec()
+	sfx_start.play()
+	await sfx_start.finished
+	sfx_loop.play()
+	var elapsed := (Time.get_ticks_msec() - t0) / 1000.0
+	await get_tree().create_timer(total_time - elapsed).timeout
+	sfx_loop.stop()
+	sfx_end.play()
 
 func _on_area_exited(area: Area3D) -> void:
 	if area.get_parent().get_parent() is BoardContainer:
@@ -74,4 +43,5 @@ func _on_area_exited(area: Area3D) -> void:
 
 
 func _on_miss_check_area_entered(_area: Area3D) -> void:
-	GLB.board_container.saw_missed.emit(self);
+	if not miss_shape_cast.is_colliding():
+		GLB.board_container.saw_missed.emit(self);

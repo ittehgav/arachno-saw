@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://cguqlvyowpfxy"]
 
-[ext_resource type="Script" uid="uid://qqip4h8fb38l" path="res://scenes/mill/saw/saw.gd" id="2_bsod6"]
+[ext_resource type="Script" uid="uid://cnosd31ycpaih" path="res://scenes/mill/saw/band_saw.gd" id="1_rw50p"]
 [ext_resource type="Shader" uid="uid://drvebdp7dbj6" path="res://metal.gdshader" id="2_gvph3"]
 [ext_resource type="AudioStream" uid="uid://bgqqfvpghfrlq" path="res://assets/sound/saw/saw_start.ogg" id="4_875s6"]
 [ext_resource type="AudioStream" uid="uid://c6nmohpbosf72" path="res://assets/sound/saw/saw_loop.ogg" id="5_iagms"]
@@ -118,7 +118,7 @@ size = Vector3(17.096985, 1, 1)
 
 [node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape")]
 transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, 0, -4.371139e-08, -1, -2.6226832e-07, -1, 4.371139e-08, 0, 0, 0)
-script = ExtResource("2_bsod6")
+script = ExtResource("1_rw50p")
 miss_scan = NodePath("miss_check")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")

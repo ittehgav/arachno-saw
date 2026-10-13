@@ -45,16 +45,20 @@ func damped_look_at(node: Node3D, look_target: Vector3, up: Vector3, damping_spe
 
 @export var you_died_screen:Control;
 @export var you_died_message:Label
-func _on_spider_died(source:String) -> void:
+func _on_spider_died(source:Crawler.DeathType) -> void:
+	const dt = Crawler.DeathType
 	pcam.follow_mode = PhantomCamera3D.FollowMode.NONE;
 	pcam.look_at_mode = PhantomCamera3D.LookAtMode.NONE;
 	
 	match source:
-		"saw":
-			you_died_message.text = "Touching active circular saws might be a bad idea."
-		"falling_board":
+		dt.saw:
+			you_died_message.text = "Avoid touching the saws."
+		dt.board:
 			you_died_message.text = "Boards always fall spider-side-down."
-	
+		dt.skull:
+			you_died_message.text = "Don't you know what a skull means?"
+
+
 	you_died_screen.modulate.a = 0;
 	you_died_screen.show()
 	var t:= create_tween();

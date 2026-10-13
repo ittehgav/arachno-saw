@@ -2,21 +2,22 @@ extends Saw
 class_name CircularSaw
 
 
-@export var particles_nx:CPUParticles3D;
-@export var particles_px:CPUParticles3D;
+
+
 
 func _ready()->void:
 	collision_shape.shape.radius = 150
 
 
-func _on_board_touched() -> void:
-	if board_x == 1:
-		particles_px.emitting = true;
-	else:
-		particles_nx.emitting = true;
-
-func _on_board_left() -> void:
-	if board_x == 1:
-		particles_px.emitting = false;
-	else:
-		particles_nx.emitting = false;
+func _on_area_entered(area: Area3D) -> void:
+	if area is Fly:
+		area.queue_free();
+		if area.tp_target:
+			area.tp_target.queue_free();
+		return;
+	super(area);
+	const speed :float= BoardPathFollow.x_meters_per_second
+	var shape:CollisionShape3D = area.get_node("CollisionShape3D2");
+	var box:BoxShape3D = shape.shape;
+	var length:float = box.size.x;
+	play_sfx_loop(speed, length)

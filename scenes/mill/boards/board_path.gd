@@ -274,14 +274,34 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 			var original := source_body.get_node(path) as MeshInstance3D
 			var source_mesh := original.mesh as BoxMesh
 
-			var mesh := _make_piece_mesh(source_mesh, reference[path], box)
-			mesh.surface_set_material(0, source_mesh.material)  # the BoxMesh's own material
-			child.mesh = mesh
-
 			child.material_override = original.material_override
 			child.material_overlay = original.material_overlay
 			for s in original.get_surface_override_material_count():
 				child.set_surface_override_material(s, original.get_surface_override_material(s))
+
+			# Second half is a copy of this node (so it shares the same materials).
+			var second := child.duplicate() as MeshInstance3D
+			for g in second.get_children():
+				second.remove_child(g)
+				g.queue_free()
+			second.name = "%s_Half" % child.name
+			child.get_parent().add_child(second)
+
+			var halves := _split_longest(box)
+			var base_offset := _offset_in_body(body, child)
+			var nodes: Array[MeshInstance3D] = [child, second]
+
+			# The unsplit piece mesh is the reference the halves must match.
+			var piece_mesh := _make_piece_mesh(source_mesh, reference[path], box)
+			var piece_arrays := piece_mesh.surface_get_arrays(0)
+
+			for h in 2:
+				# Parent box is the whole piece, so every face on the piece's surface
+				# copies the piece's UVs; only the new middle face gets regular ones.
+				var mesh := _make_piece_mesh(source_mesh, box, halves[h], piece_arrays)
+				mesh.surface_set_material(0, source_mesh.material)
+				nodes[h].mesh = mesh
+				nodes[h].position = halves[h].get_center() - center - base_offset
 	output_root.add_child(body)
 	body.global_transform = source_body.global_transform * Transform3D(Basis.IDENTITY, center)
 
@@ -297,6 +317,8 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 
 const UV_EPS := 0.00001
 const FACE_DIRS := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+
+
 
 
 func _axis_of(dir: Vector3) -> int:
@@ -345,8 +367,9 @@ func _face_uv_map(arrays: Array, dir: Vector3) -> Dictionary:
 
 ## Builds the piece's mesh: a regular box of the piece's size, except that faces lying on the
 ## full board's outside surface get the full board's UVs for that part of the face.
-func _make_piece_mesh(source_mesh: BoxMesh, original_box: AABB, box: AABB) -> ArrayMesh:
-	var full_arrays := source_mesh.get_mesh_arrays()  # the full board's UV mapping
+func _make_piece_mesh(source_mesh: BoxMesh, original_box: AABB, box: AABB, full_arrays: Array = []) -> ArrayMesh:
+	if full_arrays.is_empty():
+		full_arrays = source_mesh.get_mesh_arrays()  # the full board's UV mapping
 	var regular := source_mesh.duplicate() as BoxMesh  # what the cut faces keep
 	regular.size = box.size
 	var arrays := regular.get_mesh_arrays()
@@ -402,7 +425,7 @@ func _expand_cut_faces(box: AABB, original: AABB, amount: float) -> AABB:
 func _set_body_enabled(body: StaticBody3D, enabled: bool) -> void:
 	body.visible = enabled
 
-	body.process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
+	body.set_process_mode.bind(Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED).call_deferred()
 	for shape_node in body.find_children("*", "CollisionShape3D", true, false):
 		shape_node.set_deferred("disabled", not enabled)
 
@@ -703,6 +726,16 @@ func _split_center_offset() -> Vector3:
 		if lo[axis] <= hi[axis]:  # at least one cut on this axis
 			center[axis] = (lo[axis] + hi[axis]) * 0.5
 	return center
+
+## Splits a box in two equal halves across its longest axis.
+func _split_longest(box: AABB) -> Array[AABB]:
+	var axis := box.get_longest_axis_index()
+	var half_size := box.size
+	half_size[axis] *= 0.5
+	var second_pos := box.position
+	second_pos[axis] += half_size[axis]
+	var out: Array[AABB] = [AABB(box.position, half_size), AABB(second_pos, half_size)]
+	return out
 
 
 func _clear_markers() -> void:

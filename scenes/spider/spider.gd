@@ -7,8 +7,12 @@ class_name Spider;
 @export var animation:AnimationPlayer;
 @export var skeleton:Skeleton3D;
 
+
 ## to check 
 @export var feet:Array[RayCast3D];
+
+@export var shield_highlight:SpotLight3D;
+
 
 #@onready var pr1i:int = skeleton.find_bone("pivot_r1");
 #@onready var pr2i:int = skeleton.find_bone("pivot_r2");
@@ -48,7 +52,7 @@ func get_feet_colliders()->Array[Object]:
 	return colliders;
 
 
-func _on_spider_died(_source:String) -> void:
+func _on_spider_died(_source:Crawler.DeathType) -> void:
 	explode();
 
 func check_board_death(board:StaticBody3D)->void:
@@ -58,3 +62,15 @@ func check_board_death(board:StaticBody3D)->void:
 			touching_feet += 1;
 	if touching_feet:
 		get_parent().board_death(board)
+#
+#
+
+func _on_spider_fly_consumed(fly: Fly) -> void:
+
+	const ft = Fly.Type;
+	match fly.type:
+		ft.shield:
+			shield_highlight.show()
+
+func _on_spider_shield_lost() -> void:
+	shield_highlight.hide();

@@ -2,8 +2,20 @@ extends CharacterBody3D
 class_name Crawler;
 
 signal fly_consumed(fly:Fly)
+signal died(source:DeathType)
+signal shield_lost;
 
-signal died(source:String)
+enum DeathType{
+	saw,
+	board,
+	skull
+}
+
+const HOVER_DIST := 0.5     # center-to-surface distance at rest (e.g. your sphere/capsule radius)
+const SNAP_RANGE := 1.0     # how far straight "down" we look first
+const SEARCH_RANGE := 2.0   # how far the wide search looks if that misses
+
+var last_valid_transform: Transform3D
 
 const SPEED := 50.0
 const TURN_SPEED := 2.5      # radians per second
@@ -20,11 +32,22 @@ var surface_normal := Vector3.UP;
 @export var pcam:PhantomCamera3D
 @export var body:Spider
 
+@export var death_sfx:AudioStreamPlayer
+
+@export var blink_animation:AnimationPlayer;
+@export var cheat_death_sfx:AudioStreamPlayer;
+
 @export var buff_glow_mesh:MeshInstance3D
 @export var buff_glow_animation:AnimationPlayer
 
 var moving:bool=false;
 
+var has_shield:bool=false;
+func _enter_tree() -> void:
+	GLB.spider = self;
+
+func _ready()->void:
+	last_valid_transform = global_transform
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
@@ -61,7 +84,54 @@ func _physics_process(delta: float) -> void:
 			surface_normal = n
 			break
 	moving = abs(velocity.x) > 1
+	# 5. Hard guarantee: always end the frame glued to a surface.
+	if _snap_to_surface():
+		last_valid_transform = global_transform
+	else:
+		# Lost every surface: undo this frame's move instead of flying off.
+		global_transform = last_valid_transform
+		velocity = Vector3.ZERO
+func _snap_to_surface() -> bool:
+	var origin := global_position
 
+	# Prefer the surface directly beneath us (stable, avoids jitter at edges).
+	var hit := _raycast(origin, origin - surface_normal * SNAP_RANGE)
+
+	# Otherwise search in a cone/ring of directions for the nearest surface.
+	if hit.is_empty():
+		hit = _find_nearest_surface()
+	if hit.is_empty():
+		return false
+
+	surface_normal = hit.normal
+	global_position = hit.position + hit.normal * HOVER_DIST
+	return true
+
+
+func _find_nearest_surface() -> Dictionary:
+	var origin := global_position
+	var down := -surface_normal
+	var best := {}
+	var best_dist := INF
+
+	for tilt:float in [PI / 4.0, PI / 2.0, PI * 0.75]:
+		for i in 8:
+			var a := TAU * i / 8.0
+			var tangent := global_basis.x * cos(a) + global_basis.z * sin(a)
+			var dir := (down * cos(tilt) + tangent * sin(tilt)).normalized()
+			var hit := _raycast(origin, origin + dir * SEARCH_RANGE)
+			if hit:
+				var d := origin.distance_to(hit.position)
+				if d < best_dist:
+					best_dist = d
+					best = hit
+
+	# Also try straight down at the full search range.
+	var straight := _raycast(origin, origin + down * SEARCH_RANGE)
+	if straight and origin.distance_to(straight.position) < best_dist:
+		best = straight
+
+	return best
 
 func _find_surface_normal(move_dir: Vector3) -> Vector3:
 	var origin := global_position
@@ -103,21 +173,47 @@ func _on_board_container_saw_left(_saw: Saw) -> void:
 	pcam.noise.amplitude = 0;
 
 func board_death(board:StaticBody3D)->void:
-	reparent(board);
-	set_physics_process(false)
-	die("falling_board")
+	## easier than to keep the board var around until
+	## death prevention is checked
+	if not has_shield: 
+		reparent(board);
+		set_physics_process(false)
+	die(DeathType.board)
 
 func _on_collision_scan_area_entered(area: Area3D) -> void:
 	if area is Saw:
-		die("saw");
+		die(DeathType.saw);
 	elif area is Fly:
 		fly_consumed.emit(area)
 		area.apply_effect(self)
 
-func die(source:String)->void:
+func die(source:DeathType)->void:
+	if has_shield:
+		has_shield = false;
+		cheat_death(source)
+		shield_lost.emit()
+		return;
+	set_physics_process (false)
+	death_sfx.play()
 	died.emit(source)
 
-
+func cheat_death(type:DeathType)->void:
+	cheat_death_sfx.play()
+	blink_animation.play("blink");
+	match type:
+		DeathType.saw:
+			tp_to_safe_board();
+		DeathType.board:
+			tp_to_safe_board();
+		
+func tp_to_safe_board()->void:
+	var safe_boards:Array = GLB.board_container.safe_boards;
+	var target_transform:Variant = GLB.board_container.get_free_face_transform(safe_boards, 5)
+	while not target_transform:
+		target_transform = GLB.board_container.get_free_face_transform(safe_boards, 5);
+		
+	global_transform = target_transform
+	
 func _on_fly_consumed(fly: Fly) -> void:
 	## should never overlap animations?
 	var m:StandardMaterial3D = buff_glow_mesh.mesh.material;

@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 PhantomCameraManager="*uid://duq6jhf6unyis"
 GLB="*uid://0qq1kkk5bvqb"
+Run="*uid://spy0k20c7020"
 
 [debug]
 
@@ -28,7 +29,6 @@ gdscript/warnings/untyped_declaration=2
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/always_on_top=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/stretch/scale=2.0
