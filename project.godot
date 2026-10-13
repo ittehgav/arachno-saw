@@ -48,6 +48,10 @@ enabled=PackedStringArray("res://addons/phantom_camera/plugin.cfg", "res://addon
 
 boards=""
 
+[gui]
+
+theme/custom_font="uid://ncuxb15nr0k5"
+
 [input]
 
 move_forward={

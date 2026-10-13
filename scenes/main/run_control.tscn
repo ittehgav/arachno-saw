@@ -16,7 +16,7 @@ wait_time = 10.0
 autostart = true
 
 [node name="fly_combo" type="Timer" parent="." unique_id=558977778]
-wait_time = 20.0
+wait_time = 10.0
 
 [connection signal="timeout" from="score_ticker" to="." method="_on_score_time_ticker_timeout"]
 [connection signal="timeout" from="accelerate" to="." method="_on_accelerate_timeout"]

@@ -80,15 +80,36 @@ func glow_loop(mesh:MeshInstance3D)->void:
 	var m:ShaderMaterial = mesh.material_override
 	var t:=create_tween();
 	t.set_trans(Tween.TRANS_CUBIC)
-	var light_r:float = m.get_shader_parameter("light_color").r;
-
-	var dark_r:float = m.get_shader_parameter("dark_color").r;
-
-	t.tween_property(m, "shader_parameter/light_color:r", 1, .25);
-	t.parallel().tween_property(m, "shader_parameter/dark_color:r", 1, .25)
+	var dark_color:Color = m.get_shader_parameter("dark_color");
+	dark_color.r = 1;
+	m.set_shader_parameter("dark_color", dark_color);
 	
-	t.tween_property(m, "shader_parameter/light_color:r", light_r, .5);
-	t.parallel().tween_property(m, "shader_parameter/dark_color:r", dark_r, .5);
+	var light_color:Color = m.get_shader_parameter("light_color");
+	light_color.r = 1;
+	m.set_shader_parameter("light_color", light_color);
+	
+	
+	const min_a = .4;
+	const max_a = 1;
+	const t_down = .5;
+	const t_up = 1
+	t.tween_property(m, "shader_parameter/light_color:a", min_a, t_down);
+	t.parallel().tween_property(m, "shader_parameter/dark_color:a", min_a, t_down);
+
+	t.tween_property(m, "shader_parameter/light_color:a", max_a, t_up);
+	t.parallel().tween_property(m, "shader_parameter/dark_color:a", max_a, t_up);
+	
+	
+	#var light_r:float = m.get_shader_parameter("light_color").r;
+#
+	#var dark_r:float = m.get_shader_parameter("dark_color").r;
+
+	#t.tween_property(m, "shader_parameter/light_color:r", 1, .25);
+	#t.parallel().tween_property(m, "shader_parameter/dark_color:r", 1, .25)
+	#
+	#
+	#t.tween_property(m, "shader_parameter/light_color:r", light_r, .5);
+	#t.parallel().tween_property(m, "shader_parameter/dark_color:r", dark_r, .5);
 	t.tween_callback(glow_loop.bind(mesh))
 
 
@@ -101,6 +122,7 @@ func generate_glow_material(m:MeshInstance3D)->void:
 	else: ## m.mesh is ArrayMesh
 		m.material_override = m.mesh.surface_get_material(0).duplicate()
 		m.mesh.surface_set_material(0, null)
+	m.material_override.render_priority = 1;
 
 
 

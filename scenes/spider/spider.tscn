@@ -6332,7 +6332,7 @@ tween_on_load = false
 camera_3d_resource = SubResource("Resource_th5th")
 follow_offset = Vector3(0, 50, 0)
 follow_damping = true
-follow_damping_value = Vector3(0, 0.2, 0.2)
+follow_damping_value = Vector3(0.1, 0.5, 0.5)
 look_at_offset = Vector3(0, 0.1, 0)
 look_at_damping = true
 noise = SubResource("Resource_blune")
@@ -6387,7 +6387,7 @@ fly_combo_display = NodePath("VBoxContainer/combo")
 fly_combo_label = NodePath("VBoxContainer/combo/combo_label")
 combo_increment_animation = NodePath("../SubViewport/Node3D/combo_fly/combo_increment")
 fly_mesh = NodePath("../SubViewport/Node3D/combo_fly")
-combo_timeout_bar = NodePath("VBoxContainer/combo/combo_timeout")
+combo_timeout_bar = NodePath("VBoxContainer/combo/TextureRect/combo_timeout")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="camera_anchor/PhantomCamera3D/hud" unique_id=528356272]
 layout_mode = 1
@@ -6401,7 +6401,7 @@ grow_horizontal = 0
 [node name="score" type="Label" parent="camera_anchor/PhantomCamera3D/hud/VBoxContainer" unique_id=1933129724]
 layout_mode = 2
 offset_transform_enabled = true
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 64
 horizontal_alignment = 1
 
 [node name="combo" type="VBoxContainer" parent="camera_anchor/PhantomCamera3D/hud/VBoxContainer" unique_id=871583503]
@@ -6412,15 +6412,31 @@ layout_mode = 2
 layout_mode = 2
 texture = SubResource("ViewportTexture_u5bk5")
 
+[node name="combo_timeout" type="TextureProgressBar" parent="camera_anchor/PhantomCamera3D/hud/VBoxContainer/combo/TextureRect" unique_id=1800745388]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 10.0
+step = 0.3
+fill_mode = 4
+texture_progress = ExtResource("11_evn3g")
+tint_progress = Color(1, 1, 1, 0.38431373)
+
 [node name="combo_label" type="Label" parent="camera_anchor/PhantomCamera3D/hud/VBoxContainer/combo" unique_id=1837977664]
 layout_mode = 2
 offset_transform_enabled = true
 theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
-
-[node name="combo_timeout" type="ProgressBar" parent="camera_anchor/PhantomCamera3D/hud/VBoxContainer/combo" unique_id=507739508]
-layout_mode = 2
-max_value = 10.0
 
 [node name="SubViewport" type="SubViewport" parent="camera_anchor/PhantomCamera3D" unique_id=1731765280]
 transparent_bg = true
@@ -6442,6 +6458,7 @@ speed_scale = 0.55
 
 [node name="combo_increment" type="AnimationPlayer" parent="camera_anchor/PhantomCamera3D/SubViewport/Node3D/combo_fly" unique_id=150068914]
 libraries/ = SubResource("AnimationLibrary_kv75r")
+speed_scale = 2.0
 
 [node name="Camera3D" type="Camera3D" parent="camera_anchor/PhantomCamera3D/SubViewport/Node3D" unique_id=567490737]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1177449, 1.4564404)

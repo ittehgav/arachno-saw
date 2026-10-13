@@ -64,4 +64,12 @@ func _on_spider_died(source:Crawler.DeathType) -> void:
 	var t:= create_tween();
 	t.tween_property(you_died_screen, "modulate:a", 1, 1);
 	t.parallel().tween_property(pcam, "fov", pcam.fov + 30, 1)
-	
+
+const slow_damp = .3
+const fast_damp = .1
+const x_follow_damping = Vector3(fast_damp, slow_damp, slow_damp)
+const z_follow_damping = Vector3(slow_damp, slow_damp, fast_damp)
+
+
+func _on_board_path_follow_turned(axis: String) -> void:
+	pcam.follow_damping_value = self[axis+"_follow_damping"]

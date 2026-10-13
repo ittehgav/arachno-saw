@@ -131,8 +131,8 @@ metadata/_custom_type_script = "uid://ckkc4ecygyp4a"
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4c57u"]
 render_priority = 0
 shader = ExtResource("8_4hmqs")
-shader_parameter/light_color = Color(0.9529412, 0.85882354, 0.7490196, 1)
-shader_parameter/dark_color = Color(0.7490196, 0.61960787, 0.49019608, 1)
+shader_parameter/light_color = Color(0.95, 0.8569, 0.7505, 1)
+shader_parameter/dark_color = Color(0.75, 0.61875, 0.48749998, 1)
 shader_parameter/ring_scale = 4.4
 shader_parameter/wave_scale = 8.454
 shader_parameter/random_scale = 4.6
@@ -2533,7 +2533,6 @@ markers = NodePath("../cut_points")
 turn_clearance_x = 1000.0
 turn_clearance_z = 100.0
 split_map = {
-NodePath("board_path_follow/board_container/buffer/board_s01_B"): [NodePath("board_path_follow/board_container/buffer/board_s02_BA"), NodePath("board_path_follow/board_container/buffer/board_s02_BB")],
 NodePath("board_path_follow/board_container/buffer/board_s02_AA"): [NodePath("board_path_follow/board_container/buffer/board_s03_AAA"), NodePath("board_path_follow/board_container/buffer/board_s03_AAB")],
 NodePath("board_path_follow/board_container/buffer/board_s02_AB"): [NodePath("board_path_follow/board_container/buffer/board_s03_ABA"), NodePath("board_path_follow/board_container/buffer/board_s03_ABB")],
 NodePath("board_path_follow/board_container/buffer/board_s02_BA"): [NodePath("board_path_follow/board_container/buffer/board_s03_BAA"), NodePath("board_path_follow/board_container/buffer/board_s03_BAB")],
@@ -2575,7 +2574,8 @@ NodePath("board_path_follow/board_container/buffer/board_s05_BAB"): [NodePath("b
 NodePath("board_path_follow/board_container/buffer/board_s05_BBA"): [NodePath("board_path_follow/board_container/buffer/board_s06_BBAA"), NodePath("board_path_follow/board_container/buffer/board_s06_BBAB")],
 NodePath("board_path_follow/board_container/buffer/board_s05_BBB"): [NodePath("board_path_follow/board_container/buffer/board_s06_BBBA"), NodePath("board_path_follow/board_container/buffer/board_s06_BBBB")],
 NodePath("board_path_follow/board_container/board"): [NodePath("board_path_follow/board_container/buffer/board_s01_A"), NodePath("board_path_follow/board_container/buffer/board_s01_B")],
-NodePath("board_path_follow/board_container/buffer/board_s01_A"): [NodePath("board_path_follow/board_container/buffer/board_s02_AA"), NodePath("board_path_follow/board_container/buffer/board_s02_AB")]
+NodePath("board_path_follow/board_container/buffer/board_s01_A"): [NodePath("board_path_follow/board_container/buffer/board_s02_AA"), NodePath("board_path_follow/board_container/buffer/board_s02_AB")],
+NodePath("board_path_follow/board_container/buffer/board_s01_B"): [NodePath("board_path_follow/board_container/buffer/board_s02_BA"), NodePath("board_path_follow/board_container/buffer/board_s02_BB")]
 }
 
 [node name="board_path_follow" type="PathFollow3D" parent="board_path" unique_id=48472674 node_paths=PackedStringArray("board_0")]
@@ -4891,6 +4891,7 @@ stream = ExtResource("16_nvumn")
 script = ExtResource("16_hxu8e")
 in_game_theme = ExtResource("16_nvumn")
 
+[connection signal="turned" from="board_path/board_path_follow" to="board_path/board_path_follow/board_container/spider/camera_anchor" method="_on_board_path_follow_turned"]
 [connection signal="ready" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/detectors/fly_spawner" method="_on_board_container_ready"]
 [connection signal="saw_left" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/board_container" method="_on_saw_left"]
 [connection signal="saw_left" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/board_container/spider" method="_on_board_container_saw_left"]

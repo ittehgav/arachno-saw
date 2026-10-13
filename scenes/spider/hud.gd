@@ -25,12 +25,12 @@ func _on_run_score_changed() -> void:
 
 @export var fly_mesh:MeshInstance3D;
 
-@export var combo_timeout_bar:ProgressBar;
+@export var combo_timeout_bar:TextureProgressBar;
 
 
 
 func _process(_delta: float) -> void:
-	combo_timeout_bar.value = 10.0 - Run.fly_combo_timeout.time_left
+	combo_timeout_bar.value = Run.fly_combo_timeout.time_left
 
 func _on_fly_combo_started()->void:
 	## combo incremented will emit on the same frame
@@ -38,12 +38,14 @@ func _on_fly_combo_started()->void:
 	
 	
 func _on_fly_combo_incremented(type:Fly.Type)->void:
+	print("cincre?")
 	combo_increment_animation.play("combo_increment")
 	update_combo_label();
 	
 	var fly_color:Color = Fly.buff_colors[type];
 
 	var m:StandardMaterial3D = fly_mesh.material_override;
+	combo_timeout_bar.tint_progress = fly_color - Color(0, 0, 0, .6)
 	
 	m.emission = fly_color;
 	m.albedo_color = fly_color;

@@ -12,12 +12,12 @@ enum DeathType{
 }
 
 const HOVER_DIST := 0.5     # center-to-surface distance at rest (e.g. your sphere/capsule radius)
-const SNAP_RANGE := 1.0     # how far straight "down" we look first
-const SEARCH_RANGE := 2.0   # how far the wide search looks if that misses
+const SNAP_RANGE := 5.0     # how far straight "down" we look first
+const SEARCH_RANGE := 5.0   # how far the wide search looks if that misses
 
 var last_valid_transform: Transform3D
 
-const SPEED := 50.0
+const SPEED := 70.0
 const TURN_SPEED := 2.5      # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface

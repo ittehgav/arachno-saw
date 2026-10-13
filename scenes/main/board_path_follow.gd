@@ -9,17 +9,22 @@ signal turned(axis:String);
 var moving_x:bool=true;
 
 const base_speed = 1;
-const x_meters_per_second = 200
-const z_meters_per_second = 30;
+const x_meters_per_second = 150
+const z_meters_per_second = 50;
 
 ## gets incremented by run
 var accel:float = 1.0;
 
+	
 func _enter_tree() -> void:
 	GLB.board_path_follow = self;
 
 func _ready()->void:
 	board_0.set_collision_layer_value(1, true)
+	## will be attached to more view/movement updates?
+	
+	turned.emit("x")
+
 
 func _physics_process(delta: float) -> void:
 	if moving:
