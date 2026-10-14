@@ -89,8 +89,8 @@ func glow_loop(mesh:MeshInstance3D)->void:
 	m.set_shader_parameter("light_color", light_color);
 	
 	
-	const min_a = .4;
-	const max_a = 1;
+	const min_a = .1;
+	const max_a = .7;
 	const t_down = .5;
 	const t_up = 1
 	t.tween_property(m, "shader_parameter/light_color:a", min_a, t_down);

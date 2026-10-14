@@ -95,17 +95,16 @@ size = Vector3(131.79456, 1, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
 size = Vector3(1000, 100, 1)
 
-[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("particles_nx", "particles_px", "miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast")]
+[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast", "camera")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 script = ExtResource("1_i02ns")
-particles_nx = NodePath("particles_nx")
-particles_px = NodePath("particles_px")
 miss_scan = NodePath("miss_check")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
 collision_shape = NodePath("CollisionShape3D")
 miss_shape_cast = NodePath("miss_check/miss_cast")
+camera = NodePath("saw_cam")
 
 [node name="sfx" type="Node3D" parent="." unique_id=503496993]
 
@@ -197,6 +196,10 @@ shape = SubResource("BoxShape3D_kddjp")
 [node name="miss_cast" type="ShapeCast3D" parent="miss_check" unique_id=304245136]
 transform = Transform3D(-1, 8.742278e-08, 3.821371e-15, -8.742278e-08, -1, -8.742278e-08, -3.821371e-15, -8.742278e-08, 1, -650, 0, 0)
 shape = SubResource("BoxShape3D_u5bk5")
+
+[node name="saw_cam" type="Camera3D" parent="." unique_id=1985770876]
+transform = Transform3D(-0.9754536, -0.06888525, 0.20915332, 0.2140253, -0.07314277, 0.97408587, -0.051802058, 0.9949397, 0.08609058, 275.23486, 764.9304, -101.48514)
+fov = 47.3
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

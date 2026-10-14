@@ -26,6 +26,7 @@ func _on_run_score_changed() -> void:
 @export var fly_mesh:MeshInstance3D;
 
 @export var combo_timeout_bar:TextureProgressBar;
+@export var saw_pov:SubViewport
 
 
 
@@ -65,3 +66,14 @@ func tween_score_label()->void:
 	
 func set_score_text(target:int)->void:
 	score_label.text = str(target);
+
+
+func _on_board_container_saw_touched(saw: Saw) -> void:
+	saw.camera.reparent(saw_pov)
+	await get_tree().process_frame
+	saw.camera.global_position = saw.global_position + Vector3(100, 500, 100);
+	saw.camera.look_at(saw.global_position)
+
+
+func _on_board_container_saw_left(saw: Saw) -> void:
+	saw.camera.queue_free();

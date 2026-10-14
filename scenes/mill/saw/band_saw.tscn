@@ -116,7 +116,10 @@ shadow_mesh = SubResource("ArrayMesh_bsod6")
 [sub_resource type="BoxShape3D" id="BoxShape3D_rw50p"]
 size = Vector3(17.096985, 1, 1)
 
-[node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape")]
+[sub_resource type="BoxShape3D" id="BoxShape3D_bsod6"]
+size = Vector3(1000, 100, 1)
+
+[node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast", "camera")]
 transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, 0, -4.371139e-08, -1, -2.6226832e-07, -1, 4.371139e-08, 0, 0, 0)
 script = ExtResource("1_rw50p")
 miss_scan = NodePath("miss_check")
@@ -124,6 +127,8 @@ sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
 collision_shape = NodePath("CollisionShape3D")
+miss_shape_cast = NodePath("miss_cast")
+camera = NodePath("saw_cam")
 
 [node name="sfx" type="Node3D" parent="." unique_id=1436922165]
 
@@ -180,6 +185,13 @@ monitorable = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="miss_check" unique_id=418705790]
 transform = Transform3D(1, 0, 0, 0, 1, -2.6822238e-22, 0, -2.4915196e-22, 1, 4.289704, -1.9895197e-13, 9.3173624e-21)
 shape = SubResource("BoxShape3D_rw50p")
+
+[node name="saw_cam" type="Camera3D" parent="." unique_id=1159224325]
+transform = Transform3D(0.97193485, -0.11110859, 0.20735863, -0.2213629, -0.13358153, 0.96599925, -0.07963153, -0.9847898, -0.15442787, 112.175606, 415.5927, -199.71965)
+
+[node name="miss_cast" type="ShapeCast3D" parent="." unique_id=1729111328]
+transform = Transform3D(2.6226832e-07, -8.742283e-08, 1, 1, -2.6226826e-07, -2.6226834e-07, 2.6226832e-07, 1, 8.742279e-08, 0.00013774334, 525.2001, -2.2957225e-05)
+shape = SubResource("BoxShape3D_bsod6")
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

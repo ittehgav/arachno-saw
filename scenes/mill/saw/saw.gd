@@ -16,6 +16,7 @@ signal board_left;
 @export var collision_shape:CollisionShape3D
 @export var miss_shape_cast:ShapeCast3D
 
+@export var camera:Camera3D;
 
 
 func _on_area_entered(area: Area3D) -> void:

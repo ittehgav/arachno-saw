@@ -6,3 +6,4 @@ extends Node3D
 ## 3: saw - miss check
 ## 4: path - turn scan
 ## 5: boards - fly spawner detection
+## 6: camera region control
