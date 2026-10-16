@@ -30,7 +30,7 @@ void light() {
 
 	// toon diffuse (half lambert)
 	float ndotl = (dot(n, l) + 1.0) * 0.5;
-    
+	
 	// diffuse + attenuation
 	float difsdw = ndotl * ATTENUATION;
 	

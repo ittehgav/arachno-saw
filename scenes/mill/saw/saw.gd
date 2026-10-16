@@ -26,16 +26,22 @@ func _on_area_entered(area: Area3D) -> void:
 		miss_scan.queue_free();
 		board_touched.emit();
 
-func play_sfx_loop(speed: float, length: float) -> void:
-	var total_time := length / speed
-	var t0 := Time.get_ticks_msec()
+var looping:bool=false;
+func play_sfx_loop() -> void:
 	sfx_start.play()
+	GLB.board_container.saw_left.connect(finish_sfx_loop)
+	looping = true;
 	await sfx_start.finished
-	sfx_loop.play()
-	var elapsed := (Time.get_ticks_msec() - t0) / 1000.0
-	await get_tree().create_timer(total_time - elapsed).timeout
-	sfx_loop.stop()
+	if looping:
+		sfx_loop.play()
+
+
+func finish_sfx_loop(_saw:Saw)->void:
+	looping = false;
+	sfx_loop.stop();
+	sfx_start.stop();
 	sfx_end.play()
+
 
 func _on_area_exited(area: Area3D) -> void:
 	if area.get_parent().get_parent() is BoardContainer:

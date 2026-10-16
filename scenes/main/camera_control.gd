@@ -29,8 +29,8 @@ extends Node3D
 
 
 const y_off = 100.0;
-const z_off = 50.0;
-var x_off:int = -40
+const z_off = 60.0;
+var x_off:int = -50
 
 const side_offsets:Dictionary[CameraAngle, Vector3] = {
 	ca.top_right: Vector3(0, y_off, z_off),
@@ -129,13 +129,14 @@ func _on_right_body_entered(_body: Node3D) -> void:
 
 func _on_behind_body_entered(_body: Node3D) -> void:
 	if x_off > 0:
-		var t := create_tween();
-		t.tween_property(self, "x_off", x_off * -1, .5)
+		flip_x_off()
 func _on_front_body_entered(_body: Node3D) -> void:
 	if x_off < 0:
-		var t := create_tween();
-		t.tween_property(self, "x_off", x_off * -1, .5)
+		flip_x_off()
 
+func flip_x_off()->void:
+	var t := create_tween();
+	t.tween_property(self, "x_off", x_off * -1, .5)
 
 
 func adjust_quadrants()->void:
@@ -161,7 +162,7 @@ func adjust_quadrants()->void:
 		var cast:ShapeCast3D = area.get_node("ShapeCast3D");
 		cast.force_shapecast_update()
 		var moved:int = 0;
-		while not cast.is_colliding() or cast.get_collider(0) == spider and not cast.get_collider(1):
+		while not cast.is_colliding() or spider in [cast.get_collider(0), cast.get_collider(1)]:
 			area.position += motion;
 			moved += 1;
 			cast.force_shapecast_update()
@@ -169,50 +170,62 @@ func adjust_quadrants()->void:
 	
 	var top_motion:float = motions[top_area];
 	if top_motion:
+		for shape:CollisionShape3D in [top_area.get_node("left"), top_area.get_node("right")]:
+			shape.shape.radius -= top_motion/2
+		
+		
 		for area:Area3D in [right_area, left_area]:
 			area.get_node("center").shape.size.z -= top_motion
 			area.global_position.y -= top_motion/2;
 		for area:Area3D in [front_area, back_area]:
 			area.get_node("center").shape.size.y -= top_motion
 			area.global_position.y -= top_motion/2
-	
+
+
 	var bottom_motion:float = motions[bottom_area];
 	if bottom_motion:
+		for shape:CollisionShape3D in [bottom_area.get_node("left"), bottom_area.get_node("right")]:
+			shape.shape.radius -= bottom_motion/2
+			
 		for area:Area3D in [right_area, left_area]:
 			area.get_node("center").shape.size.z -= bottom_motion
 			area.global_position.y += bottom_motion/2;
 		for area:Area3D in [front_area, back_area]:
 			area.get_node("center").shape.size.y -= bottom_motion
 			area.global_position.y += bottom_motion/2
-	
+
+
 	var left_motion:float = motions[left_area];
-	print(left_motion)
 	if left_motion:
+		for shape:CollisionShape3D in [left_area.get_node("left"), left_area.get_node("right")]:
+			shape.shape.radius -= left_motion/2
+		
 		for area:Area3D in [top_area, bottom_area]:
 			area.get_node("center").shape.size.z -= left_motion
 			area.global_position.z += left_motion/2;
-	
 		for area:Area3D in [front_area, back_area]:
 			area.get_node("center").shape.size.z -= left_motion
 			area.global_position.z += left_motion/2
-	
+
+
 	var right_motion:float = motions[right_area];
-	print(right_motion)
 	if right_motion:
+		for shape:CollisionShape3D in [right_area.get_node("left"), right_area.get_node("right")]:
+			shape.shape.radius -= right_motion/2
+	
 		for area:Area3D in [top_area, bottom_area]:
 			area.get_node("center").shape.size.z -= right_motion
 			area.global_position.z -= right_motion/2;
-	
 		for area:Area3D in [front_area, back_area]:
 			area.get_node("center").shape.size.z -= right_motion
 			area.global_position.z -= right_motion/2
-	
+
+
 	var back_motion:float = motions[back_area];
 	if back_motion:
 		for area:Area3D in [top_area, bottom_area]:
 			area.get_node("center").shape.size.x -= back_motion
 			area.global_position.x += back_motion/2;
-	
 		for area:Area3D in [right_area, left_area]:
 			area.get_node("center").shape.size.x -= back_motion
 			area.global_position.x += back_motion/2
@@ -222,7 +235,6 @@ func adjust_quadrants()->void:
 		for area:Area3D in [top_area, bottom_area]:
 			area.get_node("center").shape.size.x -= front_motion
 			area.global_position.x -= front_motion/2;
-	
 		for area:Area3D in [right_area, left_area]:
 			area.get_node("center").shape.size.x -= front_motion
 			area.global_position.x -= front_motion/2
@@ -244,3 +256,18 @@ func get_perpendicular_shapes(area:Area3D)->Array[CollisionShape3D]:
 	return shapes
 func _on_board_container_boards_changed() -> void:
 	adjust_quadrants.call_deferred()
+
+
+func _on_refresh_x_off_timeout() -> void:
+	if spider.velocity.x < 0 and x_off < 0:
+		flip_x_off()
+	elif spider.velocity.x > 0 and x_off > 0:
+		flip_x_off()
+
+
+func _on_spider_died(_source: Crawler.DeathType) -> void:
+	pcam.follow_mode = PhantomCamera3D.FollowMode.NONE;
+	pcam.look_at_mode = PhantomCamera3D.LookAtMode.NONE;
+	pcam.top_level = true
+	var t:= create_tween();
+	t.tween_property(pcam, "fov", pcam.fov + 30, 1)

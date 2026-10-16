@@ -16,8 +16,4 @@ func _on_area_entered(area: Area3D) -> void:
 			area.tp_target.queue_free();
 		return;
 	super(area);
-	const speed :float= BoardPathFollow.x_meters_per_second
-	var shape:CollisionShape3D = area.get_node("CollisionShape3D2");
-	var box:BoxShape3D = shape.shape;
-	var length:float = box.size.x;
-	play_sfx_loop(speed, length)
+	play_sfx_loop()

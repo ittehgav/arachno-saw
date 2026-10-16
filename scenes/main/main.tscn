@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://dooalqyxx5kwg" path="res://scenes/main/fly_spawner.gd" id="14_7smn1"]
 [ext_resource type="PackedScene" uid="uid://r5phmsuxm2wu" path="res://scenes/mill/boards/quarter_trunk.tscn" id="14_73k8k"]
 [ext_resource type="PackedScene" uid="uid://cw3i1bksgwevs" path="res://scenes/fly/fly.tscn" id="15_raeie"]
+[ext_resource type="Script" uid="uid://b4piucncm2ini" path="res://scenes/main/safe_spot_finder.gd" id="16_37hlw"]
 [ext_resource type="Script" uid="uid://cb6h0w3lequ2f" path="res://scenes/main/bgm.gd" id="16_hxu8e"]
 [ext_resource type="AudioStream" uid="uid://o8wd72acgakj" path="res://assets/sound/music/in_game.ogg" id="16_nvumn"]
 [ext_resource type="Script" uid="uid://bs31o5pu1o0oe" path="res://scenes/main/camera_control.gd" id="16_ou6is"]
@@ -2782,7 +2783,6 @@ markers = NodePath("../cut_points")
 turn_clearance_x = 1000.0
 turn_clearance_z = 100.0
 split_map = {
-NodePath("board_path_follow/board_container/buffer/board_s05_ABAAA"): [NodePath("board_path_follow/board_container/buffer/board_s06_ABAAAA"), NodePath("board_path_follow/board_container/buffer/board_s06_ABAAAB")],
 NodePath("board_path_follow/board_container/buffer/board_s05_ABAAB"): [NodePath("board_path_follow/board_container/buffer/board_s06_ABAABA"), NodePath("board_path_follow/board_container/buffer/board_s06_ABAABB")],
 NodePath("board_path_follow/board_container/buffer/board_s05_ABAB"): [NodePath("board_path_follow/board_container/buffer/board_s06_ABABA"), NodePath("board_path_follow/board_container/buffer/board_s06_ABABB")],
 NodePath("board_path_follow/board_container/buffer/board_s05_ABBAA"): [NodePath("board_path_follow/board_container/buffer/board_s06_ABBAAA"), NodePath("board_path_follow/board_container/buffer/board_s06_ABBAAB")],
@@ -2824,7 +2824,8 @@ NodePath("board_path_follow/board_container/buffer/board_s05_AAAAB"): [NodePath(
 NodePath("board_path_follow/board_container/buffer/board_s05_AAAB"): [NodePath("board_path_follow/board_container/buffer/board_s06_AAAB")],
 NodePath("board_path_follow/board_container/buffer/board_s05_AABAA"): [NodePath("board_path_follow/board_container/buffer/board_s06_AABAA")],
 NodePath("board_path_follow/board_container/buffer/board_s05_AABAB"): [NodePath("board_path_follow/board_container/buffer/board_s06_AABAB")],
-NodePath("board_path_follow/board_container/buffer/board_s05_AABB"): [NodePath("board_path_follow/board_container/buffer/board_s06_AABB")]
+NodePath("board_path_follow/board_container/buffer/board_s05_AABB"): [NodePath("board_path_follow/board_container/buffer/board_s06_AABB")],
+NodePath("board_path_follow/board_container/buffer/board_s05_ABAAA"): [NodePath("board_path_follow/board_container/buffer/board_s06_ABAAAA"), NodePath("board_path_follow/board_container/buffer/board_s06_ABAAAB")]
 }
 
 [node name="board_path_follow" type="PathFollow3D" parent="board_path" unique_id=48472674 node_paths=PackedStringArray("board_0")]
@@ -2836,7 +2837,7 @@ script = ExtResource("7_fwcvl")
 moving = true
 board_0 = NodePath("board_container/full_board")
 
-[node name="board_container" type="Node3D" parent="board_path/board_path_follow" unique_id=992375250 node_paths=PackedStringArray("spider", "splitter", "top_trunk", "bottom_trunk")]
+[node name="board_container" type="Node3D" parent="board_path/board_path_follow" unique_id=992375250 node_paths=PackedStringArray("spider", "splitter", "top_trunk", "bottom_trunk", "left_trunk", "right_trunk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
 script = ExtResource("7_s758e")
 spider = NodePath("spider")
@@ -2844,6 +2845,8 @@ splitter = NodePath("../..")
 preliminar_stage_cuts = Array[Array]([[NodePath("quarters/left"), NodePath("quarters/right")], [NodePath("quarters/top"), NodePath("quarters/bottom")]])
 top_trunk = NodePath("quarters/top")
 bottom_trunk = NodePath("quarters/bottom")
+left_trunk = NodePath("quarters/left")
+right_trunk = NodePath("quarters/right")
 
 [node name="quarters" type="Node3D" parent="board_path/board_path_follow/board_container" unique_id=897595158]
 
@@ -5029,6 +5032,38 @@ splitter = NodePath("../../..")
 visible = false
 shape = SubResource("BoxShape3D_kddjp")
 
+[node name="safe_spot_finder" type="Node3D" parent="board_path/board_path_follow/detectors" unique_id=414735693 node_paths=PackedStringArray("top", "bottom", "left", "right", "back", "front")]
+script = ExtResource("16_37hlw")
+top = NodePath("top")
+bottom = NodePath("bottom")
+left = NodePath("left")
+right = NodePath("right")
+back = NodePath("back")
+front = NodePath("front")
+
+[node name="top" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=189510196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0)
+target_position = Vector3(0, -200, 0)
+
+[node name="bottom" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=2122821241]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -100, 0)
+target_position = Vector3(0, 200, 0)
+
+[node name="left" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=1431895720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -100)
+target_position = Vector3(0, 0, 200)
+
+[node name="right" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=563592957]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 104.265274)
+target_position = Vector3(0, 0, -100)
+
+[node name="back" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=827565058]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -600, 0, 0)
+
+[node name="front" type="RayCast3D" parent="board_path/board_path_follow/detectors/safe_spot_finder" unique_id=878204350]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 0, 0)
+target_position = Vector3(-200, 0, 0)
+
 [node name="camera_control" type="Node3D" parent="board_path/board_path_follow" unique_id=714467816 node_paths=PackedStringArray("pcam", "top_area", "right_area", "left_area", "bottom_area", "back_area", "front_area", "anchor", "spider")]
 script = ExtResource("16_ou6is")
 pcam = NodePath("camera_anchor/PhantomCamera3D")
@@ -5219,7 +5254,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "pee pee poo poo"
 
-[node name="hud" type="Control" parent="board_path/board_path_follow/camera_control/camera_anchor/PhantomCamera3D/Camera3D" unique_id=1017110779 node_paths=PackedStringArray("score_label", "fly_combo_display", "fly_combo_label", "combo_increment_animation", "fly_mesh", "combo_timeout_bar", "saw_pov", "fly_point_gain_label", "combo_multiplier_label")]
+[node name="hud" type="Control" parent="board_path/board_path_follow/camera_control/camera_anchor/PhantomCamera3D/Camera3D" unique_id=1017110779 node_paths=PackedStringArray("score_label", "fly_combo_display", "fly_combo_label", "combo_increment_animation", "fly_mesh", "combo_timeout_bar", "saw_pov", "fly_point_gain_label", "combo_multiplier_label", "you_died_screen", "you_died_message")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -5236,6 +5271,8 @@ combo_timeout_bar = NodePath("VBoxContainer/combo/TextureRect/combo_timeout")
 saw_pov = NodePath("../SubViewport")
 fly_point_gain_label = NodePath("VBoxContainer/combo/HBoxContainer/gain")
 combo_multiplier_label = NodePath("VBoxContainer/combo/HBoxContainer/combo_multiplier")
+you_died_screen = NodePath("../you_died_sceen")
+you_died_message = NodePath("../you_died_sceen/VBoxContainer/message")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="board_path/board_path_follow/camera_control/camera_anchor/PhantomCamera3D/Camera3D/hud" unique_id=948534167]
 layout_mode = 1
@@ -5327,6 +5364,10 @@ speed_scale = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1177449, 1.4564404)
 cull_mask = 2
 fov = 35.4
+
+[node name="refresh_x_off" type="Timer" parent="board_path/board_path_follow/camera_control" unique_id=443545168]
+wait_time = 0.5
+autostart = true
 
 [node name="cut_points" type="Node3D" parent="." unique_id=328216158]
 transform = Transform3D(1, 0, 0, 0, 0.9998901, -0.014824363, 0, 0.014824363, 0.9998901, 0, 1104.1326, 0)
@@ -5429,6 +5470,8 @@ stream = ExtResource("16_nvumn")
 script = ExtResource("16_hxu8e")
 in_game_theme = ExtResource("16_nvumn")
 
+[connection signal="board_dropped" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/board_container/spider/body" method="_on_board_container_board_dropped"]
+[connection signal="boards_changed" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/detectors/safe_spot_finder" method="_on_board_container_boards_changed"]
 [connection signal="boards_changed" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/camera_control" method="_on_board_container_boards_changed"]
 [connection signal="ready" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/detectors/fly_spawner" method="_on_board_container_ready"]
 [connection signal="saw_left" from="board_path/board_path_follow/board_container" to="board_path/board_path_follow/board_container" method="_on_saw_left"]
@@ -5571,6 +5614,8 @@ in_game_theme = ExtResource("16_nvumn")
 [connection signal="area_exited" from="board_path/board_path_follow/board_container/buffer/board_s06_BBBA/Area3D" to="board_path/board_path_follow/board_container" method="board_area_exited"]
 [connection signal="area_entered" from="board_path/board_path_follow/board_container/buffer/board_s06_BBBB/Area3D" to="board_path/board_path_follow/board_container" method="board_area_entered"]
 [connection signal="area_exited" from="board_path/board_path_follow/board_container/buffer/board_s06_BBBB/Area3D" to="board_path/board_path_follow/board_container" method="board_area_exited"]
+[connection signal="died" from="board_path/board_path_follow/board_container/spider" to="board_path/board_path_follow/camera_control" method="_on_spider_died"]
+[connection signal="died" from="board_path/board_path_follow/board_container/spider" to="board_path/board_path_follow/camera_control/camera_anchor/PhantomCamera3D/Camera3D/hud" method="_on_spider_died"]
 [connection signal="area_entered" from="board_path/board_path_follow/detectors/turn_scan" to="board_path/board_path_follow" method="_on_turn_scan_area_entered"]
 [connection signal="body_entered" from="board_path/board_path_follow/camera_control/quadrants/top" to="board_path/board_path_follow/camera_control" method="_on_top_body_entered"]
 [connection signal="body_entered" from="board_path/board_path_follow/camera_control/quadrants/bottom" to="board_path/board_path_follow/camera_control" method="_on_bottom_body_entered"]
@@ -5578,5 +5623,6 @@ in_game_theme = ExtResource("16_nvumn")
 [connection signal="body_entered" from="board_path/board_path_follow/camera_control/quadrants/right" to="board_path/board_path_follow/camera_control" method="_on_right_body_entered"]
 [connection signal="body_entered" from="board_path/board_path_follow/camera_control/quadrants/behind" to="board_path/board_path_follow/camera_control" method="_on_behind_body_entered"]
 [connection signal="body_entered" from="board_path/board_path_follow/camera_control/quadrants/front" to="board_path/board_path_follow/camera_control" method="_on_front_body_entered"]
+[connection signal="timeout" from="board_path/board_path_follow/camera_control/refresh_x_off" to="board_path/board_path_follow/camera_control" method="_on_refresh_x_off_timeout"]
 
 [editable path="board_path/board_path_follow/board_container/spider"]

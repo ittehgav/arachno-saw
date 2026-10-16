@@ -7,4 +7,4 @@ ceiling_db = -10.1
 [resource]
 bus/0/volume_db = -0.13049698
 bus/0/effect/0/effect = SubResource("AudioEffectHardLimiter_j3pel")
-bus/0/effect/0/enabled = true
+bus/0/effect/0/enabled = false

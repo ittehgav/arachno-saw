@@ -23,6 +23,8 @@ signal saw_missed(saw:Saw);
 ## for finding safe boards in prelim stage
 @export var top_trunk:StaticBody3D;
 @export var bottom_trunk:StaticBody3D;
+@export var left_trunk:StaticBody3D;
+@export var right_trunk:StaticBody3D;
 
 
 
@@ -33,6 +35,7 @@ signal saw_missed(saw:Saw);
 var current_stage:int = -2
 
 var next_boards:Array;
+
 
 var safe_boards:Array:
 	get():
@@ -181,7 +184,6 @@ func is_dropped(b:StaticBody3D)->bool:
 var collected_shapes:Array[CollisionShape3D]
 func drop_board(b:StaticBody3D)->void:
 	dropped_boards.append(b);
-	spider.body.check_board_death(b);
 	b.set_collision_layer_value(5, false)## to not have them get in the way of fly position roll
 	collected_shapes = []
 	get_shapes(b)
@@ -194,22 +196,12 @@ func drop_board(b:StaticBody3D)->void:
 	if half:
 		to_glow_down.append(half)
 	for mesh:MeshInstance3D in to_glow_down:
-		glow_down(mesh)
-
-		var rs:int=0;# rotation signal
-		if mesh.global_position.x > global_position.x:
-			rs=1;
-		else:
-			rs=-1;
 		const td = 2;##tween duration
 		var t := create_tween();
-		if b.name == "top":
-			t.tween_property(mesh, "global_position:x", mesh.global_position.z + 300, td)
-		
-		t.tween_property(mesh, "global_position:y", 0, td);
-		if rs:
-			var r:float = mesh.rotation_degrees.z + rs * 30
-			t.parallel().tween_property(mesh, "rotation_degrees:z", r, td)
+		t.tween_property(mesh.material_override, "shader_parameter/dark_color:a", 0, td);
+		t.parallel().tween_property(mesh.material_override, "shader_parameter/light_color:a", 0, td);
+		t.tween_callback(mesh.queue_free)
+
 
 	if b in splitter.split_map_nodes:
 		var boards:Array = splitter.split_map_nodes[b];

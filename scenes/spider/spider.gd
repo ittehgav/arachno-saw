@@ -73,3 +73,10 @@ func _on_spider_fly_consumed(fly: Fly) -> void:
 
 func _on_spider_shield_lost() -> void:
 	shield_highlight.hide();
+
+
+
+
+
+func _on_board_container_board_dropped(board: StaticBody3D) -> void:
+	check_board_death(board)

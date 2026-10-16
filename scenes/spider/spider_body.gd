@@ -70,7 +70,7 @@ func _physics_process(delta: float) -> void:
 	_align_to_surface(delta)
 
 	# 3. Move along the surface, pulled into it instead of by gravity.
-	var tangent_velocity := velocity.slide(surface_normal)
+	var tangent_velocity := velocity.slide(surface_normal.normalized())
 	if direction:
 		tangent_velocity = direction * speed
 	else:
@@ -207,18 +207,15 @@ func cheat_death(type:DeathType)->void:
 	cheat_death_sfx.play()
 	blink_animation.play("blink");
 	match type:
-		DeathType.saw:
-			tp_to_safe_board();
-		DeathType.board:
-			tp_to_safe_board();
+		DeathType.saw, DeathType.board:
+			tp_to_safety();
 		
-func tp_to_safe_board()->void:
-	var safe_boards:Array = GLB.board_container.safe_boards;
-	var target_transform:Variant = GLB.board_container.get_free_face_transform(safe_boards, 5)
-	while not target_transform:
-		target_transform = GLB.board_container.get_free_face_transform(safe_boards, 5);
-		
-	global_transform = target_transform
+func tp_to_safety()->void:
+	print("tpts? ", position)
+	global_transform = GLB.safe_spot_finder.safe_transforms.pick_random()
+	global_position += GLB.board_path_follow.position
+	
+	print("tpts? ", position)
 	
 func _on_fly_consumed(fly: Fly) -> void:
 	## should never overlap animations?

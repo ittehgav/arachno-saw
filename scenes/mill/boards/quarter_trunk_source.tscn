@@ -19,7 +19,7 @@ data = PackedVector3Array(-18.9552, 500, -24.3414, 6.9986, -500, -6.9997997, 6.9
 [node name="quarter_trunk" unique_id=50647863 instance=ExtResource("1_5ocps")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.89, 0, 0, 0)
 
-[node name="Cylinder" parent="." index="0" unique_id=1452134786]
+[node name="Cylinder" parent="." index="0" unique_id=771124232]
 surface_material_override/0 = SubResource("ShaderMaterial_qmn7u")
 
 [node name="Area3D" type="Area3D" parent="." index="1" unique_id=931823737]
