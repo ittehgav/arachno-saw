@@ -28,6 +28,9 @@ func _on_run_score_changed() -> void:
 @export var combo_timeout_bar:TextureProgressBar;
 @export var saw_pov:SubViewport
 
+@export var fly_point_gain_label:Label;
+@export var combo_multiplier_label:Label;
+
 
 
 func _process(_delta: float) -> void:
@@ -39,7 +42,6 @@ func _on_fly_combo_started()->void:
 	
 	
 func _on_fly_combo_incremented(type:Fly.Type)->void:
-	print("cincre?")
 	combo_increment_animation.play("combo_increment")
 	update_combo_label();
 	
@@ -50,7 +52,11 @@ func _on_fly_combo_incremented(type:Fly.Type)->void:
 	
 	m.emission = fly_color;
 	m.albedo_color = fly_color;
-	print(fly_mesh.material_override.emission)
+	
+	fly_point_gain_label.modulate = fly_color;
+	fly_point_gain_label.text = "+" + str(int(Run.fly_score_values[type]));
+	
+	combo_multiplier_label.text = "*" + str(Run.combo_multiplier)
 
 func update_combo_label()->void:
 	fly_combo_label.text = str(Run.current_fly_combo);

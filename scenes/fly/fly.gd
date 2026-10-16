@@ -65,13 +65,14 @@ func apply_effect(spider:Crawler)->void:
 		Type.speed:
 			spider.bonus_speed = 100 * (1 + Run.current_fly_combo * .1)
 			## creating it on spider so fly can queue free whenever
-			var t:= GLB.spider.create_tween(); 
-			t.set_trans(Tween.TRANS_CUBIC)
-			t.tween_property(spider, "bonus_speed", 0, 5)
+			if spider.speed_up_tween and spider.speed_up_tween.is_running():
+				spider.speed_up_tween.kill()
+			spider.speed_up_tween = spider.create_tween(); 
+			spider.speed_up_tween.set_trans(Tween.TRANS_CUBIC)
+			spider.speed_up_tween.tween_property(spider, "bonus_speed", 0, 5)
 		Type.shield:
 			GLB.spider.has_shield = true;
 		Type.teleport:
-			print("tp? ", tp_done)
 			if not tp_done:
 				tp_done = true;
 				tp_target.tp_done = true

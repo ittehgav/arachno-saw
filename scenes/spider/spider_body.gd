@@ -18,12 +18,13 @@ const SEARCH_RANGE := 5.0   # how far the wide search looks if that misses
 var last_valid_transform: Transform3D
 
 const SPEED := 70.0
-const TURN_SPEED := 2.5      # radians per second
+const TURN_SPEED := 5     # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
 var bonus_speed:float = 0;
+var speed_up_tween:Tween;
 var speed:float:
 	get():
 		return SPEED + bonus_speed;
@@ -36,6 +37,7 @@ var surface_normal := Vector3.UP;
 
 @export var blink_animation:AnimationPlayer;
 @export var cheat_death_sfx:AudioStreamPlayer;
+
 
 @export var buff_glow_mesh:MeshInstance3D
 @export var buff_glow_animation:AnimationPlayer
@@ -75,6 +77,8 @@ func _physics_process(delta: float) -> void:
 		tangent_velocity = tangent_velocity.move_toward(Vector3.ZERO, speed)
 
 	velocity = tangent_velocity - surface_normal * STICK_SPEED
+	if turn:
+		velocity *= .7
 	move_and_slide()
 
 	# 4. Concave corners: climb onto surfaces we bump into at a steep angle.
@@ -91,6 +95,8 @@ func _physics_process(delta: float) -> void:
 		# Lost every surface: undo this frame's move instead of flying off.
 		global_transform = last_valid_transform
 		velocity = Vector3.ZERO
+
+	
 func _snap_to_surface() -> bool:
 	var origin := global_position
 

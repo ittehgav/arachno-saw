@@ -84,6 +84,10 @@ signal fly_combo_started;
 signal fly_combo_incremented(fly:ft);
 signal fly_combo_ended;
 var current_fly_combo:int;
+var combo_multiplier:float:
+	get():
+		return 1.0 + current_fly_combo/10.0
+
 
 func _on_fly_consumed(fly:Fly)->void:
 	if current_fly_combo == 0:
@@ -93,7 +97,7 @@ func _on_fly_consumed(fly:Fly)->void:
 	fly_combo_timeout.start()
 	fly_combo_incremented.emit(fly.type)
 	
-	score += fly_score_values[fly.type] + (1.0 + float(current_fly_combo)/10);
+	score += fly_score_values[fly.type] * combo_multiplier;
 	
 func _on_fly_combo_timeout() -> void:
 	fly_combo_ended.emit();

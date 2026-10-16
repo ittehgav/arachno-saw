@@ -66,7 +66,6 @@ func check_board_death(board:StaticBody3D)->void:
 #
 
 func _on_spider_fly_consumed(fly: Fly) -> void:
-
 	const ft = Fly.Type;
 	match fly.type:
 		ft.shield:
