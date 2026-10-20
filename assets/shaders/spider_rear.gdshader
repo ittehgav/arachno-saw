@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode blend_mix, cull_back, diffuse_burley, specular_schlick_ggx;
+render_mode blend_mix, cull_back, diffuse_burley, specular_schlick_ggx, depth_test_disabled;
 
 // ---- Tweakable parameters ----
 uniform vec3 body_color : source_color = vec3(0.01, 0.01, 0.012); // glossy black

@@ -23,6 +23,10 @@ const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
+	
+const TELEPORT_SEARCH_RANGE := 1000.0   # how far to look for a surface; set this to roughly your level size
+const TELEPORT_SEARCH_RAYS := 96       # more rays = more accurate nearest point
+
 var bonus_speed:float = 0;
 var speed_up_tween:Tween;
 var speed:float:
@@ -42,6 +46,9 @@ var surface_normal := Vector3.UP;
 @export var buff_glow_mesh:MeshInstance3D
 @export var buff_glow_animation:AnimationPlayer
 
+@export var home_point := Vector3.ZERO   # in the parent's local space
+@export var recovery_speed := 4.0        # keep recovery_speed * delta well under SEARCH_RANGE
+
 var moving:bool=false;
 
 var has_shield:bool=false;
@@ -53,13 +60,18 @@ func _ready()->void:
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
+	if _has_pending_teleport:
+		_has_pending_teleport = false
+		_apply_teleport(_pending_teleport)
+		return
+
 	var turn := Input.get_axis("move_right", "move_left")
 	rotate_object_local(Vector3.UP, turn * TURN_SPEED * delta)
 
 	# Up/down move forward/back along the body's facing direction.
 	var forward_input := Input.get_axis("move_forward", "move_back")
 	var direction := (global_basis * Vector3(0, 0, forward_input))
-	direction = direction.slide(surface_normal).normalized()
+	direction = direction.normalized().slide(surface_normal)
 
 	# 1. Find the surface we should be stuck to.
 	var found := _find_surface_normal(direction)
@@ -70,7 +82,7 @@ func _physics_process(delta: float) -> void:
 	_align_to_surface(delta)
 
 	# 3. Move along the surface, pulled into it instead of by gravity.
-	var tangent_velocity := velocity.slide(surface_normal.normalized())
+	var tangent_velocity := velocity.normalized().slide(surface_normal)
 	if direction:
 		tangent_velocity = direction * speed
 	else:
@@ -164,6 +176,87 @@ func _align_to_surface(delta: float) -> void:
 	global_basis = (Basis(q) * global_basis).orthonormalized()
 
 
+var _pending_teleport := Transform3D.IDENTITY
+var _has_pending_teleport := false
+
+
+func teleport_to(target: Transform3D) -> void:
+	
+	_pending_teleport = target
+	_has_pending_teleport = true
+
+
+func _apply_teleport(target: Transform3D) -> void:
+	var previous := global_transform
+
+	global_transform = Transform3D(target.basis.orthonormalized(), target.origin)
+	velocity = Vector3.ZERO
+	surface_normal = global_basis.y
+
+	# Normal case: the destination is already near a surface.
+	if not _snap_to_surface():
+		# Invalid position: find the nearest surface in any direction and go there.
+		var hit := _find_nearest_surface_anywhere()
+		if hit.is_empty():
+			global_transform = previous
+			push_warning("Teleport failed: no surface within %s units of %s" % [TELEPORT_SEARCH_RANGE, target.origin])
+			return
+
+		surface_normal = hit.normal
+		global_position = hit.position + hit.normal * HOVER_DIST
+		_snap_to_surface()   # refine to the true perpendicular distance
+
+	# Orient instantly instead of easing, so the first frame isn't sideways.
+	var q := Quaternion(global_basis.y, surface_normal)
+	global_basis = (Basis(q) * global_basis).orthonormalized()
+	last_valid_transform = global_transform
+func _find_nearest_surface_anywhere() -> Dictionary:
+	# Stage 1: overlap queries with growing spheres. Handles a point that is
+	# on, inside, or beside a collider, which rays can't see.
+	var r := 0.25
+	while r <= TELEPORT_SEARCH_RANGE:
+		var overlap := _rest_info_at(global_position, r)
+		if not overlap.is_empty():
+			return overlap
+		r *= 2.0
+
+	# Stage 2: ray fan for anything farther out.
+	var origin := global_position
+	var best := {}
+	var best_dist := INF
+	var golden_angle := PI * (3.0 - sqrt(5.0))
+
+	for i in TELEPORT_SEARCH_RAYS:
+		var y := 1.0 - 2.0 * (i + 0.5) / TELEPORT_SEARCH_RAYS
+		var ring := sqrt(1.0 - y * y)
+		var theta := golden_angle * i
+		var dir := Vector3(cos(theta) * ring, y, sin(theta) * ring)
+
+		var hit := _raycast(origin, origin + dir * TELEPORT_SEARCH_RANGE)
+		if hit:
+			var d := origin.distance_squared_to(hit.position)
+			if d < best_dist:
+				best_dist = d
+				best = hit
+
+	return best
+
+
+func _rest_info_at(point: Vector3, radius: float) -> Dictionary:
+	var sphere := SphereShape3D.new()
+	sphere.radius = radius
+
+	var params := PhysicsShapeQueryParameters3D.new()
+	params.shape = sphere
+	params.transform = Transform3D(Basis.IDENTITY, point)
+	params.exclude = [get_rid()]
+
+	var info := get_world_3d().direct_space_state.get_rest_info(params)
+	if info.is_empty() or info.normal == Vector3.ZERO:
+		return {}
+
+	# Same keys the ray results use, so _apply_teleport needs no changes.
+	return {"position": info.point, "normal": info.normal.normalized()}
 
 func _raycast(from: Vector3, to: Vector3) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
@@ -193,13 +286,14 @@ func _on_collision_scan_area_entered(area: Area3D) -> void:
 		fly_consumed.emit(area)
 		area.apply_effect(self)
 
+var invulnerable:bool=false;
 func die(source:DeathType)->void:
 	if has_shield:
 		has_shield = false;
 		cheat_death(source)
 		shield_lost.emit()
 		return;
-	set_physics_process (false)
+	set_physics_process(false)
 	death_sfx.play()
 	died.emit(source)
 
@@ -208,15 +302,19 @@ func cheat_death(type:DeathType)->void:
 	blink_animation.play("blink");
 	match type:
 		DeathType.saw, DeathType.board:
-			tp_to_safety();
+			tp_to_safety()
 		
 func tp_to_safety()->void:
-	print("tpts? ", position)
-	global_transform = GLB.safe_spot_finder.safe_transforms.pick_random()
-	global_position += GLB.board_path_follow.position
-	
-	print("tpts? ", position)
-	
+	await get_tree().physics_frame ## when boards drop, takes a frame 
+	## for safe region detectors to refgresy
+	var ssf:SafeSpotFinder = GLB.safe_spot_finder;
+	var safe_boards: = GLB.board_container.safe_boards;
+	var target :Transform3D= ssf.get_free_face_transforms(safe_boards).pick_random();
+	target.origin = ssf.to_global(target.origin);
+	teleport_to(target)
+
+
+
 func _on_fly_consumed(fly: Fly) -> void:
 	## should never overlap animations?
 	var m:StandardMaterial3D = buff_glow_mesh.mesh.material;

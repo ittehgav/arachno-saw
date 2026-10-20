@@ -274,12 +274,7 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 			var original := source_body.get_node(path) as MeshInstance3D
 			var source_mesh := original.mesh as BoxMesh
 
-			child.material_override = original.material_override
-			child.material_overlay = original.material_overlay
-			for s in original.get_surface_override_material_count():
-				child.set_surface_override_material(s, original.get_surface_override_material(s))
-
-			# Second half is a copy of this node (so it shares the same materials).
+			# Second half is a copy of this node.
 			var second := child.duplicate() as MeshInstance3D
 			for g in second.get_children():
 				second.remove_child(g)
@@ -291,17 +286,22 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 			var base_offset := _offset_in_body(body, child)
 			var nodes: Array[MeshInstance3D] = [child, second]
 
-			# The unsplit piece mesh is the reference the halves must match.
-			var piece_mesh := _make_piece_mesh(source_mesh, reference[path], box)
-			var piece_arrays := piece_mesh.surface_get_arrays(0)
-
 			for h in 2:
-				# Parent box is the whole piece, so every face on the piece's surface
-				# copies the piece's UVs; only the new middle face gets regular ones.
-				var mesh := _make_piece_mesh(source_mesh, box, halves[h], piece_arrays)
-				mesh.surface_set_material(0, source_mesh.material)
+				# Where this half's center sits relative to the original mesh's center.
+				# Shifting the triplanar offset by this makes the texture line up with the original.
+				var delta: Vector3 = halves[h].get_center() - reference[path].get_center()
+
+				var mesh := source_mesh.duplicate() as BoxMesh
+				mesh.size = halves[h].size
+				mesh.material = _shifted_material(source_mesh.material, delta)
 				nodes[h].mesh = mesh
 				nodes[h].position = halves[h].get_center() - center - base_offset
+
+				nodes[h].material_override = _shifted_material(original.material_override, delta)
+				nodes[h].material_overlay = _shifted_material(original.material_overlay, delta)
+				for s in original.get_surface_override_material_count():
+					nodes[h].set_surface_override_material(
+							s, _shifted_material(original.get_surface_override_material(s), delta))
 	output_root.add_child(body)
 	body.global_transform = source_body.global_transform * Transform3D(Basis.IDENTITY, center)
 
@@ -315,93 +315,34 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 	_set_body_enabled(body, false)
 	return body
 
-const UV_EPS := 0.00001
-const FACE_DIRS := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+const SHIFT_PARAM := &"piece_offset"
 
+## Always returns a unique material (null stays null). A piece centered `delta` away from
+## the original mesh center gets its mapping shifted so it samples the texture where the
+## original did.
+func _shifted_material(mat: Material, delta: Vector3) -> Material:
+	if mat == null:
+		return null
 
-
-
-func _axis_of(dir: Vector3) -> int:
-	if absf(dir.x) > 0.5:
-		return 0
-	return 1 if absf(dir.y) > 0.5 else 2
-
-
-## For one face of a box mesh: how its UVs change with position across that face.
-## Works for any UV layout or orientation, because it reads the mapping from the mesh itself.
-func _face_uv_map(arrays: Array, dir: Vector3) -> Dictionary:
-	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
-	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
-	var a := (_axis_of(dir) + 1) % 3
-	var b := (_axis_of(dir) + 2) % 3
-
-	var first := -1
-	for i in verts.size():
-		if normals[i].dot(dir) > 0.99:
-			first = i
-			break
-	if first < 0:
-		return {}
-
-	var p0 := verts[first]
-	var uv0 := uvs[first]
-	var grad_a := Vector2.ZERO
-	var grad_b := Vector2.ZERO
-	var found_a := false
-	var found_b := false
-	for i in verts.size():
-		if normals[i].dot(dir) <= 0.99:
-			continue
-		var d := verts[i] - p0
-		if not found_a and absf(d[a]) > UV_EPS and absf(d[b]) < UV_EPS:
-			grad_a = (uvs[i] - uv0) / d[a]
-			found_a = true
-		elif not found_b and absf(d[b]) > UV_EPS and absf(d[a]) < UV_EPS:
-			grad_b = (uvs[i] - uv0) / d[b]
-			found_b = true
-	if not (found_a and found_b):
-		return {}
-	return {"p0": p0, "uv0": uv0, "a": a, "b": b, "grad_a": grad_a, "grad_b": grad_b}
-
-
-## Builds the piece's mesh: a regular box of the piece's size, except that faces lying on the
-## full board's outside surface get the full board's UVs for that part of the face.
-func _make_piece_mesh(source_mesh: BoxMesh, original_box: AABB, box: AABB, full_arrays: Array = []) -> ArrayMesh:
-	if full_arrays.is_empty():
-		full_arrays = source_mesh.get_mesh_arrays()  # the full board's UV mapping
-	var regular := source_mesh.duplicate() as BoxMesh  # what the cut faces keep
-	regular.size = box.size
-	var arrays := regular.get_mesh_arrays()
-
-	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
-	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
-	# Piece-mesh space -> full-board-mesh space (each mesh is centered on its own box).
-	var delta := box.get_center() - original_box.get_center()
-
-	for dir: Vector3 in FACE_DIRS:
-		var n := _axis_of(dir)
-		var outside: bool
-		if dir[n] > 0.0:
-			outside = absf(box.end[n] - original_box.end[n]) < EPS
+	if mat is ShaderMaterial:
+		var copy := mat.duplicate() as ShaderMaterial  # shares the Shader, own parameters
+		var has_param := false
+		if copy.shader != null:
+			for u: Dictionary in copy.shader.get_shader_uniform_list():
+				if u.name == SHIFT_PARAM:
+					has_param = true
+					break
+		if has_param:
+			copy.set_shader_parameter(SHIFT_PARAM, delta)
 		else:
-			outside = absf(box.position[n] - original_box.position[n]) < EPS
-		var map := _face_uv_map(full_arrays, dir) if outside else {}
-		if map.is_empty():
-			continue  # a face created by a cut, or a map that couldn't be read
-		for i in verts.size():
-			if normals[i].dot(dir) > 0.99:
-				var p := verts[i] + delta
-				uvs[i] = map.uv0 \
-						+ map.grad_a * (p[map.a] - map.p0[map.a]) \
-						+ map.grad_b * (p[map.b] - map.p0[map.b])
+			push_warning("BodySplitPath: shader of '%s' has no 'piece_offset' uniform; duplicated but not shifted." % mat.resource_name)
+		return copy
 
-	arrays[Mesh.ARRAY_TEX_UV] = uvs
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
-
+	var std_copy := mat.duplicate(true) as Material
+	var std := std_copy as StandardMaterial3D
+	if std != null and std.uv1_triplanar and not std.uv1_world_triplanar:
+		std.uv1_offset += delta * std.uv1_scale
+	return std_copy
 
 func _detach(node: Node) -> void:
 	var parent := node.get_parent()
@@ -737,9 +678,15 @@ func _split_longest(box: AABB) -> Array[AABB]:
 	var out: Array[AABB] = [AABB(box.position, half_size), AABB(second_pos, half_size)]
 	return out
 
-
 func _clear_markers() -> void:
 	for c in markers.get_children():
 		if c.has_meta(MARKER_META):
 			markers.remove_child(c)
 			c.queue_free()
+
+## Bounds of the source board in the source body's local space (the space cut offsets use).
+func get_board_bounds() -> AABB:
+	if source_body == null:
+		return AABB()
+	var boxes := _read_boxes(source_body)
+	return _union(boxes) if not boxes.is_empty() else AABB()

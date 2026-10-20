@@ -55,15 +55,7 @@ func get_feet_colliders()->Array[Object]:
 func _on_spider_died(_source:Crawler.DeathType) -> void:
 	explode();
 
-func check_board_death(board:StaticBody3D)->void:
-	var touching_feet:int=0;
-	for f:RayCast3D in feet:
-		if f.get_collider() == board:
-			touching_feet += 1;
-	if touching_feet:
-		get_parent().board_death(board)
-#
-#
+
 
 func _on_spider_fly_consumed(fly: Fly) -> void:
 	const ft = Fly.Type;
@@ -77,6 +69,13 @@ func _on_spider_shield_lost() -> void:
 
 
 
+func _on_board_container_boards_changed() -> void:
+	_check_board_death()
 
-func _on_board_container_board_dropped(board: StaticBody3D) -> void:
-	check_board_death(board)
+func _check_board_death()->void:
+	var dr:Array[StaticBody3D] = GLB.board_container.dropped_boards
+	for f:RayCast3D in feet:
+		var c:Object = f.get_collider()
+		if c in dr:
+			get_parent().board_death(c)
+			return

@@ -26,6 +26,8 @@ var score:float:
 
 @export var score_ticker:Timer;
 
+var placeholder:=true;
+
 ## ALL SCORE SOURCES:
 ## time - score_time_ticker timeout will add 1(?) point
 
@@ -41,6 +43,9 @@ var score:float:
 
 func _ready()->void:
 	## probably will need to make this context-sensitive?
+	if placeholder: ## for the one that appears when you first run the game
+		process_mode = Node.PROCESS_MODE_DISABLED;
+		return
 	setup_signals()
 
 func setup_signals()->void:

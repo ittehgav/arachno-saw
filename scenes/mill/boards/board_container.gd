@@ -39,13 +39,15 @@ var next_boards:Array;
 
 var safe_boards:Array:
 	get():
-		if current_stage == -1:
-			return [top_trunk, bottom_trunk]
-		elif current_stage == 0:
-			return [splitter.source_body]
+		if current_stage == -2:
+			return [top_trunk, bottom_trunk, right_trunk, left_trunk]
+		elif current_stage == -1:
+			return [top_trunk, top_trunk, splitter.source_body]
+		
 
-		var boards:Array[StaticBody3D] = next_boards as Array[StaticBody3D]
+		var boards:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1)
 		return boards.filter(func(b:StaticBody3D)->bool:return b not in to_drop)
+
 func _enter_tree() -> void:
 	GLB.board_container = self;
 
@@ -57,11 +59,14 @@ var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
 		touching = true;
+		print("stou?")
 		saw_touched.emit(area)
+		
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
 		touching = false
+		print("sle?")
 		saw_left.emit(area)
 
 var glowing:Array[MeshInstance3D]
@@ -96,7 +101,9 @@ func glow_loop(mesh:MeshInstance3D)->void:
 	
 	t.tween_property(m, "shader_parameter/light_color:r", light_r, .5);
 	t.parallel().tween_property(m, "shader_parameter/dark_color:r", dark_r, .5);
-	t.tween_callback(glow_loop.bind(mesh))
+	await t.finished;
+	if mesh and mesh in glowing:
+		glow_loop(mesh)
 
 
 
@@ -149,7 +156,6 @@ func _on_saw_left(_saw: Saw) -> void:
 		b.get_node("CollisionShape3D").set_deferred("disabled", true)
 		drop_board(b)
 		
-	set_to_drop()
 	## rolling board drops immediately so flies can 
 	## spawn on dropping side before next board_touched
 	
@@ -160,6 +166,8 @@ func _on_saw_left(_saw: Saw) -> void:
 
 	splitter.set_stage_enabled(current_stage, false)
 	splitter.set_stage_enabled(current_stage + 1, true)
+	
+	set_to_drop()
 	await get_tree().physics_frame;
 	boards_changed.emit.call_deferred()
 
@@ -198,8 +206,11 @@ func drop_board(b:StaticBody3D)->void:
 	for mesh:MeshInstance3D in to_glow_down:
 		const td = 2;##tween duration
 		var t := create_tween();
-		t.tween_property(mesh.material_override, "shader_parameter/dark_color:a", 0, td);
-		t.parallel().tween_property(mesh.material_override, "shader_parameter/light_color:a", 0, td);
+		var m:Material = mesh.material_override;
+		if not m:
+			m = mesh.mesh.material;
+		t.tween_property(m, "shader_parameter/dark_color:a", 0, td);
+		t.parallel().tween_property(m, "shader_parameter/light_color:a", 0, td);
 		t.tween_callback(mesh.queue_free)
 
 

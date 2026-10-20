@@ -8,14 +8,17 @@ score_ticker = NodePath("score_ticker")
 fly_combo_timeout = NodePath("fly_combo")
 
 [node name="score_ticker" type="Timer" parent="." unique_id=805679673]
+process_callback = 0
 wait_time = 0.5
 autostart = true
 
 [node name="accelerate" type="Timer" parent="." unique_id=1176603846]
+process_callback = 0
 wait_time = 10.0
 autostart = true
 
 [node name="fly_combo" type="Timer" parent="." unique_id=558977778]
+process_callback = 0
 wait_time = 10.0
 
 [connection signal="timeout" from="score_ticker" to="." method="_on_score_time_ticker_timeout"]

@@ -76,12 +76,9 @@ func apply_effect(spider:Crawler)->void:
 			if not tp_done:
 				tp_done = true;
 				tp_target.tp_done = true
-				await get_tree().physics_frame
-
-				spider.global_position = tp_target.global_position
-				
+				spider.teleport_to(tp_target.global_transform)
 				tp_target.queue_free();
-		#Type.coin: increases score, controlled via RunControl
+		#Type.coin: increases score just like every other fly type, controlled via RunControl
 
 		Type.death:
 			spider.die(Crawler.DeathType.skull)

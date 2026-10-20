@@ -280,7 +280,6 @@ _data = {
 }
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6is8"]
-render_priority = -1
 transparency = 1
 emission_enabled = true
 emission = Color(0.11333339, 0.68, 0, 1)
@@ -353,7 +352,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_5mfgm")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3l1ea"]
-render_priority = -1
 transparency = 1
 albedo_color = Color(0, 0, 0, 1)
 emission_enabled = true
@@ -392,7 +390,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_uknyv")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5wqnd"]
-render_priority = -1
 transparency = 1
 emission_enabled = true
 emission = Color(0, 0.68, 0.6233332, 1)
@@ -432,7 +429,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_sffes")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gyjgb"]
-render_priority = -1
 transparency = 1
 albedo_color = Color(0.64900005, 0.33, 0.66, 1)
 emission_enabled = true
@@ -475,7 +471,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_v0224")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwawe"]
-render_priority = -1
 transparency = 1
 emission_enabled = true
 emission = Color(0.58016664, 0.59, 0, 1)
@@ -517,7 +512,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_bc322")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3bc5p"]
-render_priority = -1
 transparency = 1
 shading_mode = 2
 disable_ambient_light = true

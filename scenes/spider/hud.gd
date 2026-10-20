@@ -38,8 +38,6 @@ func _on_run_score_changed() -> void:
 @export var you_died_message:Label
 func _on_spider_died(source:Crawler.DeathType) -> void:
 	const dt = Crawler.DeathType
-
-	
 	match source:
 		dt.saw:
 			you_died_message.text = "Avoid touching the saws."
@@ -76,14 +74,14 @@ func _on_fly_combo_incremented(type:Fly.Type)->void:
 	m.albedo_color = fly_color;
 	
 	fly_point_gain_label.modulate = fly_color;
-	fly_point_gain_label.text = "+" + str(int(Run.fly_score_values[type]));
+	fly_point_gain_label.text = "+" + str(snapped(Run.fly_score_values[type] * Run.combo_multiplier, .01));
 	
-	combo_multiplier_label.text = "*" + str(Run.combo_multiplier)
+	combo_multiplier_label.text = "(*" + str(Run.combo_multiplier)+")"
 
 func update_combo_label()->void:
 	fly_combo_label.text = str(Run.current_fly_combo);
 	
-
+ 
 func _on_fly_combo_ended()->void:
 	fly_combo_display.hide()
 
@@ -99,9 +97,9 @@ func set_score_text(target:int)->void:
 func _on_board_container_saw_touched(saw: Saw) -> void:
 	saw.camera.reparent(saw_pov)
 	await get_tree().process_frame
-	saw.camera.global_position = saw.global_position + Vector3(100, 500, 100);
+	saw.camera.global_position = saw.global_position + Vector3(100, 700, 200);
 	saw.camera.look_at(saw.global_position)
 
 
-func _on_board_container_saw_left(saw: Saw) -> void:
-	saw.camera.queue_free();
+func _on_board_container_saw_left(_saw: Saw) -> void:
+	saw_pov.get_node("saw_cam").queue_free()

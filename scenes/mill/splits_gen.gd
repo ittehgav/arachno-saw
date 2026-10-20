@@ -1,0 +1,109 @@
+@tool
+class_name NoiseSplitSequence
+extends Node
+
+@export var splitter: BodySplitPath
+@export var noise: Noise
+@export var cut_count := 6
+
+@export_group("Sampling")
+## Where in the noise field the sequence starts. Change it (or the noise's seed) for a different sequence.
+@export var sample_origin := Vector2.ZERO
+## Distance between consecutive samples in the noise field. FastNoiseLite's default frequency is
+## 0.01, so about 50 gives clearly different neighbours; much smaller drifts slowly instead.
+@export var noise_step := 50.0
+## Noise values cluster near 0, so this stretches them to use more of the board. 1 = raw noise.
+@export var noise_contrast := 1.8
+
+@export_group("Rules")
+@export var allow_x_cuts := true
+@export var allow_y_cuts := true
+@export var allow_z_cuts := true
+## Minimum distance (meters) between a cut and the board's faces, or another cut on the same axis.
+@export var min_piece_size := 0.05
+
+@export_group("")
+@export_tool_button("Generate Cuts") var cuts_action := generate_into_splitter
+@export_tool_button("Generate Cuts + Splits + Markers") var all_action := generate_everything
+
+
+## Builds the cut sequence and puts it on the splitter. Returns false if nothing was generated.
+func generate_into_splitter() -> bool:
+	if splitter == null or noise == null:
+		push_warning("NoiseSplitSequence: assign splitter and noise first.")
+		return false
+	var result := generate_cuts()
+	if result.is_empty():
+		return false
+	splitter.cuts = result
+	splitter.notify_property_list_changed()
+	return true
+
+
+func generate_everything() -> void:
+	if generate_into_splitter():
+		splitter.generate_splits()
+		splitter.create_split_markers()
+
+
+## The cut sequence for the current settings. Same settings always give the same sequence.
+func generate_cuts() -> Array[SplitCut]:
+	var result: Array[SplitCut] = []
+	if splitter == null or noise == null:
+		return result
+
+	var bounds := splitter.get_board_bounds()
+	if bounds.size == Vector3.ZERO:
+		push_warning("NoiseSplitSequence: the splitter has no board to read bounds from (assign its source_body).")
+		return result
+
+	var axes: Array[int] = []
+	if allow_x_cuts:
+		axes.append(SplitCut.Axis.X)
+	if allow_y_cuts:
+		axes.append(SplitCut.Axis.Y)
+	if allow_z_cuts:
+		axes.append(SplitCut.Axis.Z)
+	if axes.is_empty():
+		push_warning("NoiseSplitSequence: all axes are disabled.")
+		return result
+
+	var used: Array = [[], [], []]  # offsets already used, per axis
+	var sample := 0
+	var max_samples := cut_count * 25
+	while result.size() < cut_count and sample < max_samples:
+		var t := sample_origin.x + sample * noise_step
+		sample += 1  # a rejected sample still moves on, so the sequence can't get stuck
+
+		# Axis: one noise row. Offset: another row, far enough away to be unrelated.
+		var pick := _unit(noise.get_noise_2d(t, sample_origin.y))
+		var axis: int = axes[mini(int(pick * axes.size()), axes.size() - 1)]
+
+		var lo := bounds.position[axis] + min_piece_size
+		var hi := bounds.end[axis] - min_piece_size
+		if hi <= lo:
+			continue  # the board is too thin on this axis to cut
+		var offset := lerpf(lo, hi, _unit(noise.get_noise_2d(t, sample_origin.y + 1000.0)))
+
+		var too_close := false
+		for other: float in used[axis]:
+			if absf(other - offset) < min_piece_size:
+				too_close = true
+				break
+		if too_close:
+			continue
+
+		used[axis].append(offset)
+		var cut := SplitCut.new()
+		cut.axis = axis as SplitCut.Axis
+		cut.offset = offset
+		result.append(cut)
+
+	if result.size() < cut_count:
+		push_warning("NoiseSplitSequence: only %d of %d cuts fit; lower min_piece_size or cut_count." % [result.size(), cut_count])
+	return result
+
+
+## Noise (-1..1) -> 0..1, with contrast, never reaching exactly 1.
+func _unit(v: float) -> float:
+	return clampf(v * noise_contrast * 0.5 + 0.5, 0.0, 0.9999)

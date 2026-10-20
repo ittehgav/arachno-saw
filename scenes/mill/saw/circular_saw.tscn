@@ -73,18 +73,6 @@ _data = {
 &"saw_rotation": SubResource("Animation_ddabk")
 }
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ycdy4"]
-emission_enabled = true
-emission = Color(0.28, 0.26506665, 0.1904, 1)
-emission_energy_multiplier = 14.12
-
-[sub_resource type="PrismMesh" id="PrismMesh_reoe3"]
-material = SubResource("StandardMaterial3D_ycdy4")
-
-[sub_resource type="Curve" id="Curve_7c5v0"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
-point_count = 2
-
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_0djmd"]
 height = 1.0
 radius = 100.0
@@ -95,8 +83,27 @@ size = Vector3(131.79456, 1, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
 size = Vector3(1000, 100, 1)
 
-[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast", "camera")]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i02ns"]
+emission_enabled = true
+emission = Color(0.28, 0.26506665, 0.1904, 1)
+emission_energy_multiplier = 14.12
+
+[sub_resource type="PrismMesh" id="PrismMesh_i02ns"]
+material = SubResource("StandardMaterial3D_i02ns")
+
+[sub_resource type="Curve" id="Curve_7q4vo"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7q4vo"]
+emission_enabled = true
+emission = Color(0.4, 0.29546666, 0.272, 1)
+emission_energy_multiplier = 14.12
+
+[sub_resource type="PrismMesh" id="PrismMesh_dem60"]
+material = SubResource("StandardMaterial3D_7q4vo")
+
+[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast", "camera", "particles_container")]
 script = ExtResource("1_i02ns")
 miss_scan = NodePath("miss_check")
 sfx_start = NodePath("sfx/sfx_start")
@@ -105,19 +112,18 @@ sfx_end = NodePath("sfx/sfx_end")
 collision_shape = NodePath("CollisionShape3D")
 miss_shape_cast = NodePath("miss_check/miss_cast")
 camera = NodePath("saw_cam")
+particles_container = NodePath("particles_container")
 
 [node name="sfx" type="Node3D" parent="." unique_id=503496993]
 
 [node name="sfx_start" type="AudioStreamPlayer3D" parent="sfx" unique_id=1138511906]
 stream = ExtResource("2_0djmd")
-attenuation_model = 1
 volume_db = 30.334
 unit_size = 33.72
-max_distance = 5000.0
+max_distance = 10000.0
 
 [node name="sfx_loop" type="AudioStreamPlayer3D" parent="sfx" unique_id=2030174647]
 stream = ExtResource("3_4a2i8")
-attenuation_model = 1
 volume_db = 30.334
 unit_size = 33.72
 max_distance = 5000.0
@@ -125,7 +131,6 @@ max_polyphony = 2
 
 [node name="sfx_end" type="AudioStreamPlayer3D" parent="sfx" unique_id=460463449]
 stream = ExtResource("4_stl84")
-attenuation_model = 1
 volume_db = 30.334
 unit_size = 33.72
 max_distance = 5000.0
@@ -143,42 +148,6 @@ mesh = SubResource("ArrayMesh_0djmd")
 libraries/ = SubResource("AnimationLibrary_m2ud2")
 autoplay = &"saw_rotation"
 
-[node name="particles_nx" type="CPUParticles3D" parent="." unique_id=302334128]
-transform = Transform3D(-1, 0, 8.742278e-08, -2.1175824e-22, 1, -1.7763568e-15, -8.742278e-08, 0, -1, -87.550064, 0, 0)
-emitting = false
-amount = 350
-lifetime = 5.96
-preprocess = 1.0
-draw_order = 2
-mesh = SubResource("PrismMesh_reoe3")
-direction = Vector3(3, 10, 0)
-spread = 10.0
-flatness = 0.45
-gravity = Vector3(0, -51.29, 0)
-initial_velocity_min = 40.0
-initial_velocity_max = 50.0
-scale_amount_min = 5.0
-scale_amount_max = 10.0
-scale_amount_curve = SubResource("Curve_7c5v0")
-
-[node name="particles_px" type="CPUParticles3D" parent="." unique_id=1660747517]
-transform = Transform3D(1, 0, 0, 0, 1, 1.7763568e-15, 0, 0, 1, 101.05884, 0, 0)
-emitting = false
-amount = 350
-lifetime = 5.96
-preprocess = 1.0
-draw_order = 2
-mesh = SubResource("PrismMesh_reoe3")
-direction = Vector3(3, 10, 0)
-spread = 10.0
-flatness = 0.45
-gravity = Vector3(0, -51.29, 0)
-initial_velocity_min = 40.0
-initial_velocity_max = 50.0
-scale_amount_min = 5.0
-scale_amount_max = 10.0
-scale_amount_curve = SubResource("Curve_7c5v0")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1650663486]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("CylinderShape3D_0djmd")
@@ -194,12 +163,52 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.63849, 0, 0)
 shape = SubResource("BoxShape3D_kddjp")
 
 [node name="miss_cast" type="ShapeCast3D" parent="miss_check" unique_id=304245136]
-transform = Transform3D(-1, 8.742278e-08, 3.821371e-15, -8.742278e-08, -1, -8.742278e-08, -3.821371e-15, -8.742278e-08, 1, -650, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 650, 0, 0)
 shape = SubResource("BoxShape3D_u5bk5")
 
 [node name="saw_cam" type="Camera3D" parent="." unique_id=1985770876]
 transform = Transform3D(-0.9754536, -0.06888525, 0.20915332, 0.2140253, -0.07314277, 0.97408587, -0.051802058, 0.9949397, 0.08609058, 275.23486, 764.9304, -101.48514)
 fov = 47.3
+
+[node name="particles_container" type="Node3D" parent="." unique_id=1201798818]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 0, 0)
+
+[node name="dust" type="CPUParticles3D" parent="particles_container" unique_id=531850777]
+emitting = false
+amount = 350
+lifetime = 10.0
+preprocess = 1.0
+speed_scale = 2.42
+fixed_fps = 30
+draw_order = 2
+mesh = SubResource("PrismMesh_i02ns")
+direction = Vector3(-0.2, 1, 0)
+spread = 3.05
+flatness = 0.45
+gravity = Vector3(0, -50, 0)
+initial_velocity_min = 163.09
+initial_velocity_max = 163.09
+scale_amount_min = 5.0
+scale_amount_max = 10.0
+scale_amount_curve = SubResource("Curve_7q4vo")
+
+[node name="sparks" type="CPUParticles3D" parent="particles_container" unique_id=1196063263]
+transform = Transform3D(-4.3711392e-08, 4.371138e-08, -1, -2.1855695e-07, 1, 4.3711395e-08, 1, 2.1855695e-07, -4.3711378e-08, 0, 0, 0)
+transparency = 0.66
+emitting = false
+amount = 350
+preprocess = 1.0
+fixed_fps = 30
+draw_order = 2
+mesh = SubResource("PrismMesh_dem60")
+direction = Vector3(0, 1.08, 1)
+spread = 91.73
+gravity = Vector3(0, -50, 0)
+initial_velocity_min = 21.46
+initial_velocity_max = 55.79
+scale_amount_min = 5.0
+scale_amount_max = 17.87
+scale_amount_curve = SubResource("Curve_7q4vo")
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

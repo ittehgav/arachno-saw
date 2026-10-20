@@ -14,6 +14,7 @@ const z_meters_per_second = 50;
 
 ## gets incremented by run
 var accel:float = 1.0;
+@export var pcam:PhantomCamera3D
 
 	
 func _enter_tree() -> void:

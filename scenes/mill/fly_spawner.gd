@@ -97,11 +97,12 @@ func generate_fly(skip_transform:bool=false)->Fly:
 	
 	if not skip_transform:
 		hit = get_random_surface_point(aabb)
-		## looks tupid but works ispose
-		fly.roll_type(current_fly_types());
-		add_child(fly) ## tp target is added manually so type isnt rolled here
-		fly.global_transform = hit.transform
-		fly.global_position = hit.position
+		if hit:
+			## looks tupid but works ispose
+			fly.roll_type(current_fly_types());
+			add_child(fly) ## tp target is added manually so type isnt rolled here
+			fly.global_transform = hit.transform
+			fly.global_position = hit.position
 
 	if fly.type == Fly.Type.teleport and not skip_transform:
 		var hit2:= get_random_surface_point(aabb);
