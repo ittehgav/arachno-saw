@@ -2,20 +2,20 @@
 
 [ext_resource type="Script" uid="uid://67gg4ygs6cjw" path="res://scenes/main/run.gd" id="1_r1vr0"]
 
-[node name="run" type="Node" unique_id=213738533 node_paths=PackedStringArray("score_ticker", "fly_combo_timeout")]
+[node name="run" type="Node" unique_id=213738533 node_paths=PackedStringArray("progress_timers", "score_ticker", "fly_combo_timeout")]
+process_mode = 3
 script = ExtResource("1_r1vr0")
+progress_timers = [NodePath("score_ticker"), NodePath("accelerate")]
 score_ticker = NodePath("score_ticker")
 fly_combo_timeout = NodePath("fly_combo")
 
 [node name="score_ticker" type="Timer" parent="." unique_id=805679673]
 process_callback = 0
 wait_time = 0.5
-autostart = true
 
 [node name="accelerate" type="Timer" parent="." unique_id=1176603846]
 process_callback = 0
 wait_time = 10.0
-autostart = true
 
 [node name="fly_combo" type="Timer" parent="." unique_id=558977778]
 process_callback = 0

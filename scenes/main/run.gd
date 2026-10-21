@@ -17,6 +17,31 @@ class_name RunControl;
 
 ## score
 ## will react mostly to signals and update the run score
+
+## time tracking
+var _elapsed_time: float = 0.0
+var _last_start_time: int = 0
+var _paused := false
+
+func get_elapsed_time() -> float:
+	if _paused:
+		return _elapsed_time
+	return _elapsed_time + (Time.get_ticks_msec() - _last_start_time) / 1000.0
+func _on_paused() -> void:
+	if _paused:
+		return
+	_elapsed_time += (Time.get_ticks_msec() - _last_start_time) / 1000.0
+	_paused = true
+func _on_unpaused() -> void:
+	if not _paused:
+		return
+	_last_start_time = Time.get_ticks_msec()
+	_paused = false
+
+signal finished
+
+## score system
+@export var progress_timers:Array[Timer]
 signal score_changed;
 var score:float:
 	set(val):
@@ -41,50 +66,49 @@ var placeholder:=true;
 ## combo bar type shit for getting flies
 
 
-func _ready()->void:
-	## probably will need to make this context-sensitive?
-	if placeholder: ## for the one that appears when you first run the game
-		process_mode = Node.PROCESS_MODE_DISABLED;
-		return
+func start_run()->void:
 	setup_signals()
+	_last_start_time = Time.get_ticks_msec()
+	set_progress_timers(true)
 
 func setup_signals()->void:
 	GLB.spider.fly_consumed.connect(_on_fly_consumed)
-	
+	GLB.board_container.board_dropped.connect(_on_board_dropped)
 
-var _elapsed_time: float = 0.0
-var _last_start_time: int = 0
-var _paused := false
+func finish_run(won:bool)->void:
+	set_progress_timers(false)
+	finished.emit()
 
-func get_elapsed_time() -> float:
-	if _paused:
-		return _elapsed_time
-
-	return _elapsed_time + (Time.get_ticks_msec() - _last_start_time) / 1000.0
-
-
-func _on_paused() -> void:
-	if _paused:
-		return
-
-	_elapsed_time += (Time.get_ticks_msec() - _last_start_time) / 1000.0
-	_paused = true
-
-
-func _on_unpaused() -> void:
-	if not _paused:
-		return
-
-	_last_start_time = Time.get_ticks_msec()
-	_paused = false
-
-func start_run()->void:
-	_last_start_time = Time.get_ticks_msec()
+func set_progress_timers(start:bool)->void:
+	if start:
+		for t:Timer in progress_timers:
+			t.start();
+	else:
+		for t:Timer in progress_timers:
+			t.stop()
 
 @export var fly_combo_timeout:Timer;
 
 
 var boards_dropped:int;
+
+const bsm = 5 ## base stage multiplier
+func _on_board_dropped(b:StaticBody3D)->void:
+	var v:float
+	var shape:Shape3D = b.get_node("CollisionShape3D").shape;
+	if shape is BoxShape3D:
+		v= shape.size.x * shape.size.y * shape.size.z;
+	else: ## area is quarter trunk (long half moon shape)
+		v = 1000
+		
+	var gain: = (bsm + GLB.board_container.current_stage) * v;
+	print(gain, " STAGE ", GLB.board_container.current_stage, " AREA ", v);
+	score += gain
+	
+	
+	
+
+
 signal fly_combo_started;
 signal fly_combo_incremented(fly:ft);
 signal fly_combo_ended;
@@ -97,6 +121,7 @@ var combo_multiplier:float:
 func _on_fly_consumed(fly:Fly)->void:
 	if current_fly_combo == 0:
 		fly_combo_started.emit();
+	flies_cosumed[fly.type] += 1;
 	
 	current_fly_combo += 1;
 	fly_combo_timeout.start()
@@ -127,6 +152,13 @@ const fly_score_values:Dictionary[ft, float] = {
 	## because you can only really catch this with shield
 	ft.death:5.0
 }
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		print("onpau")
+		_on_paused();
+	elif what == NOTIFICATION_UNPAUSED:
+		print("onunpau")
+		_on_unpaused()
 
 func _on_score_time_ticker_timeout() -> void:
 	score += 1;

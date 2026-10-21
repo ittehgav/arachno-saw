@@ -2,28 +2,20 @@
 
 [ext_resource type="Script" uid="uid://drywoco62ck5e" path="res://scenes/main/main.gd" id="1_bsumw"]
 [ext_resource type="Script" uid="uid://cl0dy5bmj3ige" path="res://scenes/main/main_menu.gd" id="2_iuonh"]
-[ext_resource type="Script" uid="uid://7f4um1gyib7a" path="res://scenes/main/ui/ui_sfx.gd" id="3_b1x3f"]
 [ext_resource type="PackedScene" uid="uid://bvcg57qgd847s" path="res://scenes/spider/spider.tscn" id="3_k2fmo"]
 [ext_resource type="PackedScene" uid="uid://blcd732gwqct6" path="res://scenes/mill/sawmill.tscn" id="3_ouso4"]
-[ext_resource type="AudioStream" uid="uid://7ket47rvqnmy" path="res://assets/sound/ui/click.wav" id="4_a8run"]
-[ext_resource type="Shader" uid="uid://dq132qip0x0iv" path="res://assets/shaders/wood.gdshader" id="4_l3cfh"]
+[ext_resource type="PackedScene" uid="uid://ca6jisidhrtl3" path="res://scenes/ui/uisfx.tscn" id="4_b1x3f"]
 [ext_resource type="AudioStream" uid="uid://cggqrp4mf17k7" path="res://assets/sound/music/main_menu_theme.ogg" id="5_6q06x"]
-[ext_resource type="AudioStream" uid="uid://cap5bi8n5fsyb" path="res://assets/sound/ui/mouseover.wav" id="5_ouso4"]
+[ext_resource type="Texture2D" uid="uid://tuohxsub4iwc" path="res://assets/textures/wood_cut.png" id="6_b1x3f"]
 [ext_resource type="AudioStream" uid="uid://crcyaxpwbplsy" path="res://assets/sound/music/main_menu_loop.ogg" id="6_ow5a4"]
 [ext_resource type="Texture2D" uid="uid://8qvcrkrknncv" path="res://assets/textures/PSX Textures II [Demo]/512/Color Maps/brick_wall_pt_2.png" id="8_a8run"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_6q06x"]
-render_priority = 0
-shader = ExtResource("4_l3cfh")
-shader_parameter/light_color = Color(0.9529412, 0.85882354, 0.7490196, 1)
-shader_parameter/dark_color = Color(0.7490196, 0.61960787, 0.49019608, 1)
-shader_parameter/ring_scale = 4.4
-shader_parameter/wave_scale = 8.454
-shader_parameter/random_scale = 9.71
-shader_parameter/noise_scale = 0.03
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a8run"]
+albedo_texture = ExtResource("6_b1x3f")
+uv1_scale = Vector3(2, 2, 0)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_u5bk5"]
-material = SubResource("ShaderMaterial_6q06x")
+material = SubResource("StandardMaterial3D_a8run")
 size = Vector2(500, 2000)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ouso4"]
@@ -131,12 +123,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="UISFX" type="AudioStreamPlayer" parent="main_menu" unique_id=378442251]
-max_polyphony = 5
-script = ExtResource("3_b1x3f")
-hover = ExtResource("5_ouso4")
-click = ExtResource("4_a8run")
-metadata/_custom_type_script = "uid://7f4um1gyib7a"
+[node name="UISFX" parent="main_menu" unique_id=1290045078 instance=ExtResource("4_b1x3f")]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="main_menu" unique_id=607206662]
 layout_mode = 0
@@ -164,13 +151,14 @@ text = "New Game"
 
 [node name="spider" parent="main_menu/main_menu_bg" unique_id=177370040 instance=ExtResource("3_k2fmo")]
 physics_interpolation_mode = 2
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22615433, 0)
 
 [node name="AnimationPlayer" parent="main_menu/main_menu_bg/spider/body" parent_id_path=PackedInt32Array(177370040, 1279159701) index="1" unique_id=948962471]
 speed_scale = 1.0
 
 [node name="Camera3D" type="Camera3D" parent="main_menu/main_menu_bg/spider" unique_id=1987818891]
 transform = Transform3D(0.9768518, 0.21391729, 0, -0.21391729, 0.9768518, 0, 0, 0, 1, -25.73683, 18.962624, 60.794724)
-far = 638.58
+fov = 37.849285
 
 [node name="meshes" type="Node3D" parent="main_menu/main_menu_bg" unique_id=1912017720]
 

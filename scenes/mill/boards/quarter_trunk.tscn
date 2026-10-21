@@ -1,16 +1,10 @@
 [gd_scene format=4 uid="uid://r5phmsuxm2wu"]
 
-[ext_resource type="Shader" uid="uid://dq132qip0x0iv" path="res://assets/shaders/wood.gdshader" id="2_081up"]
+[ext_resource type="Texture2D" uid="uid://becb3thuogsx5" path="res://assets/textures/PSX Textures/256/Color Maps/wood_3.png" id="1_kj3fq"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_kj3fq"]
-render_priority = 0
-shader = ExtResource("2_081up")
-shader_parameter/light_color = Color(0.25, 0.23716667, 0.2225, 1)
-shader_parameter/dark_color = Color(0.14, 0.1127, 0.0854, 1)
-shader_parameter/ring_scale = 4.4
-shader_parameter/wave_scale = 31.869
-shader_parameter/random_scale = 4.6
-shader_parameter/noise_scale = 0.0
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rrqsk"]
+albedo_texture = ExtResource("1_kj3fq")
+uv1_scale = Vector3(1, 7.46, 1)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_rrqsk"]
 resource_local_to_scene = true
@@ -21,7 +15,7 @@ _surfaces = [{
 "format": 34896613399,
 "index_count": 48,
 "index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADQAMAA8ADQAPABAAEQASABMAEQAUABIAFQAWABcAFgAVABgAFgAYABkAGgAbABwAGgAdABsA"),
-"material": SubResource("ShaderMaterial_kj3fq"),
+"material": SubResource("StandardMaterial3D_rrqsk"),
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),
 "vertex_count": 30,
@@ -38,9 +32,10 @@ collision_layer = 17
 collision_mask = 0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1395734841]
-transform = Transform3D(0.9999999, -1.28027615e-08, 0, 1.28027615e-08, 0.9999999, -3.0908623e-08, 3.9571577e-16, 3.0908623e-08, 0.99999994, 0, 0, 0)
+transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 13.513283, 0, 1)
 mesh = SubResource("ArrayMesh_rrqsk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=121427649]
-transform = Transform3D(0.9999999, -1.28027615e-08, 0, 1.28027615e-08, 0.9999999, -3.0908623e-08, 3.9571577e-16, 3.0908623e-08, 0.99999994, 0, 0, 0)
+transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 13.513283, 0, 1)
+visible = false
 shape = SubResource("ConcavePolygonShape3D_rrqsk")

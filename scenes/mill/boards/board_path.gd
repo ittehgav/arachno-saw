@@ -5,6 +5,7 @@ extends Path3D
 const BOARD_GROUP := &"boards"
 const META_KEY := &"generated_split"
 const STAGE_KEY := &"split_stage"
+const FALLS_KEY := &"falls_off"
 const EPS := 0.0001
 
 const MARKER_META := &"split_center_marker"
@@ -25,6 +26,8 @@ const TURN_AREA_SIZE := 50.0
 @export var wall_back: MeshInstance3D
 @export var wall_left: MeshInstance3D
 @export var wall_right: MeshInstance3D
+
+@export var floor_ceiling_texture_scale := 2.0
 ## Extra space between the system and each wall, in meters.
 const room_margin := 500
 
@@ -47,7 +50,8 @@ const room_margin := 500
 ## All paths are relative to this Path3D node, so use get_node(path) to get the board.
 
 
-
+## Added to the seed behind the spacing between path points. Same cuts + same value = same layout.
+@export var positioning_seed := 0
 
 
 @export var split_map: Dictionary = {}
@@ -83,15 +87,19 @@ func generate_splits() -> void:
 		return
 
 	for n in source_body.find_children("*", "CollisionShape3D", true, false):
-		if not reference.has(source_body.get_path_to(n)):
+		if not reference.has(source_body.get_path_to(n)) and not _is_in_area(n, source_body):
 			push_warning("BodySplitPath: '%s' is not a BoxShape3D (or has no shape) and will NOT be split." % n.name)
 	for n in source_body.find_children("*", "CollisionPolygon3D", true, false):
 		push_warning("BodySplitPath: CollisionPolygon3D '%s' can't be split by this tool." % n.name)
 
 	# Compute every stage as data first, in the source body's local space.
+	# A stage holds what exists right after a cut: the boards still attached, plus the boards that
+	# fall off at that cut. Boards that fell off earlier are not carried into later stages.
 	var stages: Array = []  # stages[s] = Array[Dictionary] of pieces after cut s+1
-	var stage_lineages: Array = []  # stage_lineages[s][i] = lineage string of stages[s][i]
-	var links: Array[Dictionary] = []  # links[s]: parent index in stage s -> [neg, pos] indices in stage s+1
+	var stage_lineages: Array = []
+	var stage_falls: Array = []  # stage_falls[s][i] = true if piece i falls off at that cut
+	var stage_remaining: Array = []  # stage_remaining[s] = indices of the pieces that stay attached
+	var links: Array[Dictionary] = []  # links[s]: attached piece before the cut -> child indices in stage s
 	var current: Array[Dictionary] = [reference]
 	var current_lineages: Array[String] = [""]
 	for cut in cuts:
@@ -99,6 +107,7 @@ func generate_splits() -> void:
 			continue
 		var next_pieces: Array[Dictionary] = []
 		var next_lineages: Array[String] = []
+		var next_falls: Array[bool] = []
 		var stage_links := {}
 		var any_split := false
 		for p in current.size():
@@ -112,25 +121,42 @@ func generate_splits() -> void:
 				negative = _clip(piece, cut.axis, cut.offset, false)
 				positive = _clip(piece, cut.axis, cut.offset, true)
 			if negative.is_empty() or positive.is_empty():
-				# Unsplit: carried over unchanged, linked to its copy in the next stage.
+				# The plane misses this piece. It isn't split, but it still falls if it lies
+				# entirely on the side that drops.
+				var on_negative_side := (lo + hi) * 0.5 < cut.offset
 				stage_links[p] = [next_pieces.size()]
 				next_pieces.append(piece)
 				next_lineages.append(current_lineages[p])
+				next_falls.append(cut.drops(on_negative_side))
 				continue
 			any_split = true
 			stage_links[p] = [next_pieces.size(), next_pieces.size() + 1]
 			next_pieces.append(negative)
 			next_lineages.append(current_lineages[p] + "A")
+			next_falls.append(cut.drops(true))
 			next_pieces.append(positive)
 			next_lineages.append(current_lineages[p] + "B")
+			next_falls.append(cut.drops(false))
 		if not any_split:
-			push_warning("BodySplitPath: cut at %s misses every piece; skipped." % cut.offset)
+			push_warning("BodySplitPath: cut at %s misses every remaining piece; skipped." % cut.offset)
 			continue
-		current = next_pieces
-		current_lineages = next_lineages
-		stages.append(current)
-		stage_lineages.append(current_lineages)
+
+		# Only what stays attached is cut by the next cut.
+		var remaining_indices: Array[int] = []
+		var kept_pieces: Array[Dictionary] = []
+		var kept_lineages: Array[String] = []
+		for i in next_pieces.size():
+			if not next_falls[i]:
+				remaining_indices.append(i)
+				kept_pieces.append(next_pieces[i])
+				kept_lineages.append(next_lineages[i])
+		stages.append(next_pieces)
+		stage_lineages.append(next_lineages)
+		stage_falls.append(next_falls)
+		stage_remaining.append(remaining_indices)
 		links.append(stage_links)
+		current = kept_pieces
+		current_lineages = kept_lineages
 
 	if stages.is_empty():
 		push_warning("BodySplitPath: no valid cuts, nothing generated.")
@@ -144,14 +170,23 @@ func generate_splits() -> void:
 		var stage_pieces: Array = stages[s]
 		var bodies: Array = []
 		for i in stage_pieces.size():
-					bodies.append(_build_body(s + 1, stage_lineages[s][i], stage_pieces[i], reference))
+			var body := _build_body(s + 1, stage_lineages[s][i], stage_pieces[i], reference)
+			body.set_meta(FALLS_KEY, stage_falls[s][i])
+			bodies.append(body)
 		built[s + 1] = bodies
 
-	# Match each board to what it became in the next stage: two boards if it was split,
-	# one if it went unsplit. Stage 0 is the source body itself. Stored as paths so the
-	# map survives saving.
+	# Match each board that was still attached before a cut to what it became in the next stage:
+	# two boards if it was split (one of them may be the part that falls), one if it wasn't.
+	# Stage 0 is the source body itself. Stored as paths so the map survives saving.
 	for s in links.size():
-		var parent_list: Array = [source_body] if s == 0 else built.get(s, [])
+		var parent_list: Array = []
+		if s == 0:
+			parent_list.append(source_body)
+		else:
+			var previous_bodies: Array = built.get(s, [])
+			for idx: int in stage_remaining[s - 1]:
+				if idx < previous_bodies.size():
+					parent_list.append(previous_bodies[idx])
 		var child_list: Array = built.get(s + 1, [])
 		for p: int in links[s]:
 			if p >= parent_list.size():
@@ -164,7 +199,25 @@ func generate_splits() -> void:
 			if targets.size() == indices.size():
 				split_map[get_path_to(parent_list[p])] = targets
 
+	split_map_nodes = _resolve_split_map()
+
 # --- Public helpers for the simulation to call later --------------------------
+## True if the node sits anywhere under an Area3D between it and the root.
+func _is_in_area(node: Node, root: Node) -> bool:
+	var p := node.get_parent()
+	while p != null and p != root:
+		if p is Area3D:
+			return true
+		p = p.get_parent()
+	return false
+
+## A seed derived from the cut data itself, so identical cuts always get identical positioning.
+func _cuts_seed(cut_list: Array[SplitCut]) -> int:
+	var h := 1469598103934665603
+	for cut in cut_list:
+		for v:int in [cut.axis, roundi(cut.offset * 10000.0), cut.drop_side]:
+			h = (h ^ v) * 1099511628211
+	return h
 
 ## stage < 0 returns every generated piece. Stage numbers start at 1 (after the first cut).
 func get_pieces(stage: int = -1) -> Array[StaticBody3D]:
@@ -298,7 +351,6 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 				nodes[h].position = halves[h].get_center() - center - base_offset
 
 				nodes[h].material_override = _shifted_material(original.material_override, delta)
-				nodes[h].material_overlay = _shifted_material(original.material_overlay, delta)
 				for s in original.get_surface_override_material_count():
 					nodes[h].set_surface_override_material(
 							s, _shifted_material(original.get_surface_override_material(s), delta))
@@ -315,40 +367,57 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 	_set_body_enabled(body, false)
 	return body
 
-const SHIFT_PARAM := &"piece_offset"
-
-## Always returns a unique material (null stays null). A piece centered `delta` away from
-## the original mesh center gets its mapping shifted so it samples the texture where the
-## original did.
+## Returns a unique StandardMaterial3D (null stays null). A piece centered `delta` away from
+## the original mesh center gets its triplanar mapping shifted, so every face, including the
+## ones exposed by earlier cuts, samples the texture exactly where the original board did.
 func _shifted_material(mat: Material, delta: Vector3) -> Material:
 	if mat == null:
 		return null
 
-	if mat is ShaderMaterial:
-		var copy := mat.duplicate() as ShaderMaterial  # shares the Shader, own parameters
-		var has_param := false
-		if copy.shader != null:
-			for u: Dictionary in copy.shader.get_shader_uniform_list():
-				if u.name == SHIFT_PARAM:
-					has_param = true
-					break
-		if has_param:
-			copy.set_shader_parameter(SHIFT_PARAM, delta)
-		else:
-			push_warning("BodySplitPath: shader of '%s' has no 'piece_offset' uniform; duplicated but not shifted." % mat.resource_name)
-		return copy
+	var std := mat as StandardMaterial3D
+	if std == null:
+		push_warning("BodySplitPath: material '%s' is not a StandardMaterial3D; it was left unshifted." % mat.resource_name)
+		return mat.duplicate() as Material
 
-	var std_copy := mat.duplicate(true) as Material
-	var std := std_copy as StandardMaterial3D
-	if std != null and std.uv1_triplanar and not std.uv1_world_triplanar:
-		std.uv1_offset += delta * std.uv1_scale
-	return std_copy
+	var copy := std.duplicate() as StandardMaterial3D
+	if not copy.uv1_triplanar:
+		push_warning("BodySplitPath: '%s' isn't triplanar, so its texture will stretch on resized pieces. Enable uv1_triplanar." % mat.resource_name)
+		return copy
+	if copy.uv1_world_triplanar:
+		return copy  # world-space mapping never changes when a piece moves or resizes
+
+	# Triplanar samples at (local_position * uv1_scale + uv1_offset). The piece's local origin
+	# moved by `delta`, so add it back to land on the same texel as the original.
+	copy.uv1_offset += delta * copy.uv1_scale
+	copy.texture_repeat = true
+	return copy
 
 func _detach(node: Node) -> void:
 	var parent := node.get_parent()
 	if parent != null:
 		parent.remove_child(node)
 	node.queue_free()
+
+## The board still attached when each cut's saw is reached, as bounds in the source body's local
+## space. A cut's dropped side stops counting for every cut after it.
+func _remaining_bounds_per_cut(valid_cuts: Array[SplitCut], start: AABB) -> Array[AABB]:
+	var result: Array[AABB] = []
+	var remaining := start
+	for cut in valid_cuts:
+		result.append(remaining)
+		var lo := remaining.position[cut.axis]
+		var hi := remaining.end[cut.axis]
+		if cut.offset <= lo + EPS or cut.offset >= hi - EPS:
+			continue  # misses what's left: nothing is split or dropped
+		var pos := remaining.position
+		var size := remaining.size
+		if cut.drop_side == SplitCut.DropSide.NEGATIVE_SIDE:
+			pos[cut.axis] = cut.offset
+			size[cut.axis] = hi - cut.offset
+		elif cut.drop_side == SplitCut.DropSide.POSITIVE_SIDE:
+			size[cut.axis] = cut.offset - lo
+		remaining = AABB(pos, size)
+	return result
 
 ## Grows a clipped box outward on the faces created by cuts (not the board's original
 ## outer faces), so neighboring pieces overlap by `amount`.
@@ -398,7 +467,7 @@ func create_split_markers() -> void:
 		return
 	var bounds := _union(boxes)
 	var board_size := bounds.size
-	var board_center := bounds.get_center()
+	var remaining_before := _remaining_bounds_per_cut(valid_cuts, bounds)
 	# Farthest the board reaches from its origin in the XZ plane: the radius it sweeps when turning.
 	var turn_radius := Vector2(
 		maxf(absf(bounds.position.x), absf(bounds.end.x)),
@@ -415,14 +484,15 @@ func create_split_markers() -> void:
 	var cut_point_indices: Array[int] = []  # curve index of each cut's point
 	var turn_point_indices: Array[int] = []  # curve index of each point where the board turns
 
-
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _cuts_seed(valid_cuts) + positioning_seed
 	
 	const base_point_spacing = 500
 	for i in valid_cuts.size():
 		var travel_axis := _travel_axis(valid_cuts[i])
 		var direction := Vector3.ZERO
 		direction[travel_axis] = 1.0
-		pos += direction * (base_point_spacing + board_size[travel_axis] * randf_range(1.25, 1.5))
+		pos += direction * (base_point_spacing + board_size[travel_axis] * rng.randf_range(1.25, 1.5))
 		new_curve.add_point(pos)
 		cut_point_indices.append(new_curve.point_count - 1)
 
@@ -430,7 +500,7 @@ func create_split_markers() -> void:
 		# has fully cleared this saw, so the turn happens after the cut, not during it.
 		if i + 1 < valid_cuts.size() and _travel_axis(valid_cuts[i + 1]) != travel_axis:
 			# Where the saw sits along the board's forward (+X) axis when the cut happens.
-			var saw_x := valid_cuts[i].offset if valid_cuts[i].axis == SplitCut.Axis.X else board_center.x
+			var saw_x := valid_cuts[i].offset if valid_cuts[i].axis == SplitCut.Axis.X else remaining_before[i].get_center().x
 			var clearance := turn_clearance_z if travel_axis == 2 else turn_clearance_x
 			pos += direction * (maxf(0.0, saw_x + turn_radius) + clearance)
 			new_curve.add_point(pos)
@@ -469,23 +539,21 @@ func create_split_markers() -> void:
 				"circular_saw_scene" if circular else "band_saw_scene", k + 1])
 			continue
 
-		# Where the saw sits, in board space (relative to the board's origin on the path point).
+		# Where the saw sits: on the cut plane, at the center of the board that is still attached.
+		var remaining_center := remaining_before[k].get_center()
 		var plane_point: Vector3
 		if circular:
-			# Y/Z cuts: the board's center, with the cut's axis set to the offset.
-			plane_point = board_center
+			plane_point = remaining_center
 			plane_point[cut.axis] = cut.offset
 		else:
-			# X cuts: along the board's length by the cut's offset, at the same height and depth
-			# where the Y/Z cuts are made (the marker's split center).
-			plane_point = Vector3(cut.offset, local_offset.y, local_offset.z)
+			plane_point = Vector3(cut.offset, remaining_center.y, remaining_center.z)
 
 		var saw := saw_scene.instantiate() as Node3D
 		if saw == null:
 			push_warning("BodySplitPath: the saw scene's root isn't a Node3D.")
 			continue
 
-		saw.name = "Saw"
+		
 		var native_basis := saw.basis  # the rotation the scene was authored with
 		saw.add_to_group("saws", true)
 		saw.add_to_group("circular_saws" if circular else "band_saws", true)
@@ -499,7 +567,7 @@ func create_split_markers() -> void:
 		saw.global_transform = Transform3D(saw_basis, marker.global_position)
 		# Position: local to the marker, as the offset from the split center in board axes.
 		saw.position = plane_point - local_offset
-
+		saw.name = "Saw"
 		if scene_root:
 			saw.owner = scene_root
 				
@@ -575,6 +643,50 @@ func _fit_room(bounds: AABB, turn_radius: float, turn_point_indices: Array[int],
 			Vector3(c.x, c.y, hi.z), Vector2(s.x, s.y), true)
 	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
 			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
+	
+	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y, c.z), Vector2(s.x, s.z))
+	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
+	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+
+## Repeats the node's texture across a plane of the given size (x, z), drawing each tile
+## texture_size * texel_scale world units across.
+func _tile_texture(node: MeshInstance3D, size: Vector2, texel_scale: float) -> void:
+	if node == null:
+		return
+	var mesh := node.mesh as PlaneMesh
+
+	# Find the StandardMaterial3D the node actually renders with.
+	var source: StandardMaterial3D = null
+	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
+	if node.material_override is StandardMaterial3D:
+		source = node.material_override
+		slot = 1
+	elif node.get_surface_override_material(0) is StandardMaterial3D:
+		source = node.get_surface_override_material(0) as StandardMaterial3D
+		slot = 2
+	elif mesh != null and mesh.material is StandardMaterial3D:
+		source = mesh.material as StandardMaterial3D
+		slot = 3
+	if source == null or source.albedo_texture == null:
+		push_warning("BodySplitPath: '%s' has no StandardMaterial3D with an albedo texture to tile." % node.name)
+		return
+
+	var tile := source.albedo_texture.get_size() * texel_scale  # one tile, in world units
+	if tile.x <= 0.0 or tile.y <= 0.0:
+		return
+
+	# A per-plane copy, because the floor and ceiling each need their own scale.
+	var material := source.duplicate() as StandardMaterial3D
+	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
+	material.texture_repeat = true
+	material.uv1_offset = Vector3.ZERO
+	material.uv1_scale = Vector3(size.x / tile.x, size.y / tile.y, 1.0)
+
+	match slot:
+		1: node.material_override = material
+		2: node.set_surface_override_material(0, material)
+		3: mesh.material = material
 
 ## Gives the node its own PlaneMesh of the right size and puts it at local_pos (in this
 ## node's space), rotated so the plane's visible side faces into the room.

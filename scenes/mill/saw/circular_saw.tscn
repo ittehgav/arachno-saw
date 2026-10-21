@@ -77,12 +77,6 @@ _data = {
 height = 1.0
 radius = 100.0
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_kddjp"]
-size = Vector3(131.79456, 1, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
-size = Vector3(1000, 100, 1)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i02ns"]
 emission_enabled = true
 emission = Color(0.28, 0.26506665, 0.1904, 1)
@@ -103,14 +97,13 @@ emission_energy_multiplier = 14.12
 [sub_resource type="PrismMesh" id="PrismMesh_dem60"]
 material = SubResource("StandardMaterial3D_7q4vo")
 
-[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "miss_shape_cast", "camera", "particles_container")]
+[node name="saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container")]
 script = ExtResource("1_i02ns")
-miss_scan = NodePath("miss_check")
+miss_scan = NodePath("")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
 collision_shape = NodePath("CollisionShape3D")
-miss_shape_cast = NodePath("miss_check/miss_cast")
 camera = NodePath("saw_cam")
 particles_container = NodePath("particles_container")
 
@@ -151,20 +144,6 @@ autoplay = &"saw_rotation"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1650663486]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("CylinderShape3D_0djmd")
-
-[node name="miss_check" type="Area3D" parent="." unique_id=190430923]
-transform = Transform3D(-1, -8.742278e-08, -3.821371e-15, 8.742278e-08, -1, -8.742278e-08, 3.821371e-15, -8.742278e-08, 1, 0, 0, 0)
-collision_layer = 0
-collision_mask = 4
-monitorable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="miss_check" unique_id=613014662]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.63849, 0, 0)
-shape = SubResource("BoxShape3D_kddjp")
-
-[node name="miss_cast" type="ShapeCast3D" parent="miss_check" unique_id=304245136]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 650, 0, 0)
-shape = SubResource("BoxShape3D_u5bk5")
 
 [node name="saw_cam" type="Camera3D" parent="." unique_id=1985770876]
 transform = Transform3D(-0.9754536, -0.06888525, 0.20915332, 0.2140253, -0.07314277, 0.97408587, -0.051802058, 0.9949397, 0.08609058, 275.23486, 764.9304, -101.48514)
@@ -214,4 +193,3 @@ scale_amount_curve = SubResource("Curve_7q4vo")
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]
 [connection signal="board_left" from="." to="." method="_on_board_left"]
 [connection signal="board_touched" from="." to="." method="_on_board_touched"]
-[connection signal="area_entered" from="miss_check" to="." method="_on_miss_check_area_entered"]

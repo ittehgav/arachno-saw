@@ -37,6 +37,7 @@ window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/stretch/scale=2.0
 window/stretch/scale_mode="integer"
+window/scale=0.7068
 
 [editor]
 

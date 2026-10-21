@@ -7,9 +7,6 @@ signal boards_changed;
 
 signal board_dropped(board:StaticBody3D);
 
-## erm actually is called from another script
-@warning_ignore("unused_signal") 
-signal saw_missed(saw:Saw);
 
 @export var spider:Crawler
 
@@ -59,14 +56,12 @@ var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
 		touching = true;
-		print("stou?")
 		saw_touched.emit(area)
 		
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
 		touching = false
-		print("sle?")
 		saw_left.emit(area)
 
 var glowing:Array[MeshInstance3D]
@@ -86,21 +81,12 @@ func _on_saw_touched(_saw: Saw) -> void:
 func glow_loop(mesh:MeshInstance3D)->void:
 	if mesh not in glowing:
 		return;
-	var m:ShaderMaterial = mesh.material_override
-
-
-	var light_r:float = m.get_shader_parameter("light_color").r;
-	var dark_r:float = m.get_shader_parameter("dark_color").r;
-	
+	var m:StandardMaterial3D = mesh.material_override
 	var t:=create_tween();
 	t.set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(m, "albedo_color:s", 1, .25);
+	t.tween_property(m, "albedo_color:s", 0, .5);
 	
-	t.tween_property(m, "shader_parameter/light_color:r", 1, .25);
-	t.parallel().tween_property(m, "shader_parameter/dark_color:r", 1, .25)
-	
-	
-	t.tween_property(m, "shader_parameter/light_color:r", light_r, .5);
-	t.parallel().tween_property(m, "shader_parameter/dark_color:r", dark_r, .5);
 	await t.finished;
 	if mesh and mesh in glowing:
 		glow_loop(mesh)
@@ -171,9 +157,6 @@ func _on_saw_left(_saw: Saw) -> void:
 	await get_tree().physics_frame;
 	boards_changed.emit.call_deferred()
 
-func _on_saw_missed(saw: Saw) -> void:
-	saw_touched.emit(saw);
-	saw_left.emit(saw)
 
 
 var dropped_boards:Array[StaticBody3D];
@@ -209,8 +192,7 @@ func drop_board(b:StaticBody3D)->void:
 		var m:Material = mesh.material_override;
 		if not m:
 			m = mesh.mesh.material;
-		t.tween_property(m, "shader_parameter/dark_color:a", 0, td);
-		t.parallel().tween_property(m, "shader_parameter/light_color:a", 0, td);
+		t.tween_property(m, "albedo_color", Color.BLACK, td);
 		t.tween_callback(mesh.queue_free)
 
 

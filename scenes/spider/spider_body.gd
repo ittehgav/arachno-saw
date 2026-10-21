@@ -24,7 +24,7 @@ const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
 	
-const TELEPORT_SEARCH_RANGE := 1000.0   # how far to look for a surface; set this to roughly your level size
+const TELEPORT_SEARCH_RANGE := 10000.0   # how far to look for a surface; set this to roughly your level size
 const TELEPORT_SEARCH_RAYS := 96       # more rays = more accurate nearest point
 
 var bonus_speed:float = 0;
@@ -60,6 +60,13 @@ func _ready()->void:
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
+	if not global_transform.is_finite():
+		global_transform = last_valid_transform
+		velocity = Vector3.ZERO
+	if not velocity.is_finite():
+		velocity = Vector3.ZERO
+	if not surface_normal.is_finite() or not surface_normal.is_normalized():
+		surface_normal = _up()
 	if _has_pending_teleport:
 		_has_pending_teleport = false
 		_apply_teleport(_pending_teleport)
@@ -76,7 +83,7 @@ func _physics_process(delta: float) -> void:
 	# 1. Find the surface we should be stuck to.
 	var found := _find_surface_normal(direction)
 	if found != Vector3.ZERO:
-		surface_normal = found
+		_set_surface_normal(found)
 
 	# 2. Rotate the body so its up axis matches the surface.
 	_align_to_surface(delta)
@@ -97,7 +104,7 @@ func _physics_process(delta: float) -> void:
 	for i in get_slide_collision_count():
 		var n := get_slide_collision(i).get_normal()
 		if n.dot(surface_normal) < 0.7:
-			surface_normal = n
+			_set_surface_normal(n)
 			break
 	moving = abs(velocity.x) > 1
 	# 5. Hard guarantee: always end the frame glued to a surface.
@@ -121,7 +128,8 @@ func _snap_to_surface() -> bool:
 	if hit.is_empty():
 		return false
 
-	surface_normal = hit.normal
+	if not _set_surface_normal(hit.normal):
+		return false
 	global_position = hit.position + hit.normal * HOVER_DIST
 	return true
 
@@ -170,10 +178,9 @@ func _find_surface_normal(move_dir: Vector3) -> Vector3:
 
 
 func _align_to_surface(delta: float) -> void:
-	var q := Quaternion(global_basis.y, surface_normal)
 	var t := 1.0 - exp(-ALIGN_SPEED * delta)
-	q = Quaternion.IDENTITY.slerp(q, t)
-	global_basis = (Basis(q) * global_basis).orthonormalized()
+	var q := Quaternion.IDENTITY.slerp(_rotation_to_surface(), t)
+	global_basis = (Basis(q) * global_basis.orthonormalized()).orthonormalized()
 
 
 var _pending_teleport := Transform3D.IDENTITY
@@ -208,8 +215,10 @@ func _apply_teleport(target: Transform3D) -> void:
 
 	# Orient instantly instead of easing, so the first frame isn't sideways.
 	var q := Quaternion(global_basis.y, surface_normal)
-	global_basis = (Basis(q) * global_basis).orthonormalized()
+	global_basis = (Basis(_rotation_to_surface()) * global_basis.orthonormalized()).orthonormalized()
 	last_valid_transform = global_transform
+
+
 func _find_nearest_surface_anywhere() -> Dictionary:
 	# Stage 1: overlap queries with growing spheres. Handles a point that is
 	# on, inside, or beside a collider, which rays can't see.
@@ -262,6 +271,28 @@ func _raycast(from: Vector3, to: Vector3) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	query.exclude = [get_rid()]
 	return get_world_3d().direct_space_state.intersect_ray(query)
+	
+func _up() -> Vector3:
+	return global_basis.orthonormalized().y
+
+
+# Only accepts a usable normal; returns false (and changes nothing) otherwise.
+func _set_surface_normal(n: Vector3) -> bool:
+	if not n.is_finite() or n.length_squared() < 0.0001:
+		return false
+	surface_normal = n.normalized()
+	return true
+
+
+func _rotation_to_surface() -> Quaternion:
+	var up := _up()
+	var d := up.dot(surface_normal)
+	if d > 0.99999:
+		return Quaternion.IDENTITY
+	if d < -0.99999:
+		# Exactly upside down: the shortest arc is ambiguous, so flip around our own x axis.
+		return Quaternion(global_basis.orthonormalized().x, PI)
+	return Quaternion(up, surface_normal)   # both are unit length here
 
 const shaking_amp = 5;
 func _on_board_container_saw_touched(_saw: Saw) -> void:

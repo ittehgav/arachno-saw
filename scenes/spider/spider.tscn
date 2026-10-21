@@ -6008,6 +6008,7 @@ spot_angle_attenuation = 15.999948
 stream = ExtResource("12_67554")
 
 [node name="death" type="AudioStreamPlayer" parent="sfx" unique_id=921347109]
+process_mode = 3
 stream = ExtResource("12_b682s")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=514737973]

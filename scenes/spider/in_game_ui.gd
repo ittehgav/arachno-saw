@@ -1,0 +1,123 @@
+extends UIRoot
+class_name InGameUI
+
+@export var score_label:Label;
+## just leave an instance here 
+## instead of having to track previous 
+## score value some other way
+var current_score:int;
+@export var hud:Control;
+@export var post_run:PostRun
+
+func _ready()->void:
+	super()
+	Run.score_changed.connect(_on_run_score_changed)
+	
+	Run.fly_combo_started.connect(_on_fly_combo_started);
+	Run.fly_combo_incremented.connect(_on_fly_combo_incremented);
+	Run.fly_combo_ended.connect(_on_fly_combo_ended);
+	
+
+func _on_run_score_changed() -> void:
+	score_label.text = str(int(Run.score))
+
+@export var fly_combo_display:Control;
+@export var fly_combo_label:Label;
+@export var fly_rect:TextureRect
+
+@export var combo_increment_animation:AnimationPlayer;
+
+@export var fly_mesh:MeshInstance3D;
+
+@export var combo_timeout_bar:TextureProgressBar;
+@export var saw_pov:SubViewport
+
+@export var fly_point_gain_label:Label;
+@export var combo_multiplier_label:Label;
+
+
+
+
+@export var you_died_screen:Control;
+@export var you_died_message:Label
+@export var you_died_continue_btn:Button
+
+func _on_spider_died(source:Crawler.DeathType) -> void:
+	hud.hide();
+	Run.finish_run(false)
+	const dt = Crawler.DeathType
+	match source:
+		dt.saw:
+			you_died_message.text = "Avoid touching the saws."
+		dt.board:
+			you_died_message.text = "Boards always fall spider-side-down."
+		dt.skull:
+			you_died_message.text = "Don't you know what a skull means?"
+
+	const death_pause_delay = .5
+	Run._elapsed_time -= death_pause_delay;
+	you_died_screen.modulate.a = 0;
+	you_died_screen.show()
+
+	var t:= create_tween();
+	t.tween_property(you_died_screen, "modulate:a", 1, death_pause_delay);
+	t.tween_callback(func()->void:get_tree().paused = true);
+	t.tween_callback(you_died_continue_btn.show);
+
+
+func _process(_delta: float) -> void:
+	combo_timeout_bar.value = Run.fly_combo_timeout.time_left
+
+func _on_fly_combo_started()->void:
+	## combo incremented will emit on the same frame
+	fly_combo_display.show();
+	
+	
+func _on_fly_combo_incremented(type:Fly.Type)->void:
+	combo_increment_animation.play("combo_increment")
+	update_combo_label();
+	
+	var fly_color:Color = Fly.buff_colors[type];
+	fly_rect.modulate = fly_color;
+
+	combo_timeout_bar.tint_progress = fly_color - Color(0, 0, 0, .6)
+	
+
+	fly_point_gain_label.modulate = fly_color;
+	fly_point_gain_label.text = "+" + str(snapped(Run.fly_score_values[type] * Run.combo_multiplier, .01));
+	
+	combo_multiplier_label.text = "(*" + str(Run.combo_multiplier)+")"
+
+func update_combo_label()->void:
+	fly_combo_label.text = str(Run.current_fly_combo);
+	
+ 
+func _on_fly_combo_ended()->void:
+	fly_combo_display.hide()
+
+var score_tween:Tween;
+func tween_score_label()->void:
+	score_tween = create_tween();
+	score_tween.tween_method(set_score_text, current_score, Run.current_score, .1);
+	
+func set_score_text(target:int)->void:
+	score_label.text = str(target);
+
+
+func _on_board_container_saw_touched(saw: Saw) -> void:
+	saw.camera.reparent(saw_pov)
+	await get_tree().process_frame
+	saw.camera.global_position = saw.global_position + Vector3(100, 700, 200);
+	saw.camera.look_at(saw.global_position)
+
+
+func _on_board_container_saw_left(_saw: Saw) -> void:
+	saw_pov.get_node("saw_cam").queue_free()
+
+
+func _on_continue_pressed() -> void:
+	await fade_out(you_died_screen).finished;
+	post_run.show_post_run()
+
+
+	

@@ -12,3 +12,4 @@ func _on_new_game_pressed() -> void:
 	get_parent().add_child(mill);
 	await fade_out(fade_out_rect).finished;
 	queue_free()
+	

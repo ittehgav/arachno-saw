@@ -127,4 +127,4 @@ func _on_spider_died(_source: Crawler.DeathType) -> void:
 	pcam.follow_mode = PhantomCamera3D.FollowMode.NONE;
 	pcam.look_at_mode = PhantomCamera3D.LookAtMode.NONE;
 	var t:= create_tween();
-	t.tween_property(pcam, "camera_3d_resource/fov", pcam.fov + 30, 1)
+	t.tween_property(pcam.camera_3d_resource, "fov", pcam.fov + 30, 1)

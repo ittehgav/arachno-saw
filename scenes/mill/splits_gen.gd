@@ -19,6 +19,10 @@ extends Node
 @export var allow_x_cuts := true
 @export var allow_y_cuts := true
 @export var allow_z_cuts := true
+
+## Never place two cuts in a row on the same axis (needs at least two axes enabled).
+@export var no_repeat_axis := false
+
 ## Minimum distance (meters) between a cut and the board's faces, or another cut on the same axis.
 @export var min_piece_size := 0.05
 
@@ -68,36 +72,51 @@ func generate_cuts() -> Array[SplitCut]:
 		push_warning("NoiseSplitSequence: all axes are disabled.")
 		return result
 
-	var used: Array = [[], [], []]  # offsets already used, per axis
+	# The board that is still attached after the cuts so far. Each cut drops one side, so this
+	# shrinks, and every new cut is placed inside it so its saw always touches what's left.
+	var remaining := bounds
 	var sample := 0
 	var max_samples := cut_count * 25
+	var last_axis := -1
 	while result.size() < cut_count and sample < max_samples:
 		var t := sample_origin.x + sample * noise_step
 		sample += 1  # a rejected sample still moves on, so the sequence can't get stuck
 
-		# Axis: one noise row. Offset: another row, far enough away to be unrelated.
+		# Axes this cut may use: every enabled one, minus the previous cut's if repeats are off.
+		var candidates: Array[int] = []
+		for a in axes:
+			if not (no_repeat_axis and a == last_axis):
+				candidates.append(a)
+		if candidates.is_empty():
+			push_warning("NoiseSplitSequence: no_repeat_axis needs at least two enabled axes.")
+			break
+
 		var pick := _unit(noise.get_noise_2d(t, sample_origin.y))
-		var axis: int = axes[mini(int(pick * axes.size()), axes.size() - 1)]
+		var axis: int = candidates[mini(int(pick * candidates.size()), candidates.size() - 1)]
 
-		var lo := bounds.position[axis] + min_piece_size
-		var hi := bounds.end[axis] - min_piece_size
+		var lo := remaining.position[axis] + min_piece_size
+		var hi := remaining.end[axis] - min_piece_size
 		if hi <= lo:
-			continue  # the board is too thin on this axis to cut
+			continue  # what's left is too thin on this axis to cut
 		var offset := lerpf(lo, hi, _unit(noise.get_noise_2d(t, sample_origin.y + 1000.0)))
+		var drop_negative := _unit(noise.get_noise_2d(t, sample_origin.y + 2000.0)) < 0.5
 
-		var too_close := false
-		for other: float in used[axis]:
-			if absf(other - offset) < min_piece_size:
-				too_close = true
-				break
-		if too_close:
-			continue
-
-		used[axis].append(offset)
 		var cut := SplitCut.new()
 		cut.axis = axis as SplitCut.Axis
 		cut.offset = offset
+		cut.drop_side = SplitCut.DropSide.NEGATIVE_SIDE if drop_negative else SplitCut.DropSide.POSITIVE_SIDE
+		last_axis = axis
 		result.append(cut)
+
+		# Keep only the side that stays attached.
+		var pos := remaining.position
+		var size := remaining.size
+		if drop_negative:
+			pos[axis] = offset
+			size[axis] = remaining.end[axis] - offset
+		else:
+			size[axis] = offset - remaining.position[axis]
+		remaining = AABB(pos, size)
 
 	if result.size() < cut_count:
 		push_warning("NoiseSplitSequence: only %d of %d cuts fit; lower min_piece_size or cut_count." % [result.size(), cut_count])
