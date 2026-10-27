@@ -1,10 +1,13 @@
 [gd_scene format=4 uid="uid://r5phmsuxm2wu"]
 
-[ext_resource type="Texture2D" uid="uid://becb3thuogsx5" path="res://assets/textures/PSX Textures/256/Color Maps/wood_3.png" id="1_kj3fq"]
+[ext_resource type="Texture2D" uid="uid://becb3thuogsx5" path="res://assets/textures/used/wood_3.png" id="1_kj3fq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rrqsk"]
+transparency = 1
+albedo_color = Color(2.055, 2.055, 2.055, 1)
 albedo_texture = ExtResource("1_kj3fq")
-uv1_scale = Vector3(1, 7.46, 1)
+uv1_scale = Vector3(1.77, 4.235, 1)
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_rrqsk"]
 resource_local_to_scene = true

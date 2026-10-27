@@ -4,21 +4,21 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d8jq6ssti84a"
 path.s3tc="res://.godot/imported/rusty_metal_pt_2.png-95512b4d54e231ebed7a9d5b31a25900.s3tc.ctex"
+path.etc2="res://.godot/imported/rusty_metal_pt_2.png-95512b4d54e231ebed7a9d5b31a25900.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/PSX Textures II [Demo]/512/Color Maps/rusty_metal_pt_2.png"
-dest_files=["res://.godot/imported/rusty_metal_pt_2.png-95512b4d54e231ebed7a9d5b31a25900.s3tc.ctex"]
+dest_files=["res://.godot/imported/rusty_metal_pt_2.png-95512b4d54e231ebed7a9d5b31a25900.s3tc.ctex", "res://.godot/imported/rusty_metal_pt_2.png-95512b4d54e231ebed7a9d5b31a25900.etc2.ctex"]
 
 [params]
 
 compress/mode=2
 compress/high_quality=false
-compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

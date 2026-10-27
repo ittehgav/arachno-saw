@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dw85ugtcu07rc"
+path="res://.godot/imported/Faded.ogg-ffb2a949490dd494039c853a65d7417c.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Faded.ogg"
+dest_files=["res://.godot/imported/Faded.ogg-ffb2a949490dd494039c853a65d7417c.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

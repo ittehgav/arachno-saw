@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bb2ngam1ne0bf"
+path="res://.godot/imported/Distant.wav-acb83993739e1ff2c41b5519159728fe.sample"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Distant.wav"
+dest_files=["res://.godot/imported/Distant.wav-acb83993739e1ff2c41b5519159728fe.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

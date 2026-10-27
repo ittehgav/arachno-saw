@@ -4,21 +4,21 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ciuhnafjyqb28"
 path.s3tc="res://.godot/imported/concrete_pt_4.png-fd773120221ddb0f2234d4591a683a5f.s3tc.ctex"
+path.etc2="res://.godot/imported/concrete_pt_4.png-fd773120221ddb0f2234d4591a683a5f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/PSX Textures II [Demo]/256/Color Maps/concrete_pt_4.png"
-dest_files=["res://.godot/imported/concrete_pt_4.png-fd773120221ddb0f2234d4591a683a5f.s3tc.ctex"]
+dest_files=["res://.godot/imported/concrete_pt_4.png-fd773120221ddb0f2234d4591a683a5f.s3tc.ctex", "res://.godot/imported/concrete_pt_4.png-fd773120221ddb0f2234d4591a683a5f.etc2.ctex"]
 
 [params]
 
 compress/mode=2
 compress/high_quality=false
-compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -34,16 +34,9 @@ var current_stage:int = -2
 var next_boards:Array;
 
 
-var safe_boards:Array:
+var safe_board:StaticBody3D:
 	get():
-		if current_stage == -2:
-			return [top_trunk, bottom_trunk, right_trunk, left_trunk]
-		elif current_stage == -1:
-			return [top_trunk, top_trunk, splitter.source_body]
-		
-
-		var boards:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1)
-		return boards.filter(func(b:StaticBody3D)->bool:return b not in to_drop)
+		return splitter.get_remaining_board(current_stage)
 
 func _enter_tree() -> void:
 	GLB.board_container = self;
@@ -68,15 +61,19 @@ var glowing:Array[MeshInstance3D]
 var to_drop:Array[StaticBody3D]
 func _on_saw_touched(_saw: Saw) -> void:
 	for n:Node3D in to_drop:
-		var to_glow:Array[MeshInstance3D] = [n.get_node("MeshInstance3D")]
-		var half:MeshInstance3D = n.get_node_or_null("MeshInstance3D_Half")
-		if half:
-			to_glow.append(half)
+		var to_glow:Array[MeshInstance3D] = get_board_meshes(n)
 		for mesh:MeshInstance3D in to_glow:
 				generate_glow_material(mesh)
 				glowing.append(mesh)
 				glow_loop(mesh)
 	current_stage += 1;
+
+func get_board_meshes(board:StaticBody3D)->Array[MeshInstance3D]:
+	var meshes:Array[MeshInstance3D];
+	for c:Node in board.get_children():
+		if c is MeshInstance3D:
+			meshes.append(c);
+	return meshes
 
 func glow_loop(mesh:MeshInstance3D)->void:
 	if mesh not in glowing:
@@ -112,39 +109,27 @@ func filter_dropped_boards(b:StaticBody3D)->bool:
 
 func set_to_drop()->void:
 	to_drop = [];
+	
 	if current_stage < 0:
-		var pre:Array = get_next_boards()
+		var pre:Array = preliminar_stage_cuts[current_stage + 2];
 		for p:NodePath in pre:
 			to_drop.append(get_node(p));
 	else:
-		roll_board_drop()
+		to_drop = splitter.get_pieces(current_stage + 1).filter(func(p:StaticBody3D)->bool:return p.get_meta(splitter.FALLS_KEY));
 
-func roll_board_drop()->void:
-	var live_boards:Array = get_next_boards();
-	for b:StaticBody3D in live_boards:
-		## enabling boards from start state 
-		## collsion layer 3
-		b.get_node("CollisionShape3D").disabled = false;
-	if len(live_boards) > 1:
-		to_drop = [live_boards.pick_random()]
-
-func get_next_boards()->Array:
-	if current_stage < 0:
-		next_boards = preliminar_stage_cuts.pop_front();
-	elif current_stage == 0:
-		next_boards = splitter.get_pieces(1);
-	else:
-		next_boards = splitter.get_pieces(current_stage + 1).filter(filter_dropped_boards);
-	return next_boards;
-
+@onready var total_stages := splitter.get_split_count();
 func _on_saw_left(_saw: Saw) -> void:
 	for b:StaticBody3D in to_drop:
 		b.get_node("CollisionShape3D").set_deferred("disabled", true)
 		drop_board(b)
-		
+
+	
 	## rolling board drops immediately so flies can 
 	## spawn on dropping side before next board_touched
-	
+	if current_stage == total_stages + 1 and not spider.dead:
+		print("staeg?")
+		spider.win_run();
+		return
 	var stage:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1);
 	for p:StaticBody3D in stage:
 		p.set_collision_layer_value(1, true)
@@ -182,17 +167,15 @@ func drop_board(b:StaticBody3D)->void:
 		c.queue_free();
 	
 	## do we just use default names?
-	var to_glow_down:Array[MeshInstance3D] = [b.get_node("MeshInstance3D")]
-	var half:MeshInstance3D = b.get_node_or_null("MeshInstance3D_Half")
-	if half:
-		to_glow_down.append(half)
+	
+	var to_glow_down:Array[MeshInstance3D] = get_board_meshes(b)
 	for mesh:MeshInstance3D in to_glow_down:
 		const td = 2;##tween duration
 		var t := create_tween();
 		var m:Material = mesh.material_override;
 		if not m:
 			m = mesh.mesh.material;
-		t.tween_property(m, "albedo_color", Color.BLACK, td);
+		t.tween_property(m, "albedo_color:a", 0, td);
 		t.tween_callback(mesh.queue_free)
 
 
@@ -203,14 +186,7 @@ func drop_board(b:StaticBody3D)->void:
 			
 	board_dropped.emit(b);
 
-func glow_down(mesh:MeshInstance3D)->void:
-	var m:Material = mesh.material_override;
-	if not m:
-		return;
-	var t:= create_tween();
-	t.tween_property(m, "shader_parameter/light_color:s", 0, 1);
-	t.tween_property(m, "shader_parameter/dark_color:s", 0, 1);
-	glowing.erase(mesh)
+
 	
 func get_shapes(b:Node)->void:
 	for c in b.get_children():

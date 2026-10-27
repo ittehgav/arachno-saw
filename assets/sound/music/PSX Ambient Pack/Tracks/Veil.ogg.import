@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://ce8t2qg0f68eo"
+path="res://.godot/imported/Veil.ogg-a2e3ee4e84eb27dfb07a1a515f5f3509.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Veil.ogg"
+dest_files=["res://.godot/imported/Veil.ogg-a2e3ee4e84eb27dfb07a1a515f5f3509.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

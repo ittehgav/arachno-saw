@@ -1,7 +1,6 @@
 extends Node3D
 
 @export var spawner_box:CollisionShape3D;
-@export var fly_scene:PackedScene
 @export var splitter:BodySplitPath
 
 var current_flies:Array[Fly];
@@ -39,11 +38,12 @@ func refresh_flies()->void:
 	
 func refresh_spawn_region()->void:
 	var c:BoardContainer = GLB.board_container
+	var stage:= c.current_stage
 	spawnable_boards = [];
-	if c.current_stage >= 0:
-		spawnable_boards = c.next_boards;
+	if stage >= 0:
+		spawnable_boards = splitter.get_pieces(c.current_stage)
 	else:
-		for p:NodePath in c.next_boards:
+		for p:NodePath in c.preliminar_stage_cuts[stage + 2]:
 			spawnable_boards.append(c.get_node(p));
 
 var box_aabb:AABB:
@@ -93,16 +93,17 @@ func generate_fly(skip_transform:bool=false)->Fly:
 	else:
 		aabb = get_shapes_region(spawnable_boards, 5)
 	
-	var fly := fly_scene.instantiate() as Node3D;
+	var fly := SceneIndex.fly.instantiate() as Node3D;
 	
 	if not skip_transform:
 		hit = get_random_surface_point(aabb)
 		if hit:
 			## looks tupid but works ispose
-			fly.roll_type(current_fly_types());
-			add_child(fly) ## tp target is added manually so type isnt rolled here
-			fly.global_transform = hit.transform
-			fly.global_position = hit.position
+			if hit.transform.origin.distance_to(GLB.spider.global_position) > 50:
+				fly.roll_type(current_fly_types());
+				add_child(fly) ## tp target is added manually so type isnt rolled here
+				fly.global_transform = hit.transform
+				fly.global_position = hit.position
 
 	if fly.type == Fly.Type.teleport and not skip_transform:
 		var hit2:= get_random_surface_point(aabb);

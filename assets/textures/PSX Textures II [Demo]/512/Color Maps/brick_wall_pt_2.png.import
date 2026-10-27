@@ -4,21 +4,21 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://8qvcrkrknncv"
 path.s3tc="res://.godot/imported/brick_wall_pt_2.png-6e0c9cc9f5f9b38c6db7c5b7edbaf9c4.s3tc.ctex"
+path.etc2="res://.godot/imported/brick_wall_pt_2.png-6e0c9cc9f5f9b38c6db7c5b7edbaf9c4.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/PSX Textures II [Demo]/512/Color Maps/brick_wall_pt_2.png"
-dest_files=["res://.godot/imported/brick_wall_pt_2.png-6e0c9cc9f5f9b38c6db7c5b7edbaf9c4.s3tc.ctex"]
+dest_files=["res://.godot/imported/brick_wall_pt_2.png-6e0c9cc9f5f9b38c6db7c5b7edbaf9c4.s3tc.ctex", "res://.godot/imported/brick_wall_pt_2.png-6e0c9cc9f5f9b38c6db7c5b7edbaf9c4.etc2.ctex"]
 
 [params]
 
 compress/mode=2
 compress/high_quality=false
-compress/high_quality_mode=0
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

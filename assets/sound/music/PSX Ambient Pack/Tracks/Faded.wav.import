@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cmprpdpto2qiq"
+path="res://.godot/imported/Faded.wav-369e2c662905be4b9169b1e1f22d412b.sample"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Faded.wav"
+dest_files=["res://.godot/imported/Faded.wav-369e2c662905be4b9169b1e1f22d412b.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

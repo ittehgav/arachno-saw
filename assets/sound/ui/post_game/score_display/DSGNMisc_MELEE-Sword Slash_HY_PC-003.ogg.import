@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://de63tjrqnn0n4"
+path="res://.godot/imported/DSGNMisc_MELEE-Sword Slash_HY_PC-003.ogg-7e73ab7a051669634520ff309322d6dd.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/ui/post_game/score_display/DSGNMisc_MELEE-Sword Slash_HY_PC-003.ogg"
+dest_files=["res://.godot/imported/DSGNMisc_MELEE-Sword Slash_HY_PC-003.ogg-7e73ab7a051669634520ff309322d6dd.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

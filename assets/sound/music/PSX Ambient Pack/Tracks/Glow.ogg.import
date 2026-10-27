@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://d3s2ubiba0jq0"
+path="res://.godot/imported/Glow.ogg-54b3a2b23057e56973533ba50a7468b6.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Glow.ogg"
+dest_files=["res://.godot/imported/Glow.ogg-54b3a2b23057e56973533ba50a7468b6.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

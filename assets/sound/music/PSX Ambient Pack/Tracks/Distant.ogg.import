@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bm5hlm83kkimo"
+path="res://.godot/imported/Distant.ogg-6c131f35feec5b21071afa903099b11e.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Distant.ogg"
+dest_files=["res://.godot/imported/Distant.ogg-6c131f35feec5b21071afa903099b11e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

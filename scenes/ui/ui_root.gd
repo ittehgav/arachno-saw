@@ -8,8 +8,6 @@ class_name UIRoot
 func _ready() -> void:
 	recursive_connect_feedback(self);
 
-func adjust_scale()->void:
-	var vp:SubViewport = SubViewport.new();
 
 
 func recursive_connect_feedback(target:Node)->void:
@@ -57,8 +55,8 @@ static func mouseover_shake(target:Control, srr:float = PI/32, cycle:float = .05
 	
 	return tween
 
-static func fade_in(target:CanvasItem, duration:float = .5)->Tween:
-	target.show();
+static func fade_in(target:CanvasItem, duration:float = .5, and_show:bool=true)->Tween:
+	if and_show: target.show();
 	
 	target.modulate.a = .1
 	## tween goes into the control because of nodes that process when pasued
@@ -67,7 +65,7 @@ static func fade_in(target:CanvasItem, duration:float = .5)->Tween:
 	return tween
 	
 
-static func fade_out(target:CanvasItem, hide_after:bool=true, duration:float = .5)->Tween:
+static func fade_out(target:CanvasItem, duration:float = .5, hide_after:bool=true)->Tween:
 	var tween:Tween = target.create_tween();
 	tween.tween_property(target,"modulate:a", 0, duration);
 	if hide_after:

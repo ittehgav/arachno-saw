@@ -53,6 +53,9 @@ func _setup()->void:
 	fly_body.material_override.albedo_color = buff_colors[type];
 	fly_body.material_override.emission = buff_colors[type]
 	buff_icons[type].show()
+	for key:Type in buff_icons.keys():
+		if key != type:
+			buff_icons[key].queue_free();
 	
 
 func apply_effect(spider:Crawler)->void:

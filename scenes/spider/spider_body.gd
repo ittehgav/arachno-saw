@@ -5,11 +5,32 @@ signal fly_consumed(fly:Fly)
 signal died(source:DeathType)
 signal shield_lost;
 
+signal run_won;
+
 enum DeathType{
 	saw,
 	board,
 	skull
 }
+@export var pcam:PhantomCamera3D
+@export var body:Spider
+
+@export var death_sfx:AudioStreamPlayer
+
+@export var blink_animation:AnimationPlayer;
+@export var cheat_death_sfx:AudioStreamPlayer;
+
+@export var buff_glow_mesh:MeshInstance3D
+@export var buff_glow_animation:AnimationPlayer
+
+var moving:bool=false;
+## bc board deaths can be async and on drop board i need to know
+## its alive in order to win the run
+var dead:bool=false;
+
+var has_shield:bool=false;
+func _enter_tree() -> void:
+	GLB.spider = self;
 
 const HOVER_DIST := 0.5     # center-to-surface distance at rest (e.g. your sphere/capsule radius)
 const SNAP_RANGE := 5.0     # how far straight "down" we look first
@@ -17,13 +38,13 @@ const SEARCH_RANGE := 5.0   # how far the wide search looks if that misses
 
 var last_valid_transform: Transform3D
 
-const SPEED := 70.0
+var SPEED: = 70.0;
 const TURN_SPEED := 5     # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
 const ALIGN_SPEED := 15.0     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
-	
+
 const TELEPORT_SEARCH_RANGE := 10000.0   # how far to look for a surface; set this to roughly your level size
 const TELEPORT_SEARCH_RAYS := 96       # more rays = more accurate nearest point
 
@@ -34,26 +55,8 @@ var speed:float:
 		return SPEED + bonus_speed;
 var surface_normal := Vector3.UP;
 
-@export var pcam:PhantomCamera3D
-@export var body:Spider
-
-@export var death_sfx:AudioStreamPlayer
-
-@export var blink_animation:AnimationPlayer;
-@export var cheat_death_sfx:AudioStreamPlayer;
-
-
-@export var buff_glow_mesh:MeshInstance3D
-@export var buff_glow_animation:AnimationPlayer
-
 @export var home_point := Vector3.ZERO   # in the parent's local space
 @export var recovery_speed := 4.0        # keep recovery_speed * delta well under SEARCH_RANGE
-
-var moving:bool=false;
-
-var has_shield:bool=false;
-func _enter_tree() -> void:
-	GLB.spider = self;
 
 func _ready()->void:
 	last_valid_transform = global_transform
@@ -115,7 +118,6 @@ func _physics_process(delta: float) -> void:
 		global_transform = last_valid_transform
 		velocity = Vector3.ZERO
 
-	
 func _snap_to_surface() -> bool:
 	var origin := global_position
 
@@ -132,7 +134,6 @@ func _snap_to_surface() -> bool:
 		return false
 	global_position = hit.position + hit.normal * HOVER_DIST
 	return true
-
 
 func _find_nearest_surface() -> Dictionary:
 	var origin := global_position
@@ -176,22 +177,18 @@ func _find_surface_normal(move_dir: Vector3) -> Vector3:
 
 	return Vector3.ZERO
 
-
 func _align_to_surface(delta: float) -> void:
 	var t := 1.0 - exp(-ALIGN_SPEED * delta)
 	var q := Quaternion.IDENTITY.slerp(_rotation_to_surface(), t)
 	global_basis = (Basis(q) * global_basis.orthonormalized()).orthonormalized()
 
-
 var _pending_teleport := Transform3D.IDENTITY
 var _has_pending_teleport := false
 
-
 func teleport_to(target: Transform3D) -> void:
-	
+
 	_pending_teleport = target
 	_has_pending_teleport = true
-
 
 func _apply_teleport(target: Transform3D) -> void:
 	var previous := global_transform
@@ -214,10 +211,9 @@ func _apply_teleport(target: Transform3D) -> void:
 		_snap_to_surface()   # refine to the true perpendicular distance
 
 	# Orient instantly instead of easing, so the first frame isn't sideways.
-	var q := Quaternion(global_basis.y, surface_normal)
+
 	global_basis = (Basis(_rotation_to_surface()) * global_basis.orthonormalized()).orthonormalized()
 	last_valid_transform = global_transform
-
 
 func _find_nearest_surface_anywhere() -> Dictionary:
 	# Stage 1: overlap queries with growing spheres. Handles a point that is
@@ -250,7 +246,6 @@ func _find_nearest_surface_anywhere() -> Dictionary:
 
 	return best
 
-
 func _rest_info_at(point: Vector3, radius: float) -> Dictionary:
 	var sphere := SphereShape3D.new()
 	sphere.radius = radius
@@ -271,10 +266,9 @@ func _raycast(from: Vector3, to: Vector3) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(from, to)
 	query.exclude = [get_rid()]
 	return get_world_3d().direct_space_state.intersect_ray(query)
-	
+
 func _up() -> Vector3:
 	return global_basis.orthonormalized().y
-
 
 # Only accepts a usable normal; returns false (and changes nothing) otherwise.
 func _set_surface_normal(n: Vector3) -> bool:
@@ -282,7 +276,6 @@ func _set_surface_normal(n: Vector3) -> bool:
 		return false
 	surface_normal = n.normalized()
 	return true
-
 
 func _rotation_to_surface() -> Quaternion:
 	var up := _up()
@@ -294,6 +287,8 @@ func _rotation_to_surface() -> Quaternion:
 		return Quaternion(global_basis.orthonormalized().x, PI)
 	return Quaternion(up, surface_normal)   # both are unit length here
 
+## not claude
+## some stuff goes here so the signals become less scattered
 const shaking_amp = 5;
 func _on_board_container_saw_touched(_saw: Saw) -> void:
 	pcam.noise.amplitude = shaking_amp
@@ -301,6 +296,13 @@ func _on_board_container_saw_touched(_saw: Saw) -> void:
 
 func _on_board_container_saw_left(_saw: Saw) -> void:
 	pcam.noise.amplitude = 0;
+
+#func _input(e:InputEvent)->void:
+	#if e.is_action_pressed("autowin"):
+		#win_run()
+
+func win_run()->void:
+	run_won.emit();
 
 func board_death(board:StaticBody3D)->void:
 	## easier than to keep the board var around until
@@ -326,6 +328,7 @@ func die(source:DeathType)->void:
 		return;
 	set_physics_process(false)
 	death_sfx.play()
+	dead = true;
 	died.emit(source)
 
 func cheat_death(type:DeathType)->void:
@@ -334,20 +337,24 @@ func cheat_death(type:DeathType)->void:
 	match type:
 		DeathType.saw, DeathType.board:
 			tp_to_safety()
-		
+
 func tp_to_safety()->void:
 	await get_tree().physics_frame ## when boards drop, takes a frame 
 	## for safe region detectors to refgresy
 	var ssf:SafeSpotFinder = GLB.safe_spot_finder;
-	var safe_boards: = GLB.board_container.safe_boards;
-	var target :Transform3D= ssf.get_free_face_transforms(safe_boards).pick_random();
-	target.origin = ssf.to_global(target.origin);
-	teleport_to(target)
+	var safe_board:StaticBody3D = GLB.board_container.safe_board;
+	var t:Transform3D = ssf.get_free_biggest_face_transform(safe_board.get_node("CollisionShape3D"))
+	t.origin = GLB.board_container.to_global(t.origin)
+	teleport_to(t)
 
-
-
+@onready var body_scale: = body.scale
 func _on_fly_consumed(fly: Fly) -> void:
+	if fly.type == Fly.Type.death:return;
 	## should never overlap animations?
+	body.scale *= 1.25;
+	var t:= create_tween();
+	t.tween_property(body, "scale", body_scale, .5)
+
 	var m:StandardMaterial3D = buff_glow_mesh.mesh.material;
 	var color:Color = Fly.buff_colors[fly.type];
 	m.albedo_color = color

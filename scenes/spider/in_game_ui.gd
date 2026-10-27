@@ -9,6 +9,8 @@ var current_score:int;
 @export var hud:Control;
 @export var post_run:PostRun
 
+@export var black_fade:ColorRect
+
 func _ready()->void:
 	super()
 	Run.score_changed.connect(_on_run_score_changed)
@@ -17,9 +19,22 @@ func _ready()->void:
 	Run.fly_combo_incremented.connect(_on_fly_combo_incremented);
 	Run.fly_combo_ended.connect(_on_fly_combo_ended);
 	
-
+var last_recorded_score:float;
 func _on_run_score_changed() -> void:
-	score_label.text = str(int(Run.score))
+	score_pop(Run.score - last_recorded_score)
+	last_recorded_score = Run.score;
+	
+	score_label.text = str(int(last_recorded_score))
+
+var current_pop_value:float;
+func score_pop(change:float)->void:
+	if change < 10:return;
+	if change > current_pop_value:
+		current_pop_value = change;
+	var t:=create_tween();
+	var s:float = pow(current_pop_value, 1.0/5.0);
+	score_label.offset_transform_scale = Vector2(s, s)
+	t.tween_property(score_label, "offset_transform_scale", Vector2.ONE, .5 )
 
 @export var fly_combo_display:Control;
 @export var fly_combo_label:Label;
@@ -35,12 +50,19 @@ func _on_run_score_changed() -> void:
 @export var fly_point_gain_label:Label;
 @export var combo_multiplier_label:Label;
 
-
-
-
 @export var you_died_screen:Control;
 @export var you_died_message:Label
 @export var you_died_continue_btn:Button
+
+func _process(_delta: float) -> void:
+	combo_timeout_bar.value = Run.fly_combo_timeout.time_left
+
+
+func _on_spider_run_won() -> void:
+	hud.hide();
+	Run.finish_run(true);
+	post_run.show_post_run(true)
+	get_tree().paused = true
 
 func _on_spider_died(source:Crawler.DeathType) -> void:
 	hud.hide();
@@ -48,9 +70,9 @@ func _on_spider_died(source:Crawler.DeathType) -> void:
 	const dt = Crawler.DeathType
 	match source:
 		dt.saw:
-			you_died_message.text = "Avoid touching the saws."
+			you_died_message.text = "You needed to do one simple thing."
 		dt.board:
-			you_died_message.text = "Boards always fall spider-side-down."
+			you_died_message.text = "Are you even trying?"
 		dt.skull:
 			you_died_message.text = "Don't you know what a skull means?"
 
@@ -65,13 +87,10 @@ func _on_spider_died(source:Crawler.DeathType) -> void:
 	t.tween_callback(you_died_continue_btn.show);
 
 
-func _process(_delta: float) -> void:
-	combo_timeout_bar.value = Run.fly_combo_timeout.time_left
 
 func _on_fly_combo_started()->void:
 	## combo incremented will emit on the same frame
 	fly_combo_display.show();
-	
 	
 func _on_fly_combo_incremented(type:Fly.Type)->void:
 	combo_increment_animation.play("combo_increment")
@@ -105,7 +124,8 @@ func set_score_text(target:int)->void:
 
 
 func _on_board_container_saw_touched(saw: Saw) -> void:
-	saw.camera.reparent(saw_pov)
+	if is_instance_valid(saw.camera):
+		saw.camera.reparent(saw_pov)
 	await get_tree().process_frame
 	saw.camera.global_position = saw.global_position + Vector3(100, 700, 200);
 	saw.camera.look_at(saw.global_position)
@@ -117,7 +137,16 @@ func _on_board_container_saw_left(_saw: Saw) -> void:
 
 func _on_continue_pressed() -> void:
 	await fade_out(you_died_screen).finished;
-	post_run.show_post_run()
+	post_run.show_post_run(false)
 
 
 	
+
+
+func _on_play_again_pressed() -> void:
+	await fade_in(black_fade).finished;
+	var new_run:Sawmill = SceneIndex.sawmill_scene.instantiate();
+	new_run.ready.connect(func()->void:get_tree().paused=false;new_run.gen.generate_level(), CONNECT_ONE_SHOT)
+	
+	GLB.sawmill.queue_free();
+	get_tree().current_scene.add_child(new_run);

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://brx0yw0qqvblf"
+path="res://.godot/imported/It’s A Scream, Baby.ogg-219760ed959041b545d678739028cbd5.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sound/music/misc ost/It’s A Scream, Baby.ogg"
+dest_files=["res://.godot/imported/It’s A Scream, Baby.ogg-219760ed959041b545d678739028cbd5.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

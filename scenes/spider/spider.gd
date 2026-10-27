@@ -2,7 +2,6 @@ extends Node3D
 class_name Spider;
 ## encapsulate anything to do with the mesh itself to here
 
-@export var explosion:MeshExploder
 
 @export var animation:AnimationPlayer;
 @export var skeleton:Skeleton3D;
@@ -11,20 +10,9 @@ class_name Spider;
 ## to check 
 @export var feet:Array[RayCast3D];
 
-@export var shield_highlight:SpotLight3D;
+@export var shield_icon:Node3D;
 
-
-#@onready var pr1i:int = skeleton.find_bone("pivot_r1");
-#@onready var pr2i:int = skeleton.find_bone("pivot_r2");
-#@onready var pr3i:int = skeleton.find_bone("pivot_r3");
-#@onready var pr4i:int = skeleton.find_bone("pivot_r4");
-#
-#@onready var pl1i:int = skeleton.find_bone("pivot_l1");
-#@onready var pl2i:int = skeleton.find_bone("pivot_l2");
-#@onready var pl3i:int = skeleton.find_bone("pivot_l3");
-#@onready var pl4i:int = skeleton.find_bone("pivot_l4");
-#
-#@onready var pivots:Array[int] = [pr1i, pr2i, pr3i, pr4i, pl1i, pl2i, pl3i, pl4i]
+@export var body_materials:Array[Material];
 
 
 const anim_scale = 1.5
@@ -41,8 +29,7 @@ func _physics_process(_delta: float) -> void:
 	animation.speed_scale = v.y * anim_scale
 
 
-func explode() -> void:
-	explosion.emit_all();
+
 
 func get_feet_colliders()->Array[Object]:
 	var colliders:Array[Object] = [];
@@ -52,21 +39,15 @@ func get_feet_colliders()->Array[Object]:
 	return colliders;
 
 
-func _on_spider_died(_source:Crawler.DeathType) -> void:
-	explode();
-
-
 
 func _on_spider_fly_consumed(fly: Fly) -> void:
 	const ft = Fly.Type;
 	match fly.type:
 		ft.shield:
-			shield_highlight.show()
+			shield_icon.show()
 
 func _on_spider_shield_lost() -> void:
-	shield_highlight.hide();
-
-
+	shield_icon.hide();
 
 
 func _on_board_container_boards_changed() -> void:
@@ -79,3 +60,8 @@ func _check_board_death()->void:
 		if c in dr:
 			get_parent().board_death(c)
 			return
+
+
+func _on_spider_died(_source: Crawler.DeathType) -> void:
+	var t:= create_tween();
+	t.tween_property(self, "scale", scale * 0, .5);

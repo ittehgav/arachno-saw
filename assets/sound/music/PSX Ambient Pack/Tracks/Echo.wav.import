@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://drrw2ubobtla8"
+path="res://.godot/imported/Echo.wav-cea5626c06f7c05cdfc32e58fb0d1880.sample"
+
+[deps]
+
+source_file="res://assets/sound/music/PSX Ambient Pack/Tracks/Echo.wav"
+dest_files=["res://.godot/imported/Echo.wav-cea5626c06f7c05cdfc32e58fb0d1880.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

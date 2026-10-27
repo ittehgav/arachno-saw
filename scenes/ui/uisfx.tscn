@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://ca6jisidhrtl3"]
 
 [ext_resource type="Script" uid="uid://7f4um1gyib7a" path="res://scenes/ui/ui_sfx.gd" id="1_h3wtx"]
-[ext_resource type="AudioStream" uid="uid://cap5bi8n5fsyb" path="res://assets/sound/ui/mouseover.wav" id="2_w36gu"]
-[ext_resource type="AudioStream" uid="uid://7ket47rvqnmy" path="res://assets/sound/ui/click.wav" id="3_aa1kf"]
+[ext_resource type="AudioStream" uid="uid://dwhfpr1qvga6p" path="res://assets/sound/ui/mouseover.ogg" id="2_h3wtx"]
+[ext_resource type="AudioStream" uid="uid://dsh7r541brjnv" path="res://assets/sound/ui/click.ogg" id="3_h3wtx"]
 
 [node name="UISFX" type="AudioStreamPlayer" unique_id=1290045078]
 max_polyphony = 5
 script = ExtResource("1_h3wtx")
-hover = ExtResource("2_w36gu")
-click = ExtResource("3_aa1kf")
+hover = ExtResource("2_h3wtx")
+click = ExtResource("3_h3wtx")
 metadata/_custom_type_script = "uid://7f4um1gyib7a"

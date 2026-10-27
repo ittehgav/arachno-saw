@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cc80page1iarm"
 path.s3tc="res://.godot/imported/wood_1_normal.png-875cf2627791f54ad04819d307d14fc3.s3tc.ctex"
+path.etc2="res://.godot/imported/wood_1_normal.png-875cf2627791f54ad04819d307d14fc3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/PSX Textures/256/Normal Maps/wood_1_normal.png"
-dest_files=["res://.godot/imported/wood_1_normal.png-875cf2627791f54ad04819d307d14fc3.s3tc.ctex"]
+dest_files=["res://.godot/imported/wood_1_normal.png-875cf2627791f54ad04819d307d14fc3.s3tc.ctex", "res://.godot/imported/wood_1_normal.png-875cf2627791f54ad04819d307d14fc3.etc2.ctex"]
 
 [params]
 

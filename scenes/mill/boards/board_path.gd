@@ -53,6 +53,9 @@ const room_margin := 500
 ## Added to the seed behind the spacing between path points. Same cuts + same value = same layout.
 @export var positioning_seed := 0
 
+## Longest a visual mesh segment may be along X, in meters. Longer boxes are cut into equal
+## segments no longer than this. 0 disables splitting. Collision shapes are not affected.
+@export_range(0.0, 1000.0, 0.01, "or_greater", "suffix:m") var max_mesh_x := 100.0
 
 @export var split_map: Dictionary = {}
 ## Same data as split_map, but with the boards themselves:
@@ -327,33 +330,36 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 			var original := source_body.get_node(path) as MeshInstance3D
 			var source_mesh := original.mesh as BoxMesh
 
-			# Second half is a copy of this node.
-			var second := child.duplicate() as MeshInstance3D
-			for g in second.get_children():
-				second.remove_child(g)
-				g.queue_free()
-			second.name = "%s_Half" % child.name
-			child.get_parent().add_child(second)
-
-			var halves := _split_longest(box)
+			var segments := _split_x(box, max_mesh_x)
 			var base_offset := _offset_in_body(body, child)
-			var nodes: Array[MeshInstance3D] = [child, second]
 
-			for h in 2:
-				# Where this half's center sits relative to the original mesh's center.
+			# The first segment reuses this node; every extra one is a copy of it.
+			var nodes: Array[MeshInstance3D] = [child]
+			for n in range(1, segments.size()):
+				var extra := child.duplicate() as MeshInstance3D
+				for g in extra.get_children():
+					extra.remove_child(g)
+					g.queue_free()
+				extra.name = "%s_Part%02d" % [child.name, n + 1]
+				child.get_parent().add_child(extra)
+				nodes.append(extra)
+
+			for h in segments.size():
+				# Where this segment's center sits relative to the original mesh's center.
 				# Shifting the triplanar offset by this makes the texture line up with the original.
-				var delta: Vector3 = halves[h].get_center() - reference[path].get_center()
+				var delta: Vector3 = segments[h].get_center() - reference[path].get_center()
 
 				var mesh := source_mesh.duplicate() as BoxMesh
-				mesh.size = halves[h].size
+				mesh.size = segments[h].size
 				mesh.material = _shifted_material(source_mesh.material, delta)
 				nodes[h].mesh = mesh
-				nodes[h].position = halves[h].get_center() - center - base_offset
+				nodes[h].position = segments[h].get_center() - center - base_offset
 
 				nodes[h].material_override = _shifted_material(original.material_override, delta)
 				for s in original.get_surface_override_material_count():
 					nodes[h].set_surface_override_material(
 							s, _shifted_material(original.get_surface_override_material(s), delta))
+
 	output_root.add_child(body)
 	body.global_transform = source_body.global_transform * Transform3D(Basis.IDENTITY, center)
 
@@ -409,12 +415,14 @@ func _remaining_bounds_per_cut(valid_cuts: Array[SplitCut], start: AABB) -> Arra
 		var hi := remaining.end[cut.axis]
 		if cut.offset <= lo + EPS or cut.offset >= hi - EPS:
 			continue  # misses what's left: nothing is split or dropped
+		var negative_falls := cut.drops(true)   # same call generate_splits() uses
+		var positive_falls := cut.drops(false)
 		var pos := remaining.position
 		var size := remaining.size
-		if cut.drop_side == SplitCut.DropSide.NEGATIVE_SIDE:
+		if negative_falls and not positive_falls:
 			pos[cut.axis] = cut.offset
 			size[cut.axis] = hi - cut.offset
-		elif cut.drop_side == SplitCut.DropSide.POSITIVE_SIDE:
+		elif positive_falls and not negative_falls:
 			size[cut.axis] = cut.offset - lo
 		remaining = AABB(pos, size)
 	return result
@@ -434,7 +442,7 @@ func _expand_cut_faces(box: AABB, original: AABB, amount: float) -> AABB:
 
 func _set_body_enabled(body: StaticBody3D, enabled: bool) -> void:
 	body.visible = enabled
-
+	body.rotation_degrees.y = 90
 	body.set_process_mode.bind(Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED).call_deferred()
 	for shape_node in body.find_children("*", "CollisionShape3D", true, false):
 		shape_node.set_deferred("disabled", not enabled)
@@ -492,7 +500,11 @@ func create_split_markers() -> void:
 		var travel_axis := _travel_axis(valid_cuts[i])
 		var direction := Vector3.ZERO
 		direction[travel_axis] = 1.0
-		pos += direction * (base_point_spacing + board_size[travel_axis] * rng.randf_range(1.25, 1.5))
+		# The board arriving at this cut may be shorter along its travel axis than the original,
+		# because earlier cuts dropped part of it. The spacing shrinks by exactly that much.
+		var shortened := board_size[travel_axis] - remaining_before[i].size[travel_axis]
+		var spacing := base_point_spacing + board_size[travel_axis] * rng.randf_range(1.25, 1.5) - shortened
+		pos += direction * maxf(spacing, 0.001)
 		new_curve.add_point(pos)
 		cut_point_indices.append(new_curve.point_count - 1)
 
@@ -505,6 +517,20 @@ func create_split_markers() -> void:
 			pos += direction * (maxf(0.0, saw_x + turn_radius) + clearance)
 			new_curve.add_point(pos)
 			turn_point_indices.append(new_curve.point_count - 1)
+	
+	# One extra, empty point past the last saw: the board keeps going the same distance a
+	# further cut on that axis would have taken. No marker, saw, or turn area is made for it.
+	var last_axis := _travel_axis(valid_cuts[valid_cuts.size() - 1])
+	var last_direction := Vector3.ZERO
+	last_direction[last_axis] = 1.0
+	pos += last_direction * (base_point_spacing + board_size[last_axis] * rng.randf_range(1.25, 1.5))
+	new_curve.add_point(pos)
+	var final_point_index := new_curve.point_count - 1
+	curve = new_curve
+
+
+	curve = new_curve
+	
 	curve = new_curve
 
 	# Markers and saws: one per cut, at that cut's point (the run-out points get none).
@@ -592,6 +618,27 @@ func create_split_markers() -> void:
 		if scene_root:
 			area.owner = scene_root
 			shape_node.owner = scene_root
+	# Trigger area at the final, empty point of the path.
+	var final_area := Area3D.new()
+	final_area.name = "final_point"
+	final_area.set_meta(MARKER_META, true)
+	final_area.monitoring = false
+	final_area.monitorable = true
+	final_area.collision_layer = 0
+	final_area.set_collision_layer_value(4, true)
+
+	var final_shape_node := CollisionShape3D.new()
+	var final_box := BoxShape3D.new()
+	final_box.size = Vector3.ONE * TURN_AREA_SIZE
+	final_shape_node.shape = final_box
+	final_area.add_child(final_shape_node)
+
+	markers.add_child(final_area)
+	final_area.global_position = to_global(curve.get_point_position(final_point_index))
+	if scene_root:
+		final_area.owner = scene_root
+		final_shape_node.owner = scene_root
+	
 	_fit_room(bounds, turn_radius, turn_point_indices, saws)
 ## Sizes and places the room planes around everything in the system.
 func _fit_room(bounds: AABB, turn_radius: float, turn_point_indices: Array[int], saws: Array[Node3D]) -> void:
@@ -780,14 +827,20 @@ func _split_center_offset() -> Vector3:
 			center[axis] = (lo[axis] + hi[axis]) * 0.5
 	return center
 
-## Splits a box in two equal halves across its longest axis.
-func _split_longest(box: AABB) -> Array[AABB]:
-	var axis := box.get_longest_axis_index()
-	var half_size := box.size
-	half_size[axis] *= 0.5
-	var second_pos := box.position
-	second_pos[axis] += half_size[axis]
-	var out: Array[AABB] = [AABB(box.position, half_size), AABB(second_pos, half_size)]
+## Divides a box along X into equal segments, each at most max_x long.
+## Returns the box unchanged if it already fits (or max_x <= 0).
+func _split_x(box: AABB, max_x: float) -> Array[AABB]:
+	var out: Array[AABB] = []
+	if max_x <= 0.0 or box.size.x <= max_x + EPS:
+		out.append(box)
+		return out
+	var count := ceili(box.size.x / max_x - EPS)
+	var seg_size := box.size
+	seg_size.x = box.size.x / count
+	for i in count:
+		var pos := box.position
+		pos.x += seg_size.x * i
+		out.append(AABB(pos, seg_size))
 	return out
 
 func _clear_markers() -> void:
@@ -802,3 +855,25 @@ func get_board_bounds() -> AABB:
 		return AABB()
 	var boxes := _read_boxes(source_body)
 	return _union(boxes) if not boxes.is_empty() else AABB()
+
+## The boards of a stage that stay attached, meaning they don't fall off at that stage's cut.
+## Stage 0 is the source body itself; stages 1 and up are the generated ones.
+func get_remaining_boards(stage: int) -> Array[StaticBody3D]:
+	var result: Array[StaticBody3D] = []
+	if stage <= 0:
+		if source_body != null:
+			result.append(source_body)
+		return result
+	for body in get_pieces(stage):
+		if not body.get_meta(FALLS_KEY, false):
+			result.append(body)
+	return result
+
+
+## The board of a stage that won't be removed, or null if there isn't one.
+func get_remaining_board(stage: int) -> StaticBody3D:
+	var boards := get_remaining_boards(stage)
+	return boards[0] if not boards.is_empty() else null
+
+func get_split_count()->int:
+	return len(split_map)

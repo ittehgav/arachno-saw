@@ -111,7 +111,7 @@ func generate_cuts() -> Array[SplitCut]:
 		# Keep only the side that stays attached.
 		var pos := remaining.position
 		var size := remaining.size
-		if drop_negative:
+		if cut.drops(true):
 			pos[axis] = offset
 			size[axis] = remaining.end[axis] - offset
 		else:
@@ -126,3 +126,38 @@ func generate_cuts() -> Array[SplitCut]:
 ## Noise (-1..1) -> 0..1, with contrast, never reaching exactly 1.
 func _unit(v: float) -> float:
 	return clampf(v * noise_contrast * 0.5 + 0.5, 0.0, 0.9999)
+
+signal level_generated(level_seed: int)
+
+## The seed the current level was built from. Pass it back to generate_level() to rebuild the same level.
+var current_seed := 0
+
+
+## Builds a whole level (cuts, split boards, markers, saws, room) from a seed.
+## With no argument it picks a new random seed. Returns the seed used, or 0 on failure.
+func generate_level(level_seed: int = 0) -> int:
+	if splitter == null or noise == null:
+		push_warning("NoiseSplitSequence: assign splitter and noise first.")
+		return 0
+
+	if level_seed == 0:
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		level_seed = maxi(rng.randi(), 1)  # 0 means "pick one for me", so never use it as a seed
+
+	# The seed drives both the cuts and the spacing between the path points.
+	if noise is FastNoiseLite:
+		(noise as FastNoiseLite).seed = level_seed
+	else:
+		# Other Noise types have no seed property, so move through the field instead.
+		sample_origin = Vector2(level_seed % 100000, (level_seed / 100000) % 100000)
+	splitter.positioning_seed = level_seed
+
+	if not generate_into_splitter():
+		return 0
+	splitter.generate_splits()
+	splitter.create_split_markers()
+
+	current_seed = level_seed
+	level_generated.emit(level_seed)
+	return level_seed

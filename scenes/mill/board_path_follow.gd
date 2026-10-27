@@ -9,8 +9,8 @@ signal turned(axis:String);
 var moving_x:bool=true;
 
 const base_speed = 1;
-const x_meters_per_second = 150
-const z_meters_per_second = 50;
+const x_meters_per_second = 100
+const z_meters_per_second = 40;
 
 ## gets incremented by run
 var accel:float = 1.0;
@@ -36,8 +36,12 @@ func _physics_process(delta: float) -> void:
 
 
 
-func _on_turn_scan_area_entered(_area: Area3D) -> void:
+func _on_turn_scan_area_entered(area: Area3D) -> void:
 	## turn = switch from x to z movement
+	if area.name == "final_point":
+		GLB.spider.win_run();
+		## better than softlocking ispose
+		return;
 	moving_x = not moving_x
 	var axis:String;
 	if moving_x:

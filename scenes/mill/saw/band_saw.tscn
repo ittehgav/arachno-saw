@@ -13,6 +13,7 @@ size = Vector3(3.6279297, 28.499023, 371.05078)
 cull_mode = 2
 shading_mode = 0
 albedo_color = Color(0.79, 0.56880003, 0.56880003, 1)
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_rw50p"]
 resource_name = "band_saw_Plane_001"
@@ -114,9 +115,10 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_bsod6")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i02ns"]
-emission_enabled = true
-emission = Color(0.28, 0.26506665, 0.1904, 1)
+albedo_color = Color(0.22, 0.20562667, 0.1122, 1)
+emission = Color(0.2784314, 0.26666668, 0.19215687, 1)
 emission_energy_multiplier = 14.12
+texture_filter = 0
 
 [sub_resource type="PrismMesh" id="PrismMesh_rw50p"]
 material = SubResource("StandardMaterial3D_i02ns")
@@ -129,14 +131,14 @@ point_count = 2
 emission_enabled = true
 emission = Color(0.4, 0.29546666, 0.272, 1)
 emission_energy_multiplier = 14.12
+texture_filter = 0
 
 [sub_resource type="PrismMesh" id="PrismMesh_875s6"]
 material = SubResource("StandardMaterial3D_7q4vo")
 
-[node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("miss_scan", "sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container")]
+[node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container")]
 transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, 0, -4.371139e-08, -1, -2.6226832e-07, -1, 4.371139e-08, 0, 0, 0)
 script = ExtResource("1_rw50p")
-miss_scan = NodePath("")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
@@ -148,20 +150,20 @@ particles_container = NodePath("particles_container")
 
 [node name="sfx_start" type="AudioStreamPlayer3D" parent="sfx" unique_id=1918481403]
 stream = ExtResource("4_875s6")
-volume_db = 30.334
+volume_db = 20.0
 unit_size = 33.72
 max_distance = 10000.0
 
 [node name="sfx_loop" type="AudioStreamPlayer3D" parent="sfx" unique_id=1911461811]
 stream = ExtResource("3_rw50p")
-volume_db = 30.334
+volume_db = 20.0
 unit_size = 33.72
 max_distance = 5000.0
 max_polyphony = 2
 
 [node name="sfx_end" type="AudioStreamPlayer3D" parent="sfx" unique_id=1730119240]
 stream = ExtResource("6_mdwkj")
-volume_db = 30.334
+volume_db = 20.0
 unit_size = 33.72
 max_distance = 5000.0
 
