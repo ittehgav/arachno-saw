@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://cs2dj5ipidnnt"]
+
+[ext_resource type="Script" uid="uid://bo8cii1u2o63x" path="res://scenes/mill/conveyor_belt/roller_line.gd" id="1_pe4db"]
+[ext_resource type="Texture2D" uid="uid://b4ckxkeuxn8vn" path="res://assets/textures/PSX Textures II/256/Color Maps/metal_shutters_pt_1.png" id="2_vgl7x"]
+[ext_resource type="Texture2D" uid="uid://bxhf1rk4tjjx2" path="res://assets/textures/PSX Textures II/256/Normal Maps/metal_shutters_pt_1_normal.png" id="3_4jcpu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5sarv"]
+albedo_texture = ExtResource("2_vgl7x")
+normal_enabled = true
+normal_texture = ExtResource("3_4jcpu")
+texture_filter = 0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_u5bk5"]
+material = SubResource("StandardMaterial3D_5sarv")
+top_radius = 25.0
+bottom_radius = 25.0
+height = 300.0
+
+[sub_resource type="MultiMesh" id="MultiMesh_u5bk5"]
+transform_format = 1
+instance_count = 9
+visible_instance_count = 0
+mesh = SubResource("CylinderMesh_u5bk5")
+buffer = PackedFloat32Array(0, 7.9999995, 0, 0, 0, 0.005, 0.005, 0.29032257, -8, 7.999999, 0, 0, 0, 0, -0.035, 0.29032254, 0.30448198, 6.4692664, 0, 0, 0, 0.005, 0.00652241, 0.24094407, -7.0865536, 3.4077988, 0, 0, 0, 0, -0.030432768, 0.14218706, 1.1715727, 5.171573, 0, 0, 0, 0.005, 0.010857863, 0.199083, -4.485282, -0.485281, 0, 0, 0, 0, -0.017426409, 0.016603839, 2.4692657, 4.304482, 0, 0, 0, 0.005, 0.017346328, 0.17111233, -0.59220314, -3.0865536, 0, 0, 0, 0, 0.0020389843, -0.06730818, 4, 4, 0, 0, 0, 0.005, 0.025, 0.16129032, 4, -4, 0, 0, 0, 0, 0.025, -0.09677419, 194, 4, 0, 0, 0, 0.005, 0.975, 0.16129032, 194, -4, 0, 0, 0, 0, 0.975, -0.09677419, 195.53073, 4.3044825, 0, 0, 0, 0.005, 0.9826537, 0.17111234, 198.59221, -3.0865536, 0, 0)
+
+[node name="RollerLine" type="MultiMeshInstance3D" unique_id=838034453]
+multimesh = SubResource("MultiMesh_u5bk5")
+script = ExtResource("1_pe4db")

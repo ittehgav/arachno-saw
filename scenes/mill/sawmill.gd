@@ -10,9 +10,9 @@ class_name Sawmill
 
 func _ready() -> void:
 	## declaring this on ready so i can free it with a liveinstance of the retry run
-	GLB.sawmill =self;
+	GLB.sawmill = self;
 	Run.start_run()
-	
+
 
 
 func _on_spider_fly_consumed(_fly: Fly) -> void:

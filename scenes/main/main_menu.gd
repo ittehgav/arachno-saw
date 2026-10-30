@@ -9,6 +9,8 @@ extends UIRoot;
 
 @export var clear_high_scores_confirmation:Control;
 
+
+
 func _ready()->void:
 	super()
 	if len(HighScores.current_high_scores):

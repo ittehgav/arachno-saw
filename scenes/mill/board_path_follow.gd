@@ -4,7 +4,7 @@ class_name BoardPathFollow
 @export var moving:bool=false
 @export var board_0:StaticBody3D
 
-signal turned(axis:String);
+signal point_reached(i:int);
 
 var moving_x:bool=true;
 
@@ -23,8 +23,7 @@ func _enter_tree() -> void:
 func _ready()->void:
 	board_0.set_collision_layer_value(1, true)
 	## will be attached to more view/movement updates?
-	
-	turned.emit("x")
+
 
 
 func _physics_process(delta: float) -> void:
@@ -48,4 +47,4 @@ func _on_turn_scan_area_entered(area: Area3D) -> void:
 		axis = "x";
 	else:
 		axis = "z";
-	turned.emit(axis);
+	

@@ -19,27 +19,7 @@ class_name RunControl;
 ## score
 ## will react mostly to signals and update the run score
 
-## time tracking
-var _elapsed_time: float = 0.0
-var _last_start_time: int = 0
-var _paused := false
-
-func get_elapsed_time() -> float:
-	if _paused:
-		return _elapsed_time
-	return _elapsed_time + (Time.get_ticks_msec() - _last_start_time) / 1000.0
-
-func _on_paused() -> void:
-	if _paused:
-		return
-	_elapsed_time += (Time.get_ticks_msec() - _last_start_time) / 1000.0
-	_paused = true
-func _on_unpaused() -> void:
-	if not _paused:
-		return
-	_last_start_time = Time.get_ticks_msec()
-	_paused = false
-
+signal run_started;
 signal finished(won:bool)
 
 ## score system
@@ -76,6 +56,7 @@ func start_run()->void:
 	_last_start_time = Time.get_ticks_msec()
 	set_progress_timers(true)
 	_reset_counters();
+	run_started.emit();
 
 @onready var initial_score_ticker_wait_time:float=score_ticker.wait_time;
 func _reset_counters()->void:
@@ -181,3 +162,25 @@ func _on_accelerate_timeout() -> void:
 	score_ticker.wait_time /= 1.05
 	GLB.spider.SPEED *= 1.05
 	score_multiplier *= 1.05
+	
+
+## time tracking
+var _elapsed_time: float = 0.0
+var _last_start_time: int = 0
+var _paused := false
+
+func get_elapsed_time() -> float:
+	if _paused:
+		return _elapsed_time
+	return _elapsed_time + (Time.get_ticks_msec() - _last_start_time) / 1000.0
+
+func _on_paused() -> void:
+	if _paused:
+		return
+	_elapsed_time += (Time.get_ticks_msec() - _last_start_time) / 1000.0
+	_paused = true
+func _on_unpaused() -> void:
+	if not _paused:
+		return
+	_last_start_time = Time.get_ticks_msec()
+	_paused = false

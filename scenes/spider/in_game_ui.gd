@@ -126,9 +126,9 @@ func set_score_text(target:int)->void:
 func _on_board_container_saw_touched(saw: Saw) -> void:
 	if is_instance_valid(saw.camera):
 		saw.camera.reparent(saw_pov)
-	await get_tree().process_frame
-	saw.camera.global_position = saw.global_position + Vector3(100, 700, 200);
-	saw.camera.look_at(saw.global_position)
+		await get_tree().process_frame
+		saw.camera.global_position = saw.global_position + Vector3(100, 700, 200);
+		saw.camera.look_at(saw.global_position)
 
 
 func _on_board_container_saw_left(_saw: Saw) -> void:

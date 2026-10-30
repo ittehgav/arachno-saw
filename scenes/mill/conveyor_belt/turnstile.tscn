@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cimcbaaeeptjh"]
+
+[ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="1_7s87n"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_u5bk5"]
+size = Vector3(500, 100, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u7x0m"]
+albedo_texture = ExtResource("1_7s87n")
+uv1_scale = Vector3(9.065, 2.11, 1)
+texture_filter = 0
+
+[node name="Turnstile" type="Node3D" unique_id=1289574477]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1025367703]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.286416, -2.6557589)
+mesh = SubResource("BoxMesh_u5bk5")
+surface_material_override/0 = SubResource("StandardMaterial3D_u7x0m")

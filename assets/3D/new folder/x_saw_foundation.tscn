@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://cy4igost6mry4"]
+
+[ext_resource type="PackedScene" uid="uid://idca74eobnm" path="res://assets/3D/new folder/x_saw_foundation.blend" id="1_y7don"]
+[ext_resource type="Texture2D" uid="uid://ccxq74nxus6bu" path="res://assets/textures/metal_roofing_pt_1_90.png" id="2_gc40s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gc40s"]
+albedo_texture = ExtResource("2_gc40s")
+uv1_scale = Vector3(4.35, 43.835, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4rbyw"]
+albedo_texture = ExtResource("2_gc40s")
+uv1_scale = Vector3(9.2, 0.27, 1.1)
+
+[node name="x_saw_foundation" unique_id=216876388 instance=ExtResource("1_y7don")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+
+[node name="Cube" parent="." index="0" unique_id=1151594283]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 358.598, 502.0779, 110.44138)
+surface_material_override/0 = SubResource("StandardMaterial3D_gc40s")
+surface_material_override/1 = SubResource("StandardMaterial3D_4rbyw")
+
+[node name="Cube_001" parent="." index="1" unique_id=128010135]
+transform = Transform3D(-1, 3.178652e-08, 3.1786517e-08, -3.1786517e-08, 0, -1, -3.178652e-08, -1, 0, 358.59802, 502.07788, -110.44139)
+
+[node name="Cylinder" parent="." index="2" unique_id=1683379413]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 358.59802, 973.7861, -1.3677923e-05)
+
+[node name="Cylinder_001" parent="." index="3" unique_id=833205495]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 358.59802, 932.5201, -1.3677923e-05)
+
+[node name="Cube_002" parent="." index="4" unique_id=1539851117]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 410.45953, 955.6744, -1.3677921e-05)

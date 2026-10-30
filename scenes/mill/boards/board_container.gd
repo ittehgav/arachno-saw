@@ -115,7 +115,7 @@ func set_to_drop()->void:
 		for p:NodePath in pre:
 			to_drop.append(get_node(p));
 	else:
-		to_drop = splitter.get_pieces(current_stage + 1).filter(func(p:StaticBody3D)->bool:return p.get_meta(splitter.FALLS_KEY));
+		to_drop = splitter.get_pieces(current_stage + 1).filter(func(p:StaticBody3D)->bool:return p.get_meta(BoardSplitter.FALLS_KEY));
 
 @onready var total_stages := splitter.get_split_count();
 func _on_saw_left(_saw: Saw) -> void:
@@ -125,7 +125,7 @@ func _on_saw_left(_saw: Saw) -> void:
 
 	
 	## rolling board drops immediately so flies can 
-	## spawn on dropping side before next board_touched
+	## spawn on dropping side before next saw_touched
 	if current_stage == total_stages + 1 and not spider.dead:
 		print("staeg?")
 		spider.win_run();

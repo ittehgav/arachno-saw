@@ -25,11 +25,11 @@ func _connect_feedback(target:Node)->void:
 
 
 
-static func press_grow(target:Control)->Tween:
+static func press_grow(target:Control, intensity:float=1.2)->Tween:
 	var offset_enabled_before:bool=target.offset_transform_enabled;
 	target.offset_transform_enabled = true;
 	var tween:=target.create_tween()
-	tween.tween_property(target, "offset_transform_scale", Vector2(1.2, 1.2), .1)
+	tween.tween_property(target, "offset_transform_scale", Vector2(intensity, intensity), .1)
 	tween.tween_property(target, "offset_transform_scale", Vector2.ONE, .1)
 	tween.tween_callback(target.set_offset_transform_enabled.bind(offset_enabled_before))
 	return tween
