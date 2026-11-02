@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://drywoco62ck5e" path="res://scenes/main/main.gd" id="1_bsumw"]
 [ext_resource type="Texture2D" uid="uid://ckrn4royi8x7d" path="res://assets/textures/PSX Textures II [Demo]/256/Color Maps/metal_roofing_pt_1.png" id="2_fwcvl"]
 [ext_resource type="Texture2D" uid="uid://bjgq1vjrfp8yq" path="res://assets/textures/PSX Textures II [Demo]/256/Color Maps/brick_wall_pt_2.png" id="3_na0o7"]
-[ext_resource type="Texture2D" uid="uid://cpwsbaijwyfr" path="res://assets/textures/PSX Textures II [Demo]/512/Color Maps/brick_wall_pt_4.png" id="4_73k8k"]
 [ext_resource type="Script" uid="uid://cgsp378i4y0m3" path="res://scenes/mill/boards/board_path.gd" id="5_5xyti"]
 [ext_resource type="Script" uid="uid://ckkc4ecygyp4a" path="res://scenes/mill/split_cut.gd" id="6_n3o0a"]
 [ext_resource type="Script" uid="uid://crjdwk8k3kfch" path="res://scenes/main/board_path_follow.gd" id="7_fwcvl"]

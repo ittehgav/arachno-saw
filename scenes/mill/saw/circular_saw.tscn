@@ -132,11 +132,11 @@ max_distance = 5000.0
 
 [node name="saw_rotation_anchor" type="Node3D" parent="." unique_id=1078678954]
 
-[node name="CSGCylinder3D" type="MeshInstance3D" parent="saw_rotation_anchor" unique_id=182870180]
+[node name="saw_mesh" type="MeshInstance3D" parent="saw_rotation_anchor" unique_id=182870180]
 transform = Transform3D(1.5, 0, 0, 0, -4.371139e-08, -1.5, 0, 1, -6.556708e-08, 0, 0, 0)
 mesh = SubResource("CylinderMesh_rcdrx")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="saw_rotation_anchor/CSGCylinder3D" unique_id=831458074]
+[node name="saw_outline" type="MeshInstance3D" parent="saw_rotation_anchor/saw_mesh" unique_id=831458074]
 mesh = SubResource("ArrayMesh_0djmd")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="saw_rotation_anchor" unique_id=1750264574]

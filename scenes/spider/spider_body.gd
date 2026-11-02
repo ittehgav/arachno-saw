@@ -63,6 +63,8 @@ func _ready()->void:
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
+		
+
 	if not global_transform.is_finite():
 		global_transform = last_valid_transform
 		velocity = Vector3.ZERO

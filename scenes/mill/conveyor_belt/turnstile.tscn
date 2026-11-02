@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cimcbaaeeptjh"]
 
-[ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="1_7s87n"]
+[ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="1_7s87n"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_u5bk5"]
 size = Vector3(500, 100, 50)

@@ -1,6 +1,12 @@
 [gd_scene format=3 uid="uid://cbgjnc4y3dtjn"]
 
 [ext_resource type="Script" uid="uid://dc2tslh7p7v4j" path="res://scenes/singletons/scenes.gd" id="1_7pyph"]
+[ext_resource type="PackedScene" uid="uid://blcd732gwqct6" path="res://scenes/mill/sawmill.tscn" id="2_x4iyu"]
+[ext_resource type="PackedScene" uid="uid://h4moaku7jyl8" path="res://scenes/main/main.tscn" id="3_kq2j4"]
+[ext_resource type="PackedScene" uid="uid://cw3i1bksgwevs" path="res://scenes/fly/fly.tscn" id="4_u1337"]
 
 [node name="SceneIndex" type="Node" unique_id=1742146322]
 script = ExtResource("1_7pyph")
+sawmill_scene = ExtResource("2_x4iyu")
+main = ExtResource("3_kq2j4")
+fly = ExtResource("4_u1337")

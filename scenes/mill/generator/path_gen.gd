@@ -13,11 +13,12 @@ const MARKER_META := &"split_center_marker"
 @export_tool_button("Generate Splits") var generate_action := generate_splits
 @export_tool_button("Create Split Markers") var markers_action := create_split_markers
 
-
+## Extra offset applied to every saw, in the board's own axes (X = travel direction, Y = up, Z = sideways).
+@export var saw_offset := Vector3.ZERO
 
 @export var board_splitter:BoardSplitter
 
-const TURN_AREA_SIZE := 50.0
+const POINT_AREA_SIZE := 50.0
 
 @export var floor_plane: MeshInstance3D
 @export var ceiling: MeshInstance3D
@@ -30,6 +31,10 @@ const TURN_AREA_SIZE := 50.0
 ## Extra space between the system and each wall, in meters.
 const room_margin := 500
 
+## Fixed height of the room, in meters. The floor is always at world Y = 0.
+@export var room_height := 1000.0
+## Height of the start of the line above the floor (world Y = 0), in meters.
+@export var line_start_height := 200.0
 
 
 @export var cuts: Array[SplitCut] = []
@@ -164,8 +169,13 @@ func create_split_markers() -> void:
 
 	# Start from a copy of pre_curve (falls back to a single point at the origin).
 	var new_curve: Curve3D = (pre_curve.duplicate() as Curve3D) if pre_curve != null else Curve3D.new()
+	var pre_point_count := new_curve.point_count  # real pre_curve points, before the fallback origin point
 	if new_curve.point_count == 0:
 		new_curve.add_point(Vector3.ZERO)
+	# Fix the start of the line at line_start_height above the floor (world Y = 0) by moving
+	# this node, so the shape of the curve itself is left alone.
+	var start_world_y := (global_transform * new_curve.get_point_position(0)).y
+	global_position.y += line_start_height - start_world_y
 
 	# One point per cut, all in a straight line along +X. The spacing depends only on how long
 	# the board still is (its X size) when it reaches that saw.
@@ -192,8 +202,14 @@ func create_split_markers() -> void:
 	# Markers and saws: one per cut, at that cut's point (the run-out points get none).
 	_clear_markers()
 
+
 	var local_offset := _split_center_offset()
 	var scene_root := get_tree().edited_scene_root if Engine.is_editor_hint() else null
+
+	# The pre_curve points get the same trigger areas.
+	for p in pre_point_count:
+		_create_point_area(markers, p, to_global(curve.get_point_position(p)),
+			global_transform.basis.orthonormalized(), scene_root)
 
 	for k in valid_cuts.size():
 		var cut := valid_cuts[k]
@@ -214,7 +230,10 @@ func create_split_markers() -> void:
 		marker.global_transform = Transform3D(marker_basis, point_global + board_basis * local_offset)
 		if scene_root:
 			marker.owner = scene_root
-
+		# Every marker after the first also gets a trigger area on its curve point.
+		if k > 0:
+			_create_point_area(marker, i, point_global, board_basis, scene_root)
+			
 		var saw_scene: PackedScene = circular_saw_scene if circular else band_saw_scene
 		if saw_scene == null:
 			push_warning("BodySplitPath: assign %s to create the saw for cut %d." % [
@@ -248,7 +267,13 @@ func create_split_markers() -> void:
 		var saw_basis := (board_basis * _saw_alignment(cut.axis)) if circular else native_basis
 		saw.global_transform = Transform3D(saw_basis, marker.global_position)
 		# Position: local to the marker, as the offset from the split center in board axes.
-		saw.position = plane_point - local_offset
+		# How far the saw sits from the split center (the marker), in the marker's axes.
+		var plane_shift := marker_basis * (plane_point - local_offset)
+		# If the scene has a child named "saw", only that node moves to the cut; the rest of
+		# the scene stays on the marker. Otherwise the whole scene moves, as before.
+		var blade := saw.find_child("saw", true, false) as Node3D
+		var mover: Node3D = blade if blade != null else saw
+		mover.global_position += plane_shift + board_basis * saw_offset
 		saw.name = "Saw"
 		if scene_root:
 			saw.owner = scene_root
@@ -265,7 +290,7 @@ func create_split_markers() -> void:
 
 	var final_shape_node := CollisionShape3D.new()
 	var final_box := BoxShape3D.new()
-	final_box.size = Vector3.ONE * TURN_AREA_SIZE
+	final_box.size = Vector3.ONE * POINT_AREA_SIZE
 	final_shape_node.shape = final_box
 	final_area.add_child(final_shape_node)
 
@@ -307,12 +332,21 @@ func _fit_room(bounds: AABB, turn_radius: float, saws: Array[Node3D]) -> void:
 	var room := fit[0]
 	for k in range(1, fit.size()):
 		room = room.merge(fit[k])
+		
+	var content := room  # everything that has to fit, before the margin
 	room = room.grow(room_margin)
 
+	# Fixed height: the floor sits at world Y = 0 and the ceiling room_height above it.
+	# X and Z are still fitted around the system.
+	var floor_y := (to_local_xform * Vector3.ZERO).y
 	var lo := room.position
 	var hi := room.end
-	var c := room.get_center()
-	var s := room.size
+	lo.y = floor_y
+	hi.y = floor_y + room_height
+	if content.position.y < lo.y or content.end.y > hi.y:
+		push_warning("BodySplitPath: part of the system sticks out of the room vertically. Raise room_height or move the path up.")
+	var c := (lo + hi) * 0.5
+	var s := hi - lo
 
 		# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
 	_place_plane(wall_front, Basis(Vector3.BACK, Vector3.LEFT, Vector3.DOWN),
@@ -324,7 +358,7 @@ func _fit_room(bounds: AABB, turn_radius: float, saws: Array[Node3D]) -> void:
 	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
 			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
 	
-	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y + 700, c.z), Vector2(s.x, s.z))
+	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y + 300, c.z), Vector2(s.x, s.z))
 	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
 	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
 	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
@@ -533,3 +567,25 @@ func _clear_rollers() -> void:
 		if c.has_meta(MARKER_META):
 			roller_root.remove_child(c)
 			c.queue_free()
+
+## A POINT_AREA_SIZE cube trigger on layer 4, centered on a point, named point_<index>.
+func _create_point_area(parent: Node3D, index: int, global_pos: Vector3, area_basis: Basis, scene_root: Node) -> void:
+	var area := Area3D.new()
+	area.name = "point_%d" % index
+	area.set_meta(MARKER_META, true)
+	area.monitoring = false
+	area.monitorable = true
+	area.collision_layer = 0
+	area.set_collision_layer_value(4, true)
+
+	var shape_node := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3.ONE * POINT_AREA_SIZE
+	shape_node.shape = box
+	area.add_child(shape_node)
+
+	parent.add_child(area)
+	area.global_transform = Transform3D(area_basis, global_pos)
+	if scene_root:
+		area.owner = scene_root
+		shape_node.owner = scene_root
