@@ -5,8 +5,7 @@ class_name CircularSaw
 
 
 
-func _ready()->void:
-	collision_shape.shape.radius = 150
+
 
 
 func _on_area_entered(area: Area3D) -> void:

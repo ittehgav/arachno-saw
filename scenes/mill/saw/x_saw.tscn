@@ -296,6 +296,9 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_37vga")
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u5bk5"]
+albedo_color = Color(0.08, 0.08, 0.08, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_22uai"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_asloj"]
@@ -370,6 +373,9 @@ _data = {
 &"RESET": SubResource("Animation_mdwkj"),
 &"band_spin": SubResource("Animation_tqcbo")
 }
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kddjp"]
+size = Vector3(20, 30, 336.74445)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_osdcf"]
 albedo_texture = ExtResource("8_mdwkj")
@@ -469,7 +475,67 @@ _data = {
 &"band_saw_movement": SubResource("Animation_iagms")
 }
 
-[node name="Band Saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "camera", "particles_container")]
+[sub_resource type="Animation" id="Animation_6a5t5"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("saw:position:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [-4.063518e-06]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position:z")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [-200.92722]
+}
+
+[sub_resource type="Animation" id="Animation_dxihh"]
+resource_name = "saw_motion"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("saw:position:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [-4.063518e-06, 400.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position:z")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [-200.92722, 199.073]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o0ywc"]
+_data = {
+&"RESET": SubResource("Animation_6a5t5"),
+&"saw_motion": SubResource("Animation_dxihh")
+}
+
+[node name="x_saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "camera", "particles_container")]
 transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, -2.6226832e-07, -1, 8.742278e-08, 1.1464113e-14, 8.742278e-08, 1, 0, 0, 0)
 script = ExtResource("1_rw50p")
 sfx_start = NodePath("sfx/sfx_start")
@@ -577,10 +643,12 @@ surface_material_override/1 = SubResource("StandardMaterial3D_o0ywc")
 [node name="cog_tr" type="MeshInstance3D" parent="foundation" unique_id=386928638]
 transform = Transform3D(0.68386734, 0, 0, 0, 1.1579819, 0, 0, 0, 0.68386734, 327.54404, 0, 513.92975)
 mesh = SubResource("ArrayMesh_q252q")
+surface_material_override/0 = SubResource("StandardMaterial3D_u5bk5")
 
 [node name="cog_tl" type="MeshInstance3D" parent="foundation" unique_id=2087608184]
 transform = Transform3D(0.68386734, 0, 0, 0, 1.1579819, 0, 0, 0, 0.68386734, -327.544, 0, 513.93)
 mesh = SubResource("ArrayMesh_q252q")
+surface_material_override/0 = SubResource("StandardMaterial3D_u5bk5")
 
 [node name="band" type="MeshInstance3D" parent="foundation" unique_id=16889297]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -268.00073, 0, 454.41577)
@@ -589,30 +657,37 @@ surface_material_override/0 = SubResource("StandardMaterial3D_mdwkj")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="foundation/band" unique_id=2084251855]
 libraries/ = SubResource("AnimationLibrary_6a5t5")
+speed_scale = 0.5
 
 [node name="cog_br" type="MeshInstance3D" parent="foundation" unique_id=1082112719]
 transform = Transform3D(0.68386734, 0, 0, 0, 1.1579819, 0, 0, 0, 0.68386734, 327.54404, 0, 467.2182)
 mesh = SubResource("ArrayMesh_q252q")
+surface_material_override/0 = SubResource("StandardMaterial3D_u5bk5")
 
 [node name="cog_bl" type="MeshInstance3D" parent="foundation" unique_id=1021722666]
 transform = Transform3D(0.68386734, 0, 0, 0, 1.1579819, 0, 0, 0, 0.68386734, -327.544, 0, 467.21844)
 mesh = SubResource("ArrayMesh_q252q")
+surface_material_override/0 = SubResource("StandardMaterial3D_u5bk5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1025897795]
+transform = Transform3D(-1, -9.0460146e-15, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, 2.5410988e-21, 1, -1.3113416e-07, 4.6267776, -87.006134, -200.92722)
+shape = SubResource("BoxShape3D_kddjp")
 
 [node name="saw" type="Node3D" parent="." unique_id=1181522335]
-transform = Transform3D(1, 1.0022245e-21, -2.8421706e-14, 0, 1, 0, -1.1464113e-14, 0, 1, 1.2190554e-05, 46.48123, -4.063518e-06)
+transform = Transform3D(1, 1.0022245e-21, -2.8421706e-14, 0, 1, 0, -1.1464113e-14, 0, 1, 0, 0, -4.063518e-06)
 
 [node name="band_saw" type="Node3D" parent="saw" unique_id=1916775494]
-transform = Transform3D(-1, 1.9375521e-14, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, -1.1464111e-14, 1, -1.3113416e-07, 4.6267867, -51.859592, -207.66472)
+transform = Transform3D(-1, 1.9375521e-14, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, -1.1464111e-14, 1, -1.3113416e-07, 0, -51.86, -207.665)
 
 [node name="Cube" type="MeshInstance3D" parent="saw/band_saw" unique_id=1928084613]
-transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, -0.03885603, -233.40141)
+transform = Transform3D(100, 0, 0, 0, 100, 0, 3.2311743e-27, 0, 100, 0, -0.038864136, -251.35294)
 mesh = SubResource("ArrayMesh_yh64h")
 
 [node name="anchor" type="Node3D" parent="saw/band_saw" unique_id=1496842208]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.923202e-05, 169.36166, -249.92303)
 
 [node name="Plane2" type="MeshInstance3D" parent="saw/band_saw/anchor" unique_id=273193486]
-transform = Transform3D(-2.6226835e-05, -100, -1.1464115e-12, -100, 2.6226831e-05, -1.7484555e-05, 1.7484555e-05, -6.281404e-12, -100, 0.00013846403, -169.20255, 213.22675)
+transform = Transform3D(-2.6226835e-05, -100, -1.1464115e-12, -100, 2.6226831e-05, -1.7484555e-05, 1.7484555e-05, -6.281404e-12, -100, 0.00013846403, -169.20255, 203.19626)
 mesh = SubResource("ArrayMesh_iagms")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="saw/band_saw/anchor/Plane2" unique_id=583683835]
@@ -621,6 +696,10 @@ mesh = SubResource("ArrayMesh_bsod6")
 [node name="AnimationPlayer" type="AnimationPlayer" parent="saw/band_saw/anchor" unique_id=177188834]
 libraries/ = SubResource("AnimationLibrary_mdwkj")
 autoplay = &"band_saw_movement"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1260582730]
+libraries/ = SubResource("AnimationLibrary_o0ywc")
+speed_scale = 0.15
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

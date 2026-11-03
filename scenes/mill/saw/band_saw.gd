@@ -1,6 +1,5 @@
 extends Saw
-
-@export var band_material:StandardMaterial3D;
+class_name XSaw
 
 func _on_area_entered(area: Area3D) -> void:
 	if area is Fly:
@@ -11,5 +10,3 @@ func _on_area_entered(area: Area3D) -> void:
 	super(area);
 	play_sfx_loop();
 	
-func _process(delta:float)->void:
-	pass

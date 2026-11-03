@@ -6,8 +6,10 @@ const EPS := 0.0001
 
 const MARKER_META := &"split_center_marker"
 
-@export var circular_saw_scene: PackedScene  # Y and Z cuts
-@export var band_saw_scene: PackedScene  # X cuts
+@export var x_saw: PackedScene  # X cuts
+@export var y_saw: PackedScene  # Y cuts
+@export var z_saw: PackedScene  # Z cuts
+
 
 @export var pre_curve:Curve3D;
 @export_tool_button("Generate Splits") var generate_action := generate_splits
@@ -234,10 +236,20 @@ func create_split_markers() -> void:
 		if k > 0:
 			_create_point_area(marker, i, point_global, board_basis, scene_root)
 			
-		var saw_scene: PackedScene = circular_saw_scene if circular else band_saw_scene
+		var saw_scene: PackedScene
+		var saw_scene_name: String
+		match cut.axis:
+			SplitCut.Axis.X:
+				saw_scene = x_saw
+				saw_scene_name = "x_saw"
+			SplitCut.Axis.Y:
+				saw_scene = y_saw
+				saw_scene_name = "y_saw"
+			_:
+				saw_scene = z_saw
+				saw_scene_name = "z_saw"
 		if saw_scene == null:
-			push_warning("BodySplitPath: assign %s to create the saw for cut %d." % [
-				"circular_saw_scene" if circular else "band_saw_scene", k + 1])
+			push_warning("BodySplitPath: assign %s to create the saw for cut %d." % [saw_scene_name, k + 1])
 			continue
 
 		# Where the saw sits: on the cut plane, at the center of the board that is still attached.
@@ -262,10 +274,9 @@ func create_split_markers() -> void:
 		marker.add_child(saw)
 		saws.append(saw)
 
-		# Rotation (in the world): circular saws line up with their cut plane,
-		# band saws keep their scene's own rotation.
-		var saw_basis := (board_basis * _saw_alignment(cut.axis)) if circular else native_basis
-		saw.global_transform = Transform3D(saw_basis, marker.global_position)
+		# Every saw keeps the rotation its scene was authored with.
+		saw.global_transform = Transform3D(native_basis, marker.global_position)
+		
 		# Position: local to the marker, as the offset from the split center in board axes.
 		# How far the saw sits from the split center (the marker), in the marker's axes.
 		var plane_shift := marker_basis * (plane_point - local_offset)
