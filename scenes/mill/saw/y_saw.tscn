@@ -356,7 +356,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_i2m38")
 surface_material_override/0 = SubResource("StandardMaterial3D_lbsdk")
 
 [node name="spinner_big" parent="y_saw_foundation" index="3" unique_id=888549256]
-transform = Transform3D(0.96359783, 3.4488987e-09, 0.2673557, 0, 1, -1.29000375e-08, -0.26735568, 1.2430449e-08, 0.9635979, 211, 0, 140)
+transform = Transform3D(0.96359783, 3.4488985e-09, 0.2673557, 0, 1, -1.2900037e-08, -0.26735568, 1.2430448e-08, 0.9635979, 211, 0, 140)
 surface_material_override/0 = SubResource("StandardMaterial3D_gqp6g")
 
 [node name="spinner_small" parent="y_saw_foundation" index="4" unique_id=1857488736]

@@ -70,7 +70,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0.0, 6.283]
+"values": [0.0, 12.566]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_m2ud2"]
@@ -109,6 +109,7 @@ material = SubResource("StandardMaterial3D_7q4vo")
 albedo_texture = ExtResource("7_1yhpp")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
+texture_filter = 0
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_i3yc6"]
 load_path = "res://.godot/imported/metal_panels_pt_1_3.png-fb635a7fafb2a111c80630dd505b150c.s3tc.ctex"
@@ -123,10 +124,12 @@ texture_filter = 0
 albedo_texture = ExtResource("8_mci6j")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j2tcd"]
 albedo_color = Color(2.4061394, 2.4061394, 2.4061394, 1)
 albedo_texture = ExtResource("9_i3yc6")
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i3yc6"]
 albedo_texture = ExtResource("8_mci6j")
@@ -142,6 +145,116 @@ texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k6n8q"]
 albedo_texture = ExtResource("10_vrp24")
+texture_filter = 0
+
+[sub_resource type="Animation" id="Animation_fwmqo"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("band_r:surface_material_override/0:uv1_offset:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("band_l:surface_material_override/0:uv1_offset:z")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("spinner_big:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [-1.5707964]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("spinner_small:rotation:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [-1.5707964]
+}
+
+[sub_resource type="Animation" id="Animation_vrp24"]
+resource_name = "band_rotation"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("band_r:surface_material_override/0:uv1_offset:z")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("band_l:surface_material_override/0:uv1_offset:z")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("spinner_big:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.283]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("spinner_small:rotation:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 12.566]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fwmqo"]
+_data = {
+&"RESET": SubResource("Animation_fwmqo"),
+&"band_rotation": SubResource("Animation_vrp24")
+}
 
 [node name="z_saw" type="Area3D" unique_id=359837355 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container")]
 script = ExtResource("1_i02ns")
@@ -237,25 +350,31 @@ scale_amount_curve = SubResource("Curve_7q4vo")
 [node name="z_saw_foundation" parent="." unique_id=118265299 instance=ExtResource("6_k4a3e")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.726274, -89.46545, 0.38801575)
 
-[node name="foundation" parent="z_saw_foundation" index="0" unique_id=578443201]
+[node name="foundation" parent="z_saw_foundation" index="0" unique_id=510273073]
 surface_material_override/0 = SubResource("StandardMaterial3D_mci6j")
 surface_material_override/2 = SubResource("StandardMaterial3D_vrp24")
 
-[node name="spinner_small" parent="z_saw_foundation" index="1" unique_id=904182207]
+[node name="spinner_small" parent="z_saw_foundation" index="1" unique_id=1528548626]
+transform = Transform3D(-3.4570297e-07, -1, 4.371139e-08, 6.600236e-15, 4.371139e-08, 1, -1, 3.4570297e-07, -8.510921e-15, -26.67327, 33.70674, 34.999992)
 surface_material_override/0 = SubResource("StandardMaterial3D_1ox38")
 
-[node name="spinner_big" parent="z_saw_foundation" index="2" unique_id=325923788]
+[node name="spinner_big" parent="z_saw_foundation" index="2" unique_id=1611511511]
+transform = Transform3D(-3.4570297e-07, -1, 4.371139e-08, 6.600236e-15, 4.371139e-08, 1, -1, 3.4570297e-07, -8.510921e-15, -26.673262, -231.06616, 35.000008)
 surface_material_override/0 = SubResource("StandardMaterial3D_1ox38")
 surface_material_override/1 = SubResource("StandardMaterial3D_j2tcd")
 
-[node name="band_l" parent="z_saw_foundation" index="3" unique_id=160621149]
+[node name="band_l" parent="z_saw_foundation" index="3" unique_id=1392048167]
 surface_material_override/0 = SubResource("StandardMaterial3D_i3yc6")
 
-[node name="band_r" parent="z_saw_foundation" index="4" unique_id=384619267]
+[node name="band_r" parent="z_saw_foundation" index="4" unique_id=1442184138]
 surface_material_override/0 = SubResource("StandardMaterial3D_fwmqo")
 
-[node name="spinner_small_screw" parent="z_saw_foundation" index="5" unique_id=1532909340]
+[node name="spinner_small_screw" parent="z_saw_foundation" index="5" unique_id=1697949196]
 surface_material_override/0 = SubResource("StandardMaterial3D_k6n8q")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="z_saw_foundation" unique_id=283305320]
+libraries/ = SubResource("AnimationLibrary_fwmqo")
+autoplay = &"band_rotation"
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

@@ -10,6 +10,8 @@ const STAGE_KEY := &"split_stage"
 const FALLS_KEY := &"falls_off"
 const EPS := 0.0001
 
+var _safe_seed := 0
+
 @export var source_body: StaticBody3D
 @export var output_root: Node3D
 ## true: generate the pieces after every cut (stages 1..N).
@@ -48,7 +50,8 @@ func _resolve_split_map() -> Dictionary:
 	return result
 
 
-func generate_splits(cuts: Array[SplitCut]) -> void:
+func generate_splits(cuts: Array[SplitCut], seed_value: int = 0) -> void:
+	_safe_seed = seed_value
 	if source_body == null or output_root == null:
 		push_warning("BoardSplitter: assign source_body and output_root first.")
 		return
@@ -70,6 +73,7 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 	var stages: Array = []  # stages[s] = Array[Dictionary] of pieces after cut s+1
 	var stage_lineages: Array = []
 	var stage_falls: Array = []  # stage_falls[s][i] = true if piece i falls off at that cut
+	var stage_contacts: Array = []  # stage_contacts[s][i] = face piece i shares with its falling neighbor, or {}
 	var stage_remaining: Array = []  # stage_remaining[s] = indices of the pieces that stay attached
 	var links: Array[Dictionary] = []  # links[s]: attached piece before the cut -> child indices in stage s
 	var current: Array[Dictionary] = [reference]
@@ -80,6 +84,7 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 		var next_pieces: Array[Dictionary] = []
 		var next_lineages: Array[String] = []
 		var next_falls: Array[bool] = []
+		var next_contacts: Array[Dictionary] = []
 		var stage_links := {}
 		var any_split := false
 		for p in current.size():
@@ -100,15 +105,21 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 				next_pieces.append(piece)
 				next_lineages.append(current_lineages[p])
 				next_falls.append(cut.drops(on_negative_side))
+				next_contacts.append({})
 				continue
 			any_split = true
+			# The two halves share the cut face. It touches a falling board whenever this cut
+			# drops one of them.
+			var touches_fall := cut.drops(true) or cut.drops(false)
 			stage_links[p] = [next_pieces.size(), next_pieces.size() + 1]
 			next_pieces.append(negative)
 			next_lineages.append(current_lineages[p] + "A")
 			next_falls.append(cut.drops(true))
+			next_contacts.append({"axis": cut.axis, "positive": true} if touches_fall else {})
 			next_pieces.append(positive)
 			next_lineages.append(current_lineages[p] + "B")
 			next_falls.append(cut.drops(false))
+			next_contacts.append({"axis": cut.axis, "positive": false} if touches_fall else {})
 		if not any_split:
 			push_warning("BoardSplitter: cut at %s misses every remaining piece; skipped." % cut.offset)
 			continue
@@ -125,6 +136,7 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 		stages.append(next_pieces)
 		stage_lineages.append(next_lineages)
 		stage_falls.append(next_falls)
+		stage_contacts.append(next_contacts)
 		stage_remaining.append(remaining_indices)
 		links.append(stage_links)
 		current = kept_pieces
@@ -142,7 +154,7 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 		var stage_pieces: Array = stages[s]
 		var bodies: Array = []
 		for i in stage_pieces.size():
-			var body := _build_body(s + 1, stage_lineages[s][i], stage_pieces[i], reference)
+			var body := _build_body(s + 1, stage_lineages[s][i], stage_pieces[i], reference, stage_contacts[s][i])
 			body.set_meta(FALLS_KEY, stage_falls[s][i])
 			bodies.append(body)
 		built[s + 1] = bodies
@@ -172,7 +184,6 @@ func generate_splits(cuts: Array[SplitCut]) -> void:
 				split_map[get_path_to(parent_list[p])] = targets
 
 	split_map_nodes = _resolve_split_map()
-
 
 # --- Public helpers ------------------------------------------------------------
 
@@ -276,7 +287,7 @@ func _clip(piece: Dictionary, axis: int, offset: float, keep_positive: bool) -> 
 	return out
 
 
-func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dictionary) -> StaticBody3D:
+func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dictionary, contact: Dictionary) -> StaticBody3D:
 	var body := source_body.duplicate() as StaticBody3D
 
 	body.name = "%s_s%02d_%s" % [source_body.name, stage, lineage]
@@ -337,6 +348,9 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 					nodes[h].set_surface_override_material(
 							s, _shifted_material(original.get_surface_override_material(s), delta))
 
+	# The "safe" marker, added before the owner pass below so it is saved with the scene.
+	body.add_child(_make_safe(union_of(piece), center, contact, stage, lineage))
+
 	output_root.add_child(body)
 	body.global_transform = source_body.global_transform * Transform3D(Basis.IDENTITY, center)
 
@@ -349,6 +363,48 @@ func _build_body(stage: int, lineage: String, piece: Dictionary, reference: Dict
 
 	_set_body_enabled(body, false)
 	return body
+
+## A Node3D named "safe" at a seeded random spot on one of the piece's faces, with its +Y
+## pointing out of that face. Skipped faces: the bottom (-Y), and the face that touches the
+## falling board (the cut face shared with the other half).
+func _make_safe(bounds: AABB, center: Vector3, contact: Dictionary, stage: int, lineage: String) -> Node3D:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = ("%d_%d_%s" % [_safe_seed, stage, lineage]).hash()
+
+	var faces: Array[Dictionary] = []
+	var total := 0.0
+	for axis in 3:
+		for positive:bool in [false, true]:
+			if axis == Vector3.AXIS_Y and not positive:
+				continue  # beneath the board
+			if not contact.is_empty() and contact["axis"] == axis and contact["positive"] == positive:
+				continue  # touches the falling board
+			var area := bounds.size[(axis + 1) % 3] * bounds.size[(axis + 2) % 3]
+			faces.append({"axis": axis, "positive": positive, "area": area})
+			total += area
+
+	# Pick a face, weighted by area so long faces get more of the spots.
+	var pick := rng.randf() * total
+	var chosen: Dictionary = faces[faces.size() - 1]
+	for f in faces:
+		pick -= f.area
+		if pick <= 0.0:
+			chosen = f
+			break
+
+	var axis: int = chosen.axis
+	var pos := Vector3(
+			rng.randf_range(bounds.position.x, bounds.end.x),
+			rng.randf_range(bounds.position.y, bounds.end.y),
+			rng.randf_range(bounds.position.z, bounds.end.z))
+	pos[axis] = bounds.end[axis] if chosen.positive else bounds.position[axis]
+	var normal := Vector3.ZERO
+	normal[axis] = 1.0 if chosen.positive else -1.0
+
+	var safe := Node3D.new()
+	safe.name = "safe"
+	safe.transform = Transform3D(Basis(Quaternion(Vector3.UP, normal)), pos - center)
+	return safe
 
 
 ## Returns a unique StandardMaterial3D (null stays null). A piece centered `delta` away from

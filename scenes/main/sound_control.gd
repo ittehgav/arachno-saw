@@ -20,11 +20,7 @@ func _ready()->void:
 
 
 
-#func _on_toggle_sfx_pressed() -> void:
-	#sfx_on = not sfx_on;
-	#print("tsfgx?")
-	#AudioServer.set_bus_mute(0, sfx_on)
-	#refresh_toggle_btn(toggle_sfx, sfx_on)
+
 func _on_toggle_music_pressed() -> void:
 	bgm_on = not bgm_on
 

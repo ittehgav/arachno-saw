@@ -10,6 +10,10 @@ const MARKER_META := &"split_center_marker"
 @export var y_saw: PackedScene  # Y cuts
 @export var z_saw: PackedScene  # Z cuts
 
+## Mirrors saw positions across the point along the board's X and Z axes. Turn this on if the
+## board faces the opposite way at each point.
+@export var mirror_saws_xz := true
+
 
 @export var pre_curve:Curve3D;
 @export_tool_button("Generate Splits") var generate_action := generate_splits
@@ -209,7 +213,7 @@ func create_split_markers() -> void:
 	var scene_root := get_tree().edited_scene_root if Engine.is_editor_hint() else null
 
 	# The pre_curve points get the same trigger areas.
-	for p in pre_point_count:
+	for p in cut_point_indices[0]:
 		_create_point_area(markers, p, to_global(curve.get_point_position(p)),
 			global_transform.basis.orthonormalized(), scene_root)
 
@@ -233,8 +237,7 @@ func create_split_markers() -> void:
 		if scene_root:
 			marker.owner = scene_root
 		# Every marker after the first also gets a trigger area on its curve point.
-		if k > 0:
-			_create_point_area(marker, i, point_global, board_basis, scene_root)
+		_create_point_area(marker, i, point_global, board_basis, scene_root)
 			
 		var saw_scene: PackedScene
 		var saw_scene_name: String
@@ -277,9 +280,12 @@ func create_split_markers() -> void:
 		# Every saw keeps the rotation its scene was authored with.
 		saw.global_transform = Transform3D(native_basis, marker.global_position)
 		
-		# Position: local to the marker, as the offset from the split center in board axes.
-		# How far the saw sits from the split center (the marker), in the marker's axes.
-		var plane_shift := marker_basis * (plane_point - local_offset)
+		
+		var saw_target := plane_point
+		if mirror_saws_xz:
+			saw_target = Vector3(-plane_point.x, plane_point.y, -plane_point.z)
+		var plane_shift := board_basis * (saw_target - local_offset)
+		
 		# If the scene has a child named "saw", only that node moves to the cut; the rest of
 		# the scene stays on the marker. Otherwise the whole scene moves, as before.
 		var blade := saw.find_child("saw", true, false) as Node3D

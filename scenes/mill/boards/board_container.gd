@@ -23,6 +23,8 @@ signal board_dropped(board:StaticBody3D);
 @export var left_trunk:StaticBody3D;
 @export var right_trunk:StaticBody3D;
 
+@export var full_board:StaticBody3D
+
 
 
 ## to control the boards' stage
@@ -36,6 +38,11 @@ var next_boards:Array;
 
 var safe_board:StaticBody3D:
 	get():
+		print(current_stage)
+		if current_stage == -2:
+			return top_trunk;
+		elif current_stage == -1:
+			return full_board;
 		return splitter.get_remaining_board(current_stage)
 
 func _enter_tree() -> void:
@@ -127,7 +134,6 @@ func _on_saw_left(_saw: Saw) -> void:
 	## rolling board drops immediately so flies can 
 	## spawn on dropping side before next saw_touched
 	if current_stage == total_stages + 1 and not spider.dead:
-		print("staeg?")
 		spider.win_run();
 		return
 	var stage:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1);

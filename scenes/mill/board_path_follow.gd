@@ -5,13 +5,15 @@ class_name BoardPathFollow
 @export var board_0:StaticBody3D
 
 
-signal point_reached(i:int);
+signal point_reached(i:int, split_center:Node3D);
 
 var moving_x:bool=true;
 
 const base_speed = 1;
 const x_meters_per_second = 100
 const z_meters_per_second = 40;
+
+@export var warning:MeshInstance3D
 
 ## gets incremented by run
 var accel:float = 1.0;
@@ -39,12 +41,13 @@ func _physics_process(delta: float) -> void:
 func _on_turn_scan_area_entered(area: Area3D) -> void:
 	## turn = switch from x to z movement
 	var i:int = int(area.name.split("_")[1])
-	point_reached.emit(i);
+	point_reached.emit(i, area.get_parent());
 
 
 func board_fall()->void:
 	var t:= create_tween();
 	t.tween_property(self, "v_offset", path.saw_offset.y, .5);
+	t.parallel().tween_property(warning, "position:y", warning.position.y - path.saw_offset.y, .5)
 	t.tween_callback(board_fall_camera_feedback);
 
 func board_fall_camera_feedback()->void:
@@ -60,3 +63,27 @@ func _on_board_container_saw_left(saw: Saw) -> void:
 	if saw.name == "trunk_bottom":
 		board_fall();
 	
+
+
+func _on_point_reached(i: int, center:Node3D) -> void:
+	var tpi:int = i - 2;
+	if tpi < 0:return;
+	var saw:Saw = center.get_node("Saw")
+	if saw is XSaw:
+		## follow's global position = container's gp
+		var gap:float = abs(global_position.x - center.global_position.x)
+		var t:Timer = Timer.new();
+		t.wait_time = 1;
+		t.timeout.connect(t.queue_free)
+		add_child(t)
+		
+		while gap > 1 and not t.is_stopped():
+			## surely this is consistent?
+			await get_tree().process_frame
+			gap = abs(global_position.x - center.global_position.x);
+		global_position.x = center.global_position.x
+		moving = false;
+		saw.start_motion()
+		await GLB.board_container.saw_left;
+		moving = true
+		

@@ -10,9 +10,11 @@ signal run_won;
 enum DeathType{
 	saw,
 	board,
-	skull
+	skull,
+	roller
 }
 @export var pcam:PhantomCamera3D
+
 @export var body:Spider
 
 @export var death_sfx:AudioStreamPlayer
@@ -320,6 +322,10 @@ func _on_collision_scan_area_entered(area: Area3D) -> void:
 	elif area is Fly:
 		fly_consumed.emit(area)
 		area.apply_effect(self)
+	elif area.name == "roller_killbox":
+		## would need to add a script to roller killbox just
+		## for the classname otherwise
+		die(DeathType.roller)
 
 var invulnerable:bool=false;
 func die(source:DeathType)->void:
@@ -337,16 +343,15 @@ func cheat_death(type:DeathType)->void:
 	cheat_death_sfx.play()
 	blink_animation.play("blink");
 	match type:
-		DeathType.saw, DeathType.board:
+		DeathType.saw, DeathType.board, DeathType.roller:
 			tp_to_safety()
 
 func tp_to_safety()->void:
-	await get_tree().physics_frame ## when boards drop, takes a frame 
+	await get_tree().physics_frame 
+	## when boards drop, takes a frame 
 	## for safe region detectors to refgresy
-	var ssf:SafeSpotFinder = GLB.safe_spot_finder;
-	var safe_board:StaticBody3D = GLB.board_container.safe_board;
-	var t:Transform3D = ssf.get_free_biggest_face_transform(safe_board.get_node("CollisionShape3D"))
-	t.origin = GLB.board_container.to_global(t.origin)
+	var safe:Node3D = GLB.board_container.safe_board.get_node("safe");
+	var t:Transform3D = safe.global_transform;
 	teleport_to(t)
 
 @onready var body_scale: = body.scale

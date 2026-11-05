@@ -7,11 +7,8 @@ extends Node3D
 
 func _on_stick_ticker_timeout() -> void:
 	if not surface_check.is_colliding():
-		print("notscis?")
 		var board_gp:Vector3 = GLB.board_container.safe_board.global_position
-		print(GLB.board_container.safe_board)
-		print(spider.global_position, board_gp)
-		
+				
 		surface_finder.global_position = spider.global_position
 		surface_finder.look_at(board_gp);
 		surface_finder.force_raycast_update();

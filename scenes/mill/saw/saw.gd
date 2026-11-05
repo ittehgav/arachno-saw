@@ -25,9 +25,10 @@ func set_particles_emitting(to:bool)->void:
 func _on_area_entered(area: Area3D) -> void:
 	## AREA ENTERED = SAW COLLISION MASK
 	## spider will collide with the saw with its mask and the saw's lay
-	set_particles_emitting(true)
+	if area.name == "roller_killbox":return;
 	if area.get_parent().get_parent() is BoardContainer or area.get_parent() is StaticBody3D:
 		board_touched.emit();
+		set_particles_emitting(true)
 
 var looping:bool=false;
 const loop_wrap_offset = .03

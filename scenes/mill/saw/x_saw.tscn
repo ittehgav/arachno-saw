@@ -480,7 +480,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("saw:position:z")
+tracks/0/path = NodePath("band_saw:position:z")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -504,14 +504,15 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_dxihh"]
 resource_name = "saw_motion"
+length = 5.0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("saw:position:z")
+tracks/0/path = NodePath("band_saw:position:z")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
+"times": PackedFloat32Array(0, 5),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [-4.063518e-06, 400.0]
@@ -523,7 +524,7 @@ tracks/1/path = NodePath("CollisionShape3D:position:z")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 1),
+"times": PackedFloat32Array(0, 5),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [-200.92722, 199.073]
@@ -535,9 +536,11 @@ _data = {
 &"saw_motion": SubResource("Animation_dxihh")
 }
 
-[node name="x_saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "camera", "particles_container")]
+[node name="x_saw" type="Area3D" unique_id=2013329940 node_paths=PackedStringArray("motion_animation", "band_animation", "sfx_start", "sfx_loop", "sfx_end", "camera", "particles_container")]
 transform = Transform3D(-1, 2.6226832e-07, -1.1464112e-14, -2.6226832e-07, -1, 8.742278e-08, 1.1464113e-14, 8.742278e-08, 1, 0, 0, 0)
 script = ExtResource("1_rw50p")
+motion_animation = NodePath("saw_motion")
+band_animation = NodePath("foundation/band/band_motion")
 sfx_start = NodePath("sfx/sfx_start")
 sfx_loop = NodePath("sfx/sfx_loop")
 sfx_end = NodePath("sfx/sfx_end")
@@ -655,7 +658,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -268.00073, 0, 454.41577)
 mesh = SubResource("ArrayMesh_670yo")
 surface_material_override/0 = SubResource("StandardMaterial3D_mdwkj")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="foundation/band" unique_id=2084251855]
+[node name="band_motion" type="AnimationPlayer" parent="foundation/band" unique_id=2084251855]
 libraries/ = SubResource("AnimationLibrary_6a5t5")
 speed_scale = 0.5
 
@@ -673,33 +676,33 @@ surface_material_override/0 = SubResource("StandardMaterial3D_u5bk5")
 transform = Transform3D(-1, -9.0460146e-15, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, 2.5410988e-21, 1, -1.3113416e-07, 4.6267776, -87.006134, -200.92722)
 shape = SubResource("BoxShape3D_kddjp")
 
-[node name="saw" type="Node3D" parent="." unique_id=1181522335]
+[node name="band_saw" type="Node3D" parent="." unique_id=1181522335]
 transform = Transform3D(1, 1.0022245e-21, -2.8421706e-14, 0, 1, 0, -1.1464113e-14, 0, 1, 0, 0, -4.063518e-06)
 
-[node name="band_saw" type="Node3D" parent="saw" unique_id=1916775494]
-transform = Transform3D(-1, 1.9375521e-14, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, -1.1464111e-14, 1, -1.3113416e-07, 0, -51.86, -207.665)
+[node name="band_saw" type="Node3D" parent="band_saw" unique_id=1916775494]
+transform = Transform3D(-1, 1.9375523e-14, 2.6226832e-07, 2.6226832e-07, 1.3113414e-07, 1, -1.1464111e-14, 1, -1.3113416e-07, -7.8930145e-07, -54.869522, -207.665)
 
-[node name="Cube" type="MeshInstance3D" parent="saw/band_saw" unique_id=1928084613]
+[node name="Cube" type="MeshInstance3D" parent="band_saw/band_saw" unique_id=1928084613]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 3.2311743e-27, 0, 100, 0, -0.038864136, -251.35294)
 mesh = SubResource("ArrayMesh_yh64h")
 
-[node name="anchor" type="Node3D" parent="saw/band_saw" unique_id=1496842208]
+[node name="anchor" type="Node3D" parent="band_saw/band_saw" unique_id=1496842208]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.923202e-05, 169.36166, -249.92303)
 
-[node name="Plane2" type="MeshInstance3D" parent="saw/band_saw/anchor" unique_id=273193486]
-transform = Transform3D(-2.6226835e-05, -100, -1.1464115e-12, -100, 2.6226831e-05, -1.7484555e-05, 1.7484555e-05, -6.281404e-12, -100, 0.00013846403, -169.20255, 203.19626)
+[node name="Plane2" type="MeshInstance3D" parent="band_saw/band_saw/anchor" unique_id=273193486]
+transform = Transform3D(-2.6226835e-05, -100, -1.1464115e-12, -100, 2.6226831e-05, -1.7484555e-05, 1.7484555e-05, -6.281404e-12, -100, 0.00013846403, -169.20255, 250)
 mesh = SubResource("ArrayMesh_iagms")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="saw/band_saw/anchor/Plane2" unique_id=583683835]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="band_saw/band_saw/anchor/Plane2" unique_id=583683835]
 mesh = SubResource("ArrayMesh_bsod6")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="saw/band_saw/anchor" unique_id=177188834]
+[node name="saw_up_down" type="AnimationPlayer" parent="band_saw/band_saw/anchor" unique_id=177188834]
 libraries/ = SubResource("AnimationLibrary_mdwkj")
 autoplay = &"band_saw_movement"
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1260582730]
+[node name="saw_motion" type="AnimationPlayer" parent="." unique_id=1260582730]
 libraries/ = SubResource("AnimationLibrary_o0ywc")
-speed_scale = 0.15
+speed_scale = 0.75
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

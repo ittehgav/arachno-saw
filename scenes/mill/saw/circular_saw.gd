@@ -15,4 +15,5 @@ func _on_area_entered(area: Area3D) -> void:
 			area.tp_target.queue_free();
 		return;
 	super(area);
-	play_sfx_loop()
+	if area.name != "roller_killbox":
+		play_sfx_loop()

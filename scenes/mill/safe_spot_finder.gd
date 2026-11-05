@@ -1,77 +1,80 @@
 extends Node3D
 class_name SafeSpotFinder
 
-# How far the probe reaches in/out of the face plane, and how much it's shrunk
-# at the edges so shapes that only touch an edge don't count as touching the face.
-const FACE_PROBE_DEPTH := 2
-const EDGE_SHRINK := 1
 
 func _enter_tree() -> void:
 	GLB.safe_spot_finder = self
 
-## Returns the center of the largest face of a BoxShape3D as a Transform3D
-## relative to this node, with Y pointing away from the box. A ray is cast
-## outward from that face. If it hits a collider, the opposite face is
-## returned instead.
-func get_free_biggest_face_transform(
-		collision_shape: CollisionShape3D,
-		ray_length := 1.0,
-		collision_mask := 0xFFFFFFFF) -> Transform3D:
-	var face := _get_biggest_face_transform(collision_shape, false)
+## Returns global Transforms on every free face of a box CollisionShape3D (bottom face excluded).
+## Each transform's origin is the face center and its Y axis is the face's outward normal.
+## Returns an empty array if no face is free.
+## Must be called during _physics_process (the physics space is locked otherwise).
+func get_free_surface_transforms(shape_node: CollisionShape3D, probe_margin: float = 1) -> Array[Transform3D]:
+	var result: Array[Transform3D] = []
+	var box_shape: BoxShape3D = shape_node.shape as BoxShape3D
+	if box_shape == null:
+		return result
 
-	# Ray in world space, starting just outside the face so it can't start inside the shape
-	var world_face: Transform3D = global_transform * face
-	var normal: Vector3 = world_face.basis.y.normalized()
-	var from: Vector3 = world_face.origin + normal * 0.01
-	var to: Vector3 = from + normal * ray_length
+	var shape_xform: Transform3D = shape_node.global_transform
+	var half_extents: Vector3 = (box_shape.size * shape_xform.basis.get_scale()).abs() * 0.5
+	var face_basis: Basis = shape_xform.basis.orthonormalized()
+	var space_state: PhysicsDirectSpaceState3D = shape_node.get_world_3d().direct_space_state
+	var parent_body: CollisionObject3D = shape_node.get_parent() as CollisionObject3D
 
-	var query := PhysicsRayQueryParameters3D.create(from, to, collision_mask)
+	# Build the 6 faces and find the bottom one (normal most aligned with global -Y)
+	var face_axes: PackedInt32Array = PackedInt32Array()
+	var face_normals: Array[Vector3] = []
+	var bottom_idx: int = 0
+	var lowest_y: float = INF
+	for axis_idx: int in 3:
+		for sign_val: float in [-1.0, 1.0]:
+			var local_normal: Vector3 = Vector3.ZERO
+			local_normal[axis_idx] = sign_val
+			var world_normal: Vector3 = face_basis * local_normal
+			if world_normal.y < lowest_y:
+				lowest_y = world_normal.y
+				bottom_idx = face_normals.size()
+			face_axes.append(axis_idx)
+			face_normals.append(world_normal)
 
-	# Ignore the body this shape belongs to (and this node, if it's a body)
-	var exclude: Array[RID] = []
-	var owner_body := collision_shape.get_parent() as CollisionObject3D
-	if owner_body:
-		exclude.append(owner_body.get_rid())
+	for face_idx: int in face_normals.size():
+		if face_idx == bottom_idx:
+			continue
+		var axis_idx: int = face_axes[face_idx]
+		var face_normal: Vector3 = face_normals[face_idx]
+		var face_center: Vector3 = shape_xform.origin + face_normal * half_extents[axis_idx]
 
-	query.exclude = exclude
+		# Thin box straddling the face plane, slightly smaller than the face
+		var probe_shape: BoxShape3D = BoxShape3D.new()
+		var probe_size: Vector3 = half_extents * 2.0 * 0.9
+		probe_size[axis_idx] = probe_margin * 2.0
+		probe_shape.size = probe_size
 
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	if not hit.is_empty():
-		return _get_biggest_face_transform(collision_shape, true)
+		var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+		query.shape_rid = probe_shape.get_rid()
+		query.transform = Transform3D(face_basis, face_center)
+		query.collide_with_bodies = true
+		query.collide_with_areas = false
 
-	return face
+		var is_touching: bool = false
+		var hits: Array[Dictionary] = space_state.intersect_shape(query, 32)
+		for hit: Dictionary in hits:
+			var hit_collider: Object = hit["collider"]
+			var hit_shape_idx: int = hit["shape"]
+			# Ignore the tested shape itself, but count sibling shapes on the same body
+			if parent_body != null and hit_collider == parent_body:
+				var shape_owner_id: int = parent_body.shape_find_owner(hit_shape_idx)
+				if parent_body.shape_owner_get_owner(shape_owner_id) == shape_node:
+					continue
+			is_touching = true
+			break
+		if is_touching:
+			continue
 
+		# Orientation: Y = outward normal, X/Z follow the box's own axes
+		var tangent: Vector3 = face_basis[(axis_idx + 1) % 3]
+		var axis_z: Vector3 = tangent.cross(face_normal).normalized()
+		var axis_x: Vector3 = face_normal.cross(axis_z).normalized()
+		result.append(Transform3D(Basis(axis_x, face_normal, axis_z), face_center))
 
-func _get_biggest_face_transform(collision_shape: CollisionShape3D, flip_side := false) -> Transform3D:
-	var box := collision_shape.shape as BoxShape3D
-	assert(box != null, "CollisionShape3D must have a BoxShape3D")
-
-	# Shape transform relative to this node (includes any scale)
-	var rel: Transform3D = global_transform.affine_inverse() * collision_shape.global_transform
-
-	# Largest face is perpendicular to the smallest scaled dimension
-	var scaled_size: Vector3 = box.size * rel.basis.get_scale().abs()
-	var axis := 0
-	if scaled_size.y < scaled_size[axis]:
-		axis = 1
-	if scaled_size.z < scaled_size[axis]:
-		axis = 2
-
-	var side := -1.0 if flip_side else 1.0
-
-	var local_center := Vector3.ZERO
-	local_center[axis] = side * box.size[axis] * 0.5
-
-	var b := rel.basis.orthonormalized()
-	var ex := b.x
-	var ey := b.y
-	var ez := b.z
-
-	# Right-handed basis whose Y is the outward normal
-	var basis_out: Basis
-	match axis:
-		0: basis_out = Basis(ez * side, ex * side, ey)
-		1: basis_out = Basis(ex, ey * side, ez * side)
-		_: basis_out = Basis(ey * side, ez * side, ex)
-
-	return Transform3D(basis_out, rel * local_center)
+	return result

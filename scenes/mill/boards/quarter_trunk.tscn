@@ -6,7 +6,8 @@
 transparency = 1
 albedo_color = Color(2.055, 2.055, 2.055, 1)
 albedo_texture = ExtResource("1_kj3fq")
-uv1_scale = Vector3(1.77, 4.235, 1)
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_rrqsk"]

@@ -2864,6 +2864,7 @@ _data = {
 }
 
 [node name="spider" type="CharacterBody3D" unique_id=177370040 node_paths=PackedStringArray("body", "death_sfx", "blink_animation", "cheat_death_sfx", "buff_glow_mesh", "buff_glow_animation")]
+collision_layer = 97
 motion_mode = 1
 wall_min_slide_angle = 0.6859144
 script = ExtResource("1_o1eoj")
@@ -2875,7 +2876,7 @@ buff_glow_mesh = NodePath("buff_glow_mesh")
 buff_glow_animation = NodePath("buff_glow_mesh/buff_glow")
 
 [node name="body" type="Node3D" parent="." unique_id=1279159701 node_paths=PackedStringArray("animation", "skeleton", "feet", "shield_icon")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1.8190169, 0)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.9334769, 0)
 script = ExtResource("2_qrebf")
 animation = NodePath("AnimationPlayer")
 skeleton = NodePath("Armature_001/Skeleton3D")

@@ -75,6 +75,8 @@ func _on_spider_died(source:Crawler.DeathType) -> void:
 			you_died_message.text = "Are you even trying?"
 		dt.skull:
 			you_died_message.text = "Don't you know what a skull means?"
+		dt.roller:
+			you_died_message.text = "The rollers are fully spider-proof."
 
 	const death_pause_delay = .5
 	Run._elapsed_time -= death_pause_delay;
