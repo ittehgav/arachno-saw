@@ -21,6 +21,11 @@ var accel:float = 1.0;
 @export var path:BodySplitPath
 	
 func _enter_tree() -> void:
+	var p:Node = get_parent();
+	while not p is BodySplitPath:
+		p = p.get_parent();
+	if p.is_in_group("extra_path_copy"):
+		return;
 	GLB.board_path_follow = self;
 
 func _ready()->void:

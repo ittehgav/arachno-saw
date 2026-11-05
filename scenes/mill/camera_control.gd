@@ -3,6 +3,7 @@ extends Node3D
 
 @export var player: CharacterBody3D
 @export var pcam: PhantomCamera3D
+@export var crosshair:TextureRect
 
 @export var mouse_sensitivity: float = 0.003
 ## Pitch limits, measured relative to the camera's reference up direction
@@ -46,7 +47,8 @@ func _ready() -> void:
 	_pitch = _initial_pitch
 	_yaw = _initial_yaw
 
-
+var aiming:bool=false;
+var aim_tween:Tween;
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -57,8 +59,12 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == reset_key:
 		reset_camera()
-		return
-
+		
+	if event.is_action_pressed("aim_web") and not aiming:
+		_start_aiming()
+	elif event.is_action_released("aim_web") and aiming:
+		_stop_aiming()
+	
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		# Cancel an in-progress reset if the player grabs the camera
 		if _reset_tween and _reset_tween.is_running():
@@ -67,7 +73,27 @@ func _input(event: InputEvent) -> void:
 		_yaw -= event.relative.x * mouse_sensitivity
 		_pitch -= event.relative.y * mouse_sensitivity
 		_pitch = clampf(_pitch, deg_to_rad(min_pitch_degrees), deg_to_rad(max_pitch_degrees))
+func _start_aiming()->void:
+	const start_aim_time:=.1
+	aiming = true;
+	if aim_tween and aim_tween.is_running():
+		aim_tween.kill()
+	var t:= create_tween()
+	aim_tween = t;
+	t.tween_property(pcam, "spring_length", 20, start_aim_time);
+	t.parallel().tween_property(crosshair, "modulate:a", 1, start_aim_time)
+	t.parallel().tween_property(pcam, "follow_offset:y", 30, start_aim_time)
 
+func _stop_aiming()->void:
+	const stop_aim_time = .25
+	aiming = false;
+	if aim_tween and aim_tween.is_running():
+		aim_tween.kill();
+	var t:= create_tween();
+	aim_tween = t;
+	t.tween_property(pcam, "spring_length", 80, .25)
+	t.parallel().tween_property(crosshair, "modulate:a", 0, stop_aim_time)
+	t.parallel().tween_property(pcam, "follow_offset:y", 0, .25)
 
 func _process(_delta: float) -> void:
 	_update_frame()

@@ -33,6 +33,10 @@ const POINT_AREA_SIZE := 50.0
 @export var wall_left: MeshInstance3D
 @export var wall_right: MeshInstance3D
 
+var _fit_bounds := AABB()
+var _fit_turn_radius := 0.0
+var _fit_saws: Array[Node3D] = []
+
 @export var floor_ceiling_texture_scale := 2.0
 ## Extra space between the system and each wall, in meters.
 const room_margin := 500
@@ -319,31 +323,19 @@ func create_split_markers() -> void:
 	
 	_create_rollers(scene_root)
 	
-	_fit_room(bounds, turn_radius, saws)
-## Sizes and places the room planes around everything in the system.
-func _fit_room(bounds: AABB, turn_radius: float, saws: Array[Node3D]) -> void:
+	_fit_bounds = bounds
+	_fit_turn_radius = turn_radius
+	_fit_saws = saws
+	fit_room()
+
+## Sizes and places the room planes around this path and any others that share the room.
+func fit_room(others: Array[BodySplitPath] = []) -> void:
 	var to_local_xform := global_transform.affine_inverse()
 	var fit: Array[AABB] = []  # everything the room must contain, in this node's local space
-
-	# The board along the whole path. It turns about its origin, so use its full turning
-	# radius in the XZ plane and its real height range.
-	for p in curve.get_baked_points():
-		fit.append(AABB(
-			p + Vector3(-turn_radius, bounds.position.y, -turn_radius),
-			Vector3(2.0 * turn_radius, bounds.size.y, 2.0 * turn_radius)
-		))
-
-	# The saws, including all of their visible geometry.
-	for saw in saws:
-		fit.append(AABB(to_local_xform * saw.global_position, Vector3.ZERO))
-		var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)
-		if saw is VisualInstance3D:
-			visuals.append(saw)
-		for vi:Node in visuals:
-			var global_box: AABB = vi.global_transform * vi.get_aabb()
-			fit.append(to_local_xform * global_box)
-
-
+	_collect_fit_boxes(fit, to_local_xform)
+	for other in others:
+		if other != null and other != self:
+			other._collect_fit_boxes(fit, to_local_xform)
 	if fit.is_empty():
 		return
 	var room := fit[0]
@@ -379,6 +371,28 @@ func _fit_room(bounds: AABB, turn_radius: float, saws: Array[Node3D]) -> void:
 	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
 	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
 	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+
+## Adds everything this path puts in the room (the board's sweep along the path, the saws) to `fit`,
+## as boxes in the space that to_local_xform maps world space into.
+func _collect_fit_boxes(fit: Array[AABB], to_local_xform: Transform3D) -> void:
+	if curve == null:
+		return
+	for p in curve.get_baked_points():
+		var c := to_local_xform * to_global(p)
+		fit.append(AABB(
+			c + Vector3(-_fit_turn_radius, _fit_bounds.position.y, -_fit_turn_radius),
+			Vector3(2.0 * _fit_turn_radius, _fit_bounds.size.y, 2.0 * _fit_turn_radius)
+		))
+	for saw in _fit_saws:
+		if not is_instance_valid(saw):
+			continue
+		fit.append(AABB(to_local_xform * saw.global_position, Vector3.ZERO))
+		var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)
+		if saw is VisualInstance3D:
+			visuals.append(saw)
+		for vi: Node in visuals:
+			var global_box: AABB = vi.global_transform * vi.get_aabb()
+			fit.append(to_local_xform * global_box)
 
 ## Repeats the node's texture across a plane of the given size (x, z), drawing each tile
 ## texture_size * texel_scale world units across.

@@ -46,6 +46,12 @@ var safe_board:StaticBody3D:
 		return splitter.get_remaining_board(current_stage)
 
 func _enter_tree() -> void:
+	var p:Node = get_parent();
+	while not p is BodySplitPath:
+		p = p.get_parent();
+	if p.is_in_group("extra_path_copy"):
+		return;
+		
 	GLB.board_container = self;
 
 func _ready()->void:
@@ -104,7 +110,7 @@ func generate_glow_material(m:MeshInstance3D)->void:
 		m.mesh.material = null
 	else: ## m.mesh is ArrayMesh
 		m.material_override = m.mesh.surface_get_material(0).duplicate()
-		m.mesh.surface_set_material(0, null)
+		#m.mesh.surface_set_material(0, null)
 
 
 
