@@ -296,8 +296,10 @@ mesh = SubResource("CylinderMesh_rcdrx")
 mesh = SubResource("ArrayMesh_0djmd")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="saw_rotation_anchor" unique_id=1750264574]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_m2ud2")
 autoplay = &"saw_rotation"
+speed_scale = 2.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1650663486]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
@@ -355,11 +357,11 @@ surface_material_override/0 = SubResource("StandardMaterial3D_mci6j")
 surface_material_override/2 = SubResource("StandardMaterial3D_vrp24")
 
 [node name="spinner_small" parent="z_saw_foundation" index="1" unique_id=1528548626]
-transform = Transform3D(-3.4570297e-07, -1, 4.371139e-08, 6.600236e-15, 4.371139e-08, 1, -1, 3.4570297e-07, -8.510921e-15, -26.67327, 33.70674, 34.999992)
+transform = Transform3D(-4.0133926e-07, -1, -4.371139e-08, 0, -4.371139e-08, 1, -1, 4.0133926e-07, 1.7543096e-14, -26.67327, 33.70674, 34.999992)
 surface_material_override/0 = SubResource("StandardMaterial3D_1ox38")
 
 [node name="spinner_big" parent="z_saw_foundation" index="2" unique_id=1611511511]
-transform = Transform3D(-3.4570297e-07, -1, 4.371139e-08, 6.600236e-15, 4.371139e-08, 1, -1, 3.4570297e-07, -8.510921e-15, -26.673262, -231.06616, 35.000008)
+transform = Transform3D(-4.0133926e-07, -1, -4.371139e-08, 0, -4.371139e-08, 1, -1, 4.0133926e-07, 1.7543096e-14, -26.673262, -231.06616, 35.000008)
 surface_material_override/0 = SubResource("StandardMaterial3D_1ox38")
 surface_material_override/1 = SubResource("StandardMaterial3D_j2tcd")
 
@@ -373,6 +375,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_fwmqo")
 surface_material_override/0 = SubResource("StandardMaterial3D_k6n8q")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="z_saw_foundation" unique_id=283305320]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_fwmqo")
 autoplay = &"band_rotation"
 

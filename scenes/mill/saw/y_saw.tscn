@@ -268,8 +268,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 3.5527137e-15, 1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_0djmd")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="saw_rotation_anchor" unique_id=1750264574]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_m2ud2")
 autoplay = &"saw_rotation"
+speed_scale = 2.0
 
 [node name="sfx" type="Node3D" parent="saw_rotation_anchor" unique_id=503496993]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
@@ -363,6 +365,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_gqp6g")
 surface_material_override/0 = SubResource("StandardMaterial3D_n2p4t")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="y_saw_foundation" unique_id=2043981402]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_6cskv")
 autoplay = &"band_spin"
 speed_scale = 10.0

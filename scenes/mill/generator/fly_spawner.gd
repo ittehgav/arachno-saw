@@ -8,7 +8,8 @@ var current_flies:Array[Fly];
 const surface_mask = 3
 
 func _on_board_container_ready()->void:
-	refresh_flies();
+	if splitter.process_mode == ProcessMode.PROCESS_MODE_INHERIT:
+		refresh_flies();
 
 func _on_board_container_saw_left(_saw: Saw) -> void:
 	await get_tree().create_timer(.1).timeout
@@ -32,7 +33,7 @@ func refresh_flies()->void:
 		else:
 			current_flies.pop_front()
 
-	var fly_count:int = max(1, 6 - GLB.board_container.current_stage)
+	var fly_count:int = max(2, 6 - GLB.board_container.current_stage)
 	for _i:int in range(fly_count):
 		current_flies.append(generate_fly())
 	
@@ -107,7 +108,7 @@ func generate_fly(skip_transform:bool=false)->Fly:
 
 	if fly.type == Fly.Type.teleport and not skip_transform:
 		var hit2:= get_random_surface_point(aabb);
-		while hit2.is_empty() or hit2.transform.origin.distance_to(fly.transform.origin) < 30:
+		while hit2.is_empty() or hit2.transform.origin.distance_to(fly.transform.origin) < 50:
 			hit2 = get_random_surface_point(aabb)
 			
 		var tp_fly:Fly = generate_fly(true);
@@ -185,22 +186,42 @@ func _surface_transform(point: Vector3, normal: Vector3, random_yaw := true) -> 
 
 func _random_wall_point(region: AABB) -> Vector3:
 	var s := region.size
-	# Two faces per axis, picked by area so the walls are covered evenly
-	var areas := [s.y * s.z, s.y * s.z, s.x * s.z, s.x * s.z, s.x * s.y, s.x * s.y]
-	var r :float= randf() * (areas[0] * 2.0 + areas[2] * 2.0 + areas[4] * 2.0)
+
+	# -X, +X, +Y, -Z, +Z
+	var areas := [
+		s.y * s.z,
+		s.y * s.z,
+		s.x * s.z,
+		s.x * s.y,
+		s.x * s.y
+	]
+
+	var r: float = randf() * (
+		areas[0] +
+		areas[1] +
+		areas[2] +
+		areas[3] +
+		areas[4]
+	)
+
 	var face := 0
-	for f in 6:
+	for f in areas.size():
 		r -= areas[f]
 		if r <= 0.0:
 			face = f
 			break
 
-	var p := region.position + Vector3(randf() * s.x, randf() * s.y, randf() * s.z)
+	var p := region.position + Vector3(
+		randf() * s.x,
+		randf() * s.y,
+		randf() * s.z
+	)
+
 	match face:
 		0: p.x = region.position.x
 		1: p.x = region.end.x
-		2: p.y = region.position.y
-		3: p.y = region.end.y
-		4: p.z = region.position.z
-		5: p.z = region.end.z
+		2: p.y = region.end.y      # +Y only
+		3: p.z = region.position.z
+		4: p.z = region.end.z
+
 	return p

@@ -1,13 +1,6 @@
 extends Saw
 class_name CircularSaw
 
-
-
-
-
-
-
-
 func _on_area_entered(area: Area3D) -> void:
 	if area is Fly:
 		area.queue_free();

@@ -442,14 +442,14 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Plane2:position:y")
+tracks/0/path = NodePath("Plane2:position:z")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [-169.20255]
+"update": 0,
+"values": [250.0]
 }
 
 [sub_resource type="Animation" id="Animation_iagms"]
@@ -486,7 +486,7 @@ tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
+"update": 0,
 "values": [-4.063518e-06]
 }
 tracks/1/type = "value"
@@ -498,7 +498,7 @@ tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
+"update": 0,
 "values": [-200.92722]
 }
 
@@ -659,6 +659,7 @@ mesh = SubResource("ArrayMesh_670yo")
 surface_material_override/0 = SubResource("StandardMaterial3D_mdwkj")
 
 [node name="band_motion" type="AnimationPlayer" parent="foundation/band" unique_id=2084251855]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_6a5t5")
 speed_scale = 0.5
 
@@ -697,12 +698,14 @@ mesh = SubResource("ArrayMesh_iagms")
 mesh = SubResource("ArrayMesh_bsod6")
 
 [node name="saw_up_down" type="AnimationPlayer" parent="band_saw/band_saw/anchor" unique_id=177188834]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_mdwkj")
 autoplay = &"band_saw_movement"
 
 [node name="saw_motion" type="AnimationPlayer" parent="." unique_id=1260582730]
+callback_mode_process = 0
 libraries/ = SubResource("AnimationLibrary_o0ywc")
-speed_scale = 0.75
+speed_scale = 0.5
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

@@ -179,7 +179,7 @@ _data = {
 script = ExtResource("1_bsumw")
 main_menu_spider = NodePath("main_menu/main_menu_bg/spider")
 
-[node name="main_menu" type="Control" parent="." unique_id=1547910714 node_paths=PackedStringArray("main_menu_camera", "fade_out_rect", "high_scores", "loader", "preload_overlay", "clear_high_scores_confirmation", "ui_sfx")]
+[node name="main_menu" type="Control" parent="." unique_id=1547910714 node_paths=PackedStringArray("main_menu_camera", "fade_out_rect", "high_scores", "loader", "preload_overlay", "clear_high_scores_confirmation", "new_game_btn", "ui_sfx")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -193,6 +193,7 @@ high_scores = NodePath("high_scores")
 loader = NodePath("../loader")
 preload_overlay = NodePath("overlays/pre_load_overlay")
 clear_high_scores_confirmation = NodePath("overlays/clear_hs_overlay")
+new_game_btn = NodePath("VBoxContainer/new_game")
 ui_sfx = NodePath("UISFX")
 
 [node name="UISFX" parent="main_menu" unique_id=1290045078 instance=ExtResource("4_b1x3f")]

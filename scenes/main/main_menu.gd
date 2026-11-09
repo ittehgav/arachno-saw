@@ -8,6 +8,7 @@ extends UIRoot;
 @export var preload_overlay:ColorRect;
 
 @export var clear_high_scores_confirmation:Control;
+@export var new_game_btn:Button
 
 
 
@@ -21,6 +22,7 @@ func _ready()->void:
 	fade_out(preload_overlay)
 
 func _on_new_game_pressed() -> void:
+	new_game_btn.disabled = true
 	var t:= create_tween();
 	t.tween_property(main_menu_camera, "position:z", main_menu_camera.position.z + 250, 5)
 	await fade_in(fade_out_rect).finished

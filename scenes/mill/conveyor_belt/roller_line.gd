@@ -31,7 +31,7 @@ func setup_positions() -> void:
 	_apply_transforms()
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if multimesh == null:
 		return
 	
@@ -41,7 +41,6 @@ func _process(delta: float) -> void:
 
 func _apply_transforms() -> void:
 	var mm: MultiMesh = multimesh
-	
 	# Rebuilt fresh every frame, so no error can accumulate.
 	# Spin around the roller's local Y axis (the cylinder's own axis),
 	# applied before the base orientation.

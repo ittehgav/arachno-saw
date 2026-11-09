@@ -67,6 +67,7 @@ func board_fall_camera_feedback()->void:
 func _on_board_container_saw_left(saw: Saw) -> void:
 	if saw.name == "trunk_bottom":
 		board_fall();
+		GLB.board_container.saw_left.disconnect(_on_board_container_saw_left)
 	
 
 

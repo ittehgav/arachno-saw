@@ -5,6 +5,8 @@ extends Path3D
 const EPS := 0.0001
 
 const MARKER_META := &"split_center_marker"
+const DIVIDER_GROUP := &"room_divider"
+const DIVIDER_GAP := 0.5
 
 @export var x_saw: PackedScene  # X cuts
 @export var y_saw: PackedScene  # Y cuts
@@ -53,6 +55,9 @@ const room_margin := 500
 
 ## Added to the seed behind the spacing between path points. Same cuts + same value = same layout.
 @export var positioning_seed := 0
+## Extra distance, in meters, added between every pair of neighbouring path points, on top of the
+## board-length based spacing. 0 = unchanged. The random spacing itself still follows the seed.
+@export var extra_point_spacing := 0
 
 ## Node the roller line instances are added under. Falls back to `markers` if empty.
 @export var roller_root: Node3D
@@ -179,7 +184,6 @@ func create_split_markers() -> void:
 
 	# Start from a copy of pre_curve (falls back to a single point at the origin).
 	var new_curve: Curve3D = (pre_curve.duplicate() as Curve3D) if pre_curve != null else Curve3D.new()
-	var pre_point_count := new_curve.point_count  # real pre_curve points, before the fallback origin point
 	if new_curve.point_count == 0:
 		new_curve.add_point(Vector3.ZERO)
 	# Fix the start of the line at line_start_height above the floor (world Y = 0) by moving
@@ -199,12 +203,12 @@ func create_split_markers() -> void:
 	var length := board_size.x
 	for i in valid_cuts.size():
 		length = remaining_before[i].size.x
-		pos.x += base_point_spacing + length * rng.randf_range(1.25, 1.5)
+		pos.x += base_point_spacing + extra_point_spacing + length * rng.randf_range(1.25, 1.5)
 		new_curve.add_point(pos)
 		cut_point_indices.append(new_curve.point_count - 1)
 
 	# One extra, empty point past the last saw, spaced like a further cut would be.
-	pos.x += base_point_spacing + length * rng.randf_range(1.25, 1.5)
+	pos.x += base_point_spacing + extra_point_spacing+ length * rng.randf_range(1.25, 1.5)
 	new_curve.add_point(pos)
 	var final_point_index := new_curve.point_count - 1
 	curve = new_curve
@@ -329,7 +333,7 @@ func create_split_markers() -> void:
 	fit_room()
 
 ## Sizes and places the room planes around this path and any others that share the room.
-func fit_room(others: Array[BodySplitPath] = []) -> void:
+func fit_room(others: Array[BodySplitPath] = [], opening_width := 0.0, opening_height := 0.0) -> void:
 	var to_local_xform := global_transform.affine_inverse()
 	var fit: Array[AABB] = []  # everything the room must contain, in this node's local space
 	_collect_fit_boxes(fit, to_local_xform)
@@ -371,6 +375,77 @@ func fit_room(others: Array[BodySplitPath] = []) -> void:
 	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
 	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
 	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+	var all_paths: Array[BodySplitPath] = [self]
+	all_paths.append_array(others)
+	_build_dividers(all_paths, lo, hi, opening_width, opening_height)
+
+## A wall between each pair of neighbouring paths, with an opening where one ends and the next starts.
+## Skipped on paths that have no wall planes, so extra paths never touch the shared dividers.
+func _build_dividers(paths: Array[BodySplitPath], lo: Vector3, hi: Vector3, opening_width: float, opening_height: float) -> void:
+	if wall_left == null or wall_right == null:
+		return
+	_clear_dividers()
+	if paths.size() < 2:
+		return
+
+	var to_local_xform := global_transform.affine_inverse()
+	var scene_root := get_tree().edited_scene_root if Engine.is_editor_hint() else null
+	var half := maxf(opening_width, 0.0) * 0.5
+	var height := hi.y - lo.y
+	var door := height if (opening_height <= 0.0 or opening_height >= height) else opening_height
+
+	for i in paths.size() - 1:
+		var a := paths[i]
+		var b := paths[i + 1]
+		if a.curve == null or b.curve == null:
+			continue
+		var end_a := to_local_xform * a.to_global(a.curve.get_point_position(a.curve.point_count - 1))
+		var start_b := to_local_xform * b.to_global(b.curve.get_point_position(0))
+		var z := (end_a.z + start_b.z) * 0.5
+		var x_open := (end_a.x + start_b.x) * 0.5
+		var x0 := clampf(x_open - half, lo.x, hi.x)
+		var x1 := clampf(x_open + half, lo.x, hi.x)
+
+		# Wall pieces as rectangles in (x, y): left of the opening, right of it, and above it.
+		var pieces: Array[Rect2] = [
+			Rect2(lo.x, lo.y, x0 - lo.x, height),
+			Rect2(x1, lo.y, hi.x - x1, height),
+		]
+		if door < height:
+			pieces.append(Rect2(x0, lo.y + door, x1 - x0, height - door))
+
+		var k := 0
+		for r in pieces:
+			if r.size.x <= EPS or r.size.y <= EPS:
+				continue
+			k += 1
+			var center := Vector3(r.position.x + r.size.x * 0.5, r.position.y + r.size.y * 0.5, z)
+			# One plane facing +Z and one facing -Z, so the wall shows on both sides.
+			_add_divider_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
+					center + Vector3(0.0, 0.0, DIVIDER_GAP), r.size, "Divider_%02d_%d_A" % [i + 1, k], scene_root)
+			_add_divider_plane(wall_right, Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN),
+					center - Vector3(0.0, 0.0, DIVIDER_GAP), r.size, "Divider_%02d_%d_B" % [i + 1, k], scene_root)
+
+
+func _add_divider_plane(template: MeshInstance3D, plane_basis: Basis, local_pos: Vector3, size: Vector2, plane_name: String, scene_root: Node) -> void:
+	var plane := template.duplicate() as MeshInstance3D
+	plane.name = plane_name
+	template.get_parent().add_child(plane)
+	plane.add_to_group(DIVIDER_GROUP, true)
+	if scene_root and template.owner == scene_root:
+		plane.owner = scene_root
+	_place_plane(plane, plane_basis, local_pos, size, true)
+
+
+func _clear_dividers() -> void:
+	if not is_inside_tree():
+		return
+	for n in get_tree().get_nodes_in_group(DIVIDER_GROUP):
+		if is_instance_valid(n) and not n.is_queued_for_deletion():
+			var p := n.get_parent()
+			if p != null:
+				p.remove_child(n)
+			n.queue_free()
 
 ## Adds everything this path puts in the room (the board's sweep along the path, the saws) to `fit`,
 ## as boxes in the space that to_local_xform maps world space into.
@@ -435,7 +510,7 @@ func _tile_texture(node: MeshInstance3D, size: Vector2, texel_scale: float) -> v
 
 ## Gives the node its own PlaneMesh of the right size and puts it at local_pos (in this
 ## node's space), rotated so the plane's visible side faces into the room.
-func _place_plane(node: MeshInstance3D, rotation: Basis, local_pos: Vector3, size: Vector2, fit_texture := false) -> void:
+func _place_plane(node: MeshInstance3D, r: Basis, local_pos: Vector3, size: Vector2, fit_texture := false) -> void:
 	if node == null:
 		return
 	var mesh := (node.mesh.duplicate() as PlaneMesh) if node.mesh is PlaneMesh else PlaneMesh.new()
@@ -444,7 +519,7 @@ func _place_plane(node: MeshInstance3D, rotation: Basis, local_pos: Vector3, siz
 	mesh.flip_faces = false
 	mesh.center_offset = Vector3.ZERO
 	node.mesh = mesh
-	node.global_transform = global_transform * Transform3D(rotation, local_pos)
+	node.global_transform = global_transform * Transform3D(r, local_pos)
 	if fit_texture:
 		_fit_wall_texture(node, mesh, size)
 
@@ -556,7 +631,6 @@ func get_split_count()->int:
 ## slot, with its local Z axis running along the path.
 func _create_rollers(scene_root: Node) -> void:
 	_clear_rollers()
-	var parent: Node3D = roller_root if roller_root != null else markers
 	if roller_line == null:
 		return
 	var length := curve.get_baked_length()

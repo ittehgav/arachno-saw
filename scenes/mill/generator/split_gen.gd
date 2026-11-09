@@ -200,7 +200,9 @@ func get_pieces(stage: int = -1) -> Array[StaticBody3D]:
 
 
 func set_stage_enabled(stage: int, enabled: bool) -> void:
+	print("SSE")
 	for body in get_pieces(stage):
+		print(body)
 		_set_body_enabled(body, enabled)
 
 

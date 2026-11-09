@@ -1,160 +1,96 @@
 extends Node3D
 
+@export var phantom_camera: PhantomCamera3D
+
+@export var aim_height := 0.8
+@export var normal_fov := 75.0
+@export var aim_fov := 45.0
+@export var aim_duration := 0.2
+
+var aiming := false
 
 @export var player: CharacterBody3D
-@export var pcam: PhantomCamera3D
-@export var crosshair:TextureRect
+@export var sensitivity := 0.003
 
-@export var mouse_sensitivity: float = 0.003
-## Pitch limits, measured relative to the camera's reference up direction
-@export_range(-89.0, 0.0) var min_pitch_degrees: float = -80.0
-@export_range(-60.0, 89.0) var max_pitch_degrees: float = 60.0
+@export var min_pitch := deg_to_rad(-80.0)
+@export var max_pitch := deg_to_rad(80.0)
 
-@export_group("Up Follow")
-## The camera only starts following the player's up direction once the angle
-## between the two is larger than this
-@export_range(0.0, 180.0) var up_follow_tolerance_degrees: float = 30.0
+var yaw := 0.0
+var pitch := 0.0
 
-@export_group("Reset")
-@export var reset_key: Key = KEY_R
-@export var reset_duration: float = 0.3  # set to 0 for an instant snap
+var initial_offset: Vector3
+var initial_basis: Basis
 
-# Camera angles in the reference frame's space
-var _yaw: float = 0.0
-var _pitch: float = 0.0
-var _initial_yaw: float = 0.0
-var _initial_pitch: float = 0.0
-
-# Reference frame whose Y axis is the camera's tracked "up".
-# It trails the player's up and only moves once the tolerance is exceeded.
-var _frame: Basis = Basis.IDENTITY
-
-var _reset_tween: Tween
+var camera_locked := true
 
 func _ready() -> void:
+	camera_locked = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	normal_fov = phantom_camera.camera_3d_resource.fov
 
-	pcam.follow_mode = PhantomCamera3D.FollowMode.THIRD_PERSON
-	pcam.follow_target = player
+	initial_offset = global_position - player.global_position
+	initial_basis = global_basis
 
-	_frame = Basis(Quaternion(Vector3.UP, player.global_basis.y.normalized()))
-
-	# Convert the pcam's starting rotation into the frame-relative space
-	var local_basis := _frame.inverse() * Basis.from_euler(pcam.get_third_person_rotation())
-	var local_euler := local_basis.get_euler()
-	_initial_pitch = local_euler.x
-	_initial_yaw = local_euler.y
-	_pitch = _initial_pitch
-	_yaw = _initial_yaw
-
-var aiming:bool=false;
-var aim_tween:Tween;
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if event.is_action_pressed("toggle_camera_lock"):
+		camera_locked = !camera_locked
+		Input.mouse_mode = (
+			Input.MOUSE_MODE_CAPTURED
+			if camera_locked
+			else Input.MOUSE_MODE_VISIBLE
+		)
 		return
 
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == reset_key:
-		reset_camera()
-		
-	if event.is_action_pressed("aim_web") and not aiming:
-		_start_aiming()
-	elif event.is_action_released("aim_web") and aiming:
-		_stop_aiming()
-	
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		# Cancel an in-progress reset if the player grabs the camera
-		if _reset_tween and _reset_tween.is_running():
-			_reset_tween.kill()
+	if not camera_locked:
+		return
 
-		_yaw -= event.relative.x * mouse_sensitivity
-		_pitch -= event.relative.y * mouse_sensitivity
-		_pitch = clampf(_pitch, deg_to_rad(min_pitch_degrees), deg_to_rad(max_pitch_degrees))
-func _start_aiming()->void:
-	const start_aim_time:=.1
-	aiming = true;
-	if aim_tween and aim_tween.is_running():
-		aim_tween.kill()
-	var t:= create_tween()
-	aim_tween = t;
-	t.tween_property(pcam, "spring_length", 20, start_aim_time);
-	t.parallel().tween_property(crosshair, "modulate:a", 1, start_aim_time)
-	t.parallel().tween_property(pcam, "follow_offset:y", 30, start_aim_time)
+	if event is InputEventMouseMotion:
+		yaw -= event.relative.x * sensitivity
+		pitch -= event.relative.y * sensitivity
+		pitch = clamp(pitch, min_pitch, max_pitch)
 
-func _stop_aiming()->void:
-	const stop_aim_time = .25
-	aiming = false;
-	if aim_tween and aim_tween.is_running():
-		aim_tween.kill();
-	var t:= create_tween();
-	aim_tween = t;
-	t.tween_property(pcam, "spring_length", 80, .25)
-	t.parallel().tween_property(crosshair, "modulate:a", 0, stop_aim_time)
-	t.parallel().tween_property(pcam, "follow_offset:y", 0, .25)
+
+	if event.is_action_pressed("aim_web"):
+		_set_aim(true)
+
+	elif event.is_action_released("aim_web"):
+		_set_aim(false)
+
+func _set_aim(enable: bool) -> void:
+	if aiming == enable:
+		return
+
+	aiming = enable
+
+	var target_fov := aim_fov if enable else normal_fov
+
+	var tween := create_tween()
+
+	if phantom_camera and phantom_camera.camera_3d_resource:
+		tween.tween_property(
+			phantom_camera.camera_3d_resource,
+			"fov",
+			target_fov,
+			aim_duration
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _process(_delta: float) -> void:
-	_update_frame()
-
-	# Keep the pitch inside the limits even while a reset tween is running
-	_pitch = clampf(_pitch, deg_to_rad(min_pitch_degrees), deg_to_rad(max_pitch_degrees))
-
-	# Build the camera orientation in the reference frame, then hand it to the pcam
-	var local_basis := Basis.from_euler(Vector3(_pitch, _yaw, 0.0))
-	var world_basis := _frame * local_basis
-	pcam.set_third_person_rotation(world_basis.get_euler())
-
-
-func _update_frame() -> void:
-	var player_up := player.global_basis.y.normalized()
-	var tracked_up := _frame.y
-
-	var angle := tracked_up.angle_to(player_up)
-	var tolerance := deg_to_rad(up_follow_tolerance_degrees)
-
-	# Inside the tolerance: the camera's up stays where it is
-	if angle <= tolerance:
+	if player == null:
 		return
 
-	# Outside the tolerance: rotate the frame just far enough to bring the
-	# difference back down to the tolerance
-	var axis := tracked_up.cross(player_up)
-	if axis.length_squared() < 0.000001:
-		# Player's up is exactly opposite; any axis perpendicular to up works
-		axis = _frame.x
-	axis = axis.normalized()
+	var yaw_basis := Basis(player.global_basis.y, yaw)
 
-	var rotation := Quaternion(axis, angle - tolerance)
-	_frame = (Basis(rotation) * _frame).orthonormalized()
+	var right := yaw_basis * initial_basis.x
+	var pitch_basis := Basis(right, pitch)
 
+	var rotation := pitch_basis * yaw_basis
 
-func reset_camera() -> void:
-	if _reset_tween and _reset_tween.is_running():
-		_reset_tween.kill()
+	var aim_offset := (
+		player.global_transform.basis.y * aim_height
+		if aiming
+		else Vector3.ZERO
+	)
 
-	if reset_duration <= 0.0:
-		_yaw = _initial_yaw
-		_pitch = _initial_pitch
-		return
-
-	# Take the shortest way around on the horizontal axis
-	var target_yaw := _yaw + angle_difference(_yaw, _initial_yaw)
-
-	_reset_tween = create_tween()
-	_reset_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_reset_tween.set_parallel(true)
-	_reset_tween.tween_property(self, "_yaw", target_yaw, reset_duration)
-	_reset_tween.tween_property(self, "_pitch", _initial_pitch, reset_duration)
-
-func _on_spider_died(_source: Crawler.DeathType) -> void:
-	pcam.follow_mode = PhantomCamera3D.FollowMode.NONE;
-	pcam.look_at_mode = PhantomCamera3D.LookAtMode.NONE;
-	var t:= create_tween();
-	t.tween_property(pcam.camera_3d_resource, "fov", pcam.fov + 30, 1)
-
-
-func _on_spider_fly_consumed(fly: Fly) -> void:
-	if fly.type == Fly.Type.teleport:
-		reset_camera()
+	global_position = player.global_position + rotation * initial_offset + aim_offset
+	global_basis = rotation * initial_basis

@@ -7,7 +7,8 @@ extends Node3D
 ## 4: path - turn scan
 ## 5: boards - fly spawner detection
 ## 6: camera region control
-## 7: spider roller warnin area3Ds
+## 7: spider roller warning area3Ds
+## 8: web collision
 
 ## DIFFICULTY THINGS THAT CAN SCALE
 ## skull fly spawn rate

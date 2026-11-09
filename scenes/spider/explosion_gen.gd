@@ -81,6 +81,7 @@ func _collect_meshes(node: Node, out: Array[MeshInstance3D]) -> void:
 		_collect_meshes(c, out)
 
 func emit_all(origin: Vector3 = global_position) -> void:
+	show()
 	var container: Node3D = get_node_or_null(NodePath(CONTAINER_NAME)) as Node3D
 	if container == null:
 		push_warning("MeshExploder: no particles found, run generate_particles() first.")

@@ -62,12 +62,14 @@ var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
 		touching = true;
+		print("stouch")
 		saw_touched.emit(area)
 		
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
 		touching = false
+		print("sle")
 		saw_left.emit(area)
 
 var glowing:Array[MeshInstance3D]
@@ -139,15 +141,15 @@ func _on_saw_left(_saw: Saw) -> void:
 	
 	## rolling board drops immediately so flies can 
 	## spawn on dropping side before next saw_touched
-	if current_stage == total_stages + 1 and not spider.dead:
-		spider.win_run();
-		return
+
 	var stage:Array[StaticBody3D] = splitter.get_pieces(current_stage + 1);
 	for p:StaticBody3D in stage:
 		p.set_collision_layer_value(1, true)
 		p.set_collision_layer_value(5, false)
-
-	splitter.set_stage_enabled(current_stage, false)
+	
+	if current_stage < total_stages:
+		splitter.set_stage_enabled(current_stage, false)
+	print(current_stage, total_stages)
 	splitter.set_stage_enabled(current_stage + 1, true)
 	
 	set_to_drop()

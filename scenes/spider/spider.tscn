@@ -1,10 +1,12 @@
 [gd_scene format=4 uid="uid://bvcg57qgd847s"]
 
-[ext_resource type="Script" uid="uid://w4016f26ur0e" path="res://scenes/spider/spider_body.gd" id="1_o1eoj"]
-[ext_resource type="Script" uid="uid://dm1gjkg8lpqtb" path="res://scenes/spider/spider.gd" id="2_qrebf"]
+[ext_resource type="Script" uid="uid://w4016f26ur0e" path="res://scenes/spider/spider.gd" id="1_o1eoj"]
+[ext_resource type="Script" uid="uid://dm1gjkg8lpqtb" path="res://scenes/spider/spider_body.gd" id="2_qrebf"]
+[ext_resource type="Script" uid="uid://bcag700hxj7c" path="res://scenes/spider/explosion_gen.gd" id="3_uj1gu"]
 [ext_resource type="AudioStream" uid="uid://vh44v8vwrr3y" path="res://assets/sound/spider/cheat_death.ogg" id="5_ydlul"]
 [ext_resource type="AudioStream" uid="uid://cnfirqnynqhx8" path="res://assets/sound/spider/death.ogg" id="6_mbgft"]
 [ext_resource type="Script" uid="uid://cr0xbb5f6gioh" path="res://scenes/spider/surface_stick.gd" id="6_ydlul"]
+[ext_resource type="Script" uid="uid://5lqmte3nehqy" path="res://scenes/spider/web_shooter.gd" id="7_mbgft"]
 [ext_resource type="Texture2D" uid="uid://delo7m1mq5st" path="res://assets/textures/circle_64x64.png" id="11_evn3g"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ydlul"]
@@ -2863,6 +2865,25 @@ _data = {
 &"new_animation": SubResource("Animation_mbgft")
 }
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2fvhf"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.45490196)
+metallic_specular = 1.0
+roughness = 0.2
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.15
+rim_enabled = true
+rim_tint = 0.8
+clearcoat_enabled = true
+clearcoat = 0.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uj1gu"]
+material = SubResource("StandardMaterial3D_2fvhf")
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.001
+
 [node name="spider" type="CharacterBody3D" unique_id=177370040 node_paths=PackedStringArray("body", "death_sfx", "blink_animation", "cheat_death_sfx", "buff_glow_mesh", "buff_glow_animation")]
 collision_layer = 97
 motion_mode = 1
@@ -2875,13 +2896,14 @@ cheat_death_sfx = NodePath("sfx/cheat_death")
 buff_glow_mesh = NodePath("buff_glow_mesh")
 buff_glow_animation = NodePath("buff_glow_mesh/buff_glow")
 
-[node name="body" type="Node3D" parent="." unique_id=1279159701 node_paths=PackedStringArray("animation", "skeleton", "feet", "shield_icon")]
+[node name="body" type="Node3D" parent="." unique_id=1279159701 node_paths=PackedStringArray("animation", "skeleton", "feet", "shield_icon", "explosion")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.9334769, 0)
 script = ExtResource("2_qrebf")
 animation = NodePath("AnimationPlayer")
 skeleton = NodePath("Armature_001/Skeleton3D")
 feet = [NodePath("Armature_001/feet_raycasts/RayCast3D"), NodePath("Armature_001/feet_raycasts/RayCast3D2"), NodePath("Armature_001/feet_raycasts/RayCast3D3"), NodePath("Armature_001/feet_raycasts/RayCast3D4"), NodePath("Armature_001/feet_raycasts/RayCast3D5"), NodePath("Armature_001/feet_raycasts/RayCast3D6"), NodePath("Armature_001/feet_raycasts/RayCast3D7"), NodePath("Armature_001/feet_raycasts/RayCast3D8")]
 shield_icon = NodePath("../shield")
+explosion = NodePath("explosion")
 
 [node name="Armature_001" type="Node3D" parent="body" unique_id=217356292]
 transform = Transform3D(-1, 0, 1.509958e-07, 0, 1, 0, -1.509958e-07, 0, -1, 0, 0, 0)
@@ -4047,6 +4069,644 @@ libraries/ = SubResource("AnimationLibrary_5g3yl")
 autoplay = &"walk"
 speed_scale = 0.0
 
+[node name="explosion" type="Node3D" parent="body" unique_id=281501713 node_paths=PackedStringArray("skeleton")]
+visible = false
+script = ExtResource("3_uj1gu")
+skeleton = NodePath("../Armature_001/Skeleton3D")
+
+[node name="ExplosionParticles" type="Node3D" parent="body/explosion" unique_id=1772883362]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="Center_head_001_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=249881172]
+transform = Transform3D(-1, -9.102663e-08, 8.381893e-08, -9.102665e-08, 0.9999998, -1.4106504e-07, -8.381908e-08, -2.6027413e-07, -0.9999996, 0.036870744, 1.0530573, -1.2840464)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_gcie1")
+spread = 0.0
+
+[node name="outline_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1020824252]
+transform = Transform3D(-1.275, -1.1605895e-07, 1.0686914e-07, -1.1605898e-07, 1.2749997, -1.7985793e-07, -1.0686933e-07, -3.3184952e-07, -1.2749995, 0.036870744, 1.0530573, -1.2840464)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_y1ag1")
+spread = 0.0
+
+[node name="Center_ass_001_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=20852380]
+transform = Transform3D(-1, 8.4508244e-08, 1.2513225e-07, -1.1263238e-16, 0.82871354, -0.5596727, -1.509958e-07, -0.5596728, -0.8287135, 0.036870137, 1.9054255, 2.6777518)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_n3e61")
+spread = 0.0
+
+[node name="@CPUParticles3D@35699" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2065754904]
+transform = Transform3D(-1.03, 8.704349e-08, 1.2888621e-07, -1.1601135e-16, 0.85357493, -0.57646286, -1.5552567e-07, -0.5764629, -0.8535749, 0.036870137, 1.9054255, 2.6777518)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_mbgft")
+spread = 0.0
+
+[node name="Arm_2_4_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=713140302]
+transform = Transform3D(-0.8779012, 0.31109488, 0.3640179, -0.41433436, -0.11244648, -0.9031516, -0.24003312, -0.94370353, 0.22761416, -3.3372498, 1.8241265, -1.1391178)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_d6qda")
+spread = 0.0
+
+[node name="@CPUParticles3D@35700" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1423304442]
+transform = Transform3D(-1.119324, 0.39664596, 0.46412283, -0.5282763, -0.14336926, -1.1515182, -0.30604222, -1.203222, 0.29020804, -3.3372498, 1.8241265, -1.1391178)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_api3g")
+spread = 0.0
+
+[node name="Arm_2_3_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=146991952]
+transform = Transform3D(-0.6166706, 0.33629927, -0.71177244, 0.73106664, -0.09071668, -0.67624855, -0.2919915, -0.9373759, -0.18991475, -2.6694434, 2.4499016, -0.9836149)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_5i6q5")
+spread = 0.0
+
+[node name="@CPUParticles3D@35701" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1274305110]
+transform = Transform3D(-0.786255, 0.42878157, -0.90750986, 0.93210995, -0.11566377, -0.8622169, -0.37228915, -1.1951543, -0.2421413, -2.6694434, 2.4499016, -0.9836149)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_evn3g")
+spread = 0.0
+
+[node name="Arm_2_2_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1745174847]
+transform = Transform3D(-0.12880652, 0.37238, -0.9190984, 0.97859895, -0.10225355, -0.17857367, -0.16047843, -0.92243034, -0.3512396, -1.3223058, 1.5782537, -0.38750213)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_bacwa")
+spread = 0.0
+
+[node name="@CPUParticles3D@35702" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1503137935]
+transform = Transform3D(-0.1642283, 0.47478446, -1.1718504, 1.2477137, -0.13037327, -0.22768143, -0.20460999, -1.1760987, -0.44783047, -1.3223058, 1.5782537, -0.38750213)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_b682s")
+spread = 0.0
+
+[node name="Arm_2_1_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=954411972]
+transform = Transform3D(-0.3835744, 0.3886119, -0.8377658, 0.8852026, -0.10385196, -0.45346656, -0.26322615, -0.9155304, -0.30416507, -0.8872151, 1.0633147, -0.11751287)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_5negh")
+spread = 0.0
+
+[node name="@CPUParticles3D@35703" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2113602730]
+transform = Transform3D(-0.48905733, 0.49548018, -1.0681514, 1.1286333, -0.13241124, -0.5781699, -0.33561334, -1.1673012, -0.38781044, -0.8872151, 1.0633147, -0.11751287)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_67554")
+spread = 0.0
+
+[node name="Arm_1_4_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2063681069]
+transform = Transform3D(0.18291174, -0.9469117, -0.2643892, -0.97447723, -0.13902563, -0.17625087, 0.13013689, 0.2898799, -0.94817436, -2.5284874, 1.4431434, -4.6168914)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_ouomt")
+spread = 0.0
+
+[node name="@CPUParticles3D@35704" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=477518330]
+transform = Transform3D(0.23321246, -1.2073123, -0.3370962, -1.2424585, -0.17725767, -0.22471987, 0.16592453, 0.36959684, -1.2089223, -2.5284874, 1.4431434, -4.6168914)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_xflrm")
+spread = 0.0
+
+[node name="Arm_1_3_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1634321161]
+transform = Transform3D(-0.2694316, -0.9274011, -0.2594882, -0.6297138, -0.034200158, 0.7760738, -0.72860575, 0.37250245, -0.5747826, -2.2718606, 2.3527198, -3.586435)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_pnja7")
+spread = 0.0
+
+[node name="@CPUParticles3D@35705" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1706396555]
+transform = Transform3D(-0.34352526, -1.1824365, -0.33084744, -0.80288506, -0.0436052, 0.9894941, -0.9289723, 0.4749406, -0.7328478, -2.2718606, 2.3527198, -3.586435)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_b2ec7")
+spread = 0.0
+
+[node name="Arm_1_2_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2133279183]
+transform = Transform3D(-0.5034413, -0.8493733, -0.15846743, -0.24519606, -0.03542102, 0.96882606, -0.8285077, 0.526603, -0.19043043, -1.1929096, 1.3877964, -1.4815269)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_gj70r")
+spread = 0.0
+
+[node name="@CPUParticles3D@35706" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1589489589]
+transform = Transform3D(-0.6418876, -1.082951, -0.20204596, -0.31262496, -0.045161802, 1.2352532, -1.0563474, 0.6714188, -0.24279879, -1.1929096, 1.3877964, -1.4815269)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_7jsp4")
+spread = 0.0
+
+[node name="Arm_1_1_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2101255973]
+transform = Transform3D(-0.3702322, -0.8105595, -0.45378572, -0.81049097, 0.043164067, 0.5841586, -0.45390794, 0.5840635, -0.6729319, -0.6585752, 0.81255877, -0.751024)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_hmyxe")
+spread = 0.0
+
+[node name="@CPUParticles3D@35707" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1517724994]
+transform = Transform3D(-0.47204605, -1.0334634, -0.5785768, -1.033376, 0.055034183, 0.7448022, -0.5787326, 0.7446809, -0.8579882, -0.6585752, 0.81255877, -0.751024)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_b02jn")
+spread = 0.0
+
+[node name="Arm_3_4_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=297044089]
+transform = Transform3D(-0.5790794, 0.7315755, -0.35981235, -0.4768079, 0.054087132, 0.8773418, 0.661303, 0.6796119, 0.31750017, -3.090109, 0.9064679, 2.3507962)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_jjlm7")
+spread = 0.0
+
+[node name="@CPUParticles3D@35708" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1417997749]
+transform = Transform3D(-0.7383262, 0.93275875, -0.45876074, -0.60793006, 0.06896109, 1.1186107, 0.8431613, 0.8665052, 0.40481272, -3.090109, 0.9064679, 2.3507962)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_kv75r")
+spread = 0.0
+
+[node name="Arm_3_3_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1816104673]
+transform = Transform3D(-0.6773947, 0.6787452, 0.28362268, 0.34803158, -0.043969184, 0.9364511, 0.6480823, 0.7330565, -0.20644039, -2.6682842, 1.7145123, 1.8822131)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_sdmtl")
+spread = 0.0
+
+[node name="@CPUParticles3D@35709" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1366407132]
+transform = Transform3D(-0.8636782, 0.86540014, 0.3616189, 0.44374025, -0.05606071, 1.1939751, 0.8263049, 0.934647, -0.2632115, -2.6682842, 1.7145123, 1.8822131)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_14vhe")
+spread = 0.0
+
+[node name="Arm_3_2_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1219707205]
+transform = Transform3D(-0.4927878, 0.55234736, 0.6723636, 0.7807419, -0.06049627, 0.6219181, 0.3841903, 0.83141613, -0.40142888, -1.5282304, 1.3294864, 0.92831784)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_tytrc")
+spread = 0.0
+
+[node name="@CPUParticles3D@35710" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=995733205]
+transform = Transform3D(-0.6283044, 0.7042429, 0.85726357, 0.99544585, -0.07713275, 0.79294556, 0.48984262, 1.0600555, -0.5118218, -1.5282304, 1.3294864, 0.92831784)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_03cxl")
+spread = 0.0
+
+[node name="Arm_3_1_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1148240253]
+transform = Transform3D(-0.62951666, 0.44288757, 0.63840425, 0.68728894, -0.065836824, 0.72339463, 0.36241296, 0.8941569, -0.26294634, -1.006448, 0.95931697, 0.54360646)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_6mlju")
+spread = 0.0
+
+[node name="@CPUParticles3D@35711" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=881528542]
+transform = Transform3D(-0.8026337, 0.56468165, 0.8139654, 0.87629336, -0.08394195, 0.9223281, 0.46207651, 1.1400499, -0.33525658, -1.006448, 0.95931697, 0.54360646)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_eo5f6")
+spread = 0.0
+
+[node name="Arm_4_4_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=77204394]
+transform = Transform3D(0.0662778, 0.98467314, 0.16132581, 0.7951697, -0.149792, 0.58759433, 0.60275376, 0.089336894, -0.79291016, -2.142333, 0.36692834, 6.729333)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_idc5r")
+spread = 0.0
+
+[node name="@CPUParticles3D@35712" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=592975042]
+transform = Transform3D(0.084504195, 1.2554582, 0.20569041, 1.0138414, -0.1909848, 0.74918276, 0.76851106, 0.113904536, -1.0109605, -2.142333, 0.36692834, 6.729333)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_hm0nn")
+spread = 0.0
+
+[node name="Arm_4_3_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=434881153]
+transform = Transform3D(0.04915538, 0.9688929, 0.24254973, 0.7705232, -0.19130296, 0.60802686, 0.6355133, 0.15700243, -0.75595814, -1.8477674, 0.83679414, 4.8311796)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_eka0l")
+spread = 0.0
+
+[node name="@CPUParticles3D@35713" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1129622364]
+transform = Transform3D(0.06267311, 1.2353383, 0.3092509, 0.98241705, -0.24391127, 0.7752342, 0.8102794, 0.2001781, -0.9638466, -1.8477674, 0.83679414, 4.8311796)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_wb1mu")
+spread = 0.0
+
+[node name="Arm_4_2_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2086954510]
+transform = Transform3D(-0.03443405, 0.9030354, 0.4281843, 0.72096276, -0.2742606, 0.6363914, 0.69211787, 0.33061844, -0.64161086, -1.1200836, 0.90124047, 2.0569565)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_b75vb")
+spread = 0.0
+
+[node name="@CPUParticles3D@35714" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1972374458]
+transform = Transform3D(-0.043903414, 1.1513702, 0.545935, 0.9192275, -0.34968227, 0.81139904, 0.8824503, 0.4215385, -0.81805384, -1.1200836, 0.90124047, 2.0569565)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_kkmcy")
+spread = 0.0
+
+[node name="Arm_4_1_002_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=185811629]
+transform = Transform3D(-0.3591618, 0.6492581, 0.670423, 0.6492581, -0.3422113, 0.6792316, 0.67042285, 0.6792315, -0.2986269, -0.70325184, 0.82565594, 1.0548337)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_a8bi4")
+spread = 0.0
+
+[node name="@CPUParticles3D@35715" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=952991735]
+transform = Transform3D(-0.45793128, 0.827804, 0.85478926, 0.827804, -0.4363194, 0.86602026, 0.85478914, 0.8660202, -0.3807493, -0.70325184, 0.82565594, 1.0548337)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_yngo7")
+spread = 0.0
+
+[node name="Arm_1_4_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=742606092]
+transform = Transform3D(0.25166965, 0.92193806, 0.2944349, 0.9094549, -0.1212396, -0.39773422, -0.3309889, 0.3678729, -0.868974, 2.6105878, 1.3660152, -4.315016)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_p1xtf")
+spread = 0.0
+
+[node name="@CPUParticles3D@35716" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=2053336993]
+transform = Transform3D(0.3208788, 1.175471, 0.3754045, 1.159555, -0.15458049, -0.50711113, -0.42201087, 0.46903792, -1.1079417, 2.6105878, 1.3660152, -4.315016)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_bxbv3")
+spread = 0.0
+
+[node name="Arm_1_3_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=243396516]
+transform = Transform3D(-0.28889883, 0.9084459, 0.30209807, 0.67863995, -0.028245686, 0.7339279, 0.67526644, 0.4170468, -0.60834754, 2.3693252, 2.3431535, -3.5137453)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_ckqfk")
+spread = 0.0
+
+[node name="@CPUParticles3D@35717" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1666630704]
+transform = Transform3D(-0.368346, 1.1582685, 0.38517502, 0.8652659, -0.03601325, 0.93575805, 0.8609647, 0.53173465, -0.7756431, 2.3693252, 2.3431535, -3.5137453)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_cnkds")
+spread = 0.0
+
+[node name="Arm_1_2_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=530629491]
+transform = Transform3D(-0.52155703, 0.84389985, 0.12574252, 0.20208928, -0.02099607, 0.9791423, 0.82893795, 0.53608954, -0.1595925, 1.2521796, 1.4166121, -1.459624)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_h5w6l")
+spread = 0.0
+
+[node name="@CPUParticles3D@35718" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1802440970]
+transform = Transform3D(-0.6649852, 1.0759723, 0.16032171, 0.25766382, -0.026769988, 1.2484064, 1.0568959, 0.6835142, -0.20348042, 1.2521796, 1.4166121, -1.459624)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_dftal")
+spread = 0.0
+
+[node name="Arm_1_1_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=747656719]
+transform = Transform3D(-0.37017852, 0.81055903, 0.4538296, 0.8105594, 0.04316341, 0.5840636, 0.45382917, 0.5840635, -0.67298454, 0.73231786, 0.8125138, -0.7510232)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_ch5qr")
+spread = 0.0
+
+[node name="@CPUParticles3D@35719" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1015557196]
+transform = Transform3D(-0.4719776, 1.0334628, 0.5786327, 1.0334632, 0.05503335, 0.74468106, 0.5786322, 0.7446809, -0.8580553, 0.73231786, 0.8125138, -0.7510232)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_ojrln")
+spread = 0.0
+
+[node name="Arm_2_4_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=769371186]
+transform = Transform3D(-0.65562224, -0.6380037, -0.40387052, 0.4784938, 0.062724814, -0.87584776, 0.58412737, -0.7674746, 0.2641567, 3.491918, 0.8516786, -1.7564706)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_cqdtx")
+spread = 0.0
+
+[node name="@CPUParticles3D@35720" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1001837231]
+transform = Transform3D(-0.83591837, -0.8134547, -0.5149349, 0.6100796, 0.07997414, -1.1167059, 0.74476236, -0.9785301, 0.33679977, 3.491918, 0.8516786, -1.7564706)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_ek6fk")
+spread = 0.0
+
+[node name="Arm_2_3_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1811761739]
+transform = Transform3D(-0.7096809, -0.578359, 0.4023107, -0.4759281, -0.027485127, -0.87905467, 0.51946706, -0.8153191, -0.25575152, 3.003129, 1.6511688, -1.336697)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_u2g1d")
+spread = 0.0
+
+[node name="@CPUParticles3D@35721" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=363630944]
+transform = Transform3D(-0.90484315, -0.73740774, 0.5129461, -0.6068083, -0.035043538, -1.1207947, 0.6623205, -1.0395318, -0.32608318, 3.003129, 1.6511688, -1.336697)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_nr2hk")
+spread = 0.0
+
+[node name="Arm_2_2_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=553158875]
+transform = Transform3D(-0.45506692, -0.4526797, 0.76680833, -0.85234153, -0.027813332, -0.5222461, 0.2577378, -0.8912393, -0.37318054, 1.576221, 1.3243783, -0.43666267)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_myavi")
+spread = 0.0
+
+[node name="@CPUParticles3D@35722" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1291750424]
+transform = Transform3D(-0.5802103, -0.5771666, 0.9776806, -1.0867355, -0.035462, -0.6658638, 0.32861567, -1.13633, -0.47580516, 1.576221, 1.3243783, -0.43666267)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_u3l24")
+spread = 0.0
+
+[node name="Arm_2_1_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=743497076]
+transform = Transform3D(-0.5707958, -0.3890335, 0.7230806, -0.7772122, -0.028042348, -0.62861395, 0.26482883, -0.9207968, -0.28635502, 1.0102406, 0.9961827, -0.11523503)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_yoo4x")
+spread = 0.0
+
+[node name="@CPUParticles3D@35723" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=542456607]
+transform = Transform3D(-0.7277646, -0.4960177, 0.9219277, -0.9909455, -0.03575399, -0.8014828, 0.33765677, -1.1740159, -0.36510265, 1.0102406, 0.9961827, -0.11523503)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_dy2v8")
+spread = 0.0
+
+[node name="Arm_3_4_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1881172942]
+transform = Transform3D(-0.44744912, -0.8931747, 0.04503148, -0.056031696, 0.07825302, 0.9953579, -0.89255136, 0.44284925, -0.08506036, 2.9505148, 0.65479624, 3.3461413)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_oxp11")
+spread = 0.0
+
+[node name="@CPUParticles3D@35724" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=344678197]
+transform = Transform3D(-0.57049763, -1.1387978, 0.057415135, -0.07144041, 0.0997726, 1.2690812, -1.138003, 0.5646328, -0.108451955, 2.9505148, 0.65479624, 3.3461413)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_wvr2c")
+spread = 0.0
+
+[node name="Arm_3_3_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1601417542]
+transform = Transform3D(-0.49000582, -0.84963953, -0.19495226, -0.37393385, 0.00284966, 0.9274513, -0.7874429, 0.527356, -0.3191055, 2.5015576, 1.2262495, 2.432558)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_360nf")
+spread = 0.0
+
+[node name="@CPUParticles3D@35725" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1525021590]
+transform = Transform3D(-0.6247574, -1.0832903, -0.24856414, -0.47676566, 0.0036333166, 1.1825004, -1.0039897, 0.6723789, -0.40685952, 2.5015576, 1.2262495, 2.432558)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_1evvh")
+spread = 0.0
+
+[node name="Arm_3_2_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=431095065]
+transform = Transform3D(-0.53967106, -0.74186045, -0.39799264, -0.5466734, -0.05071264, 0.83580905, -0.6402364, 0.6686342, -0.37818742, 1.56546, 1.0322342, 1.1458031)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_efq68")
+spread = 0.0
+
+[node name="@CPUParticles3D@35726" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=36883845]
+transform = Transform3D(-0.6880806, -0.94587207, -0.5074406, -0.6970086, -0.06465862, 1.0656565, -0.81630135, 0.85250854, -0.48218894, 1.56546, 1.0322342, 1.1458031)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_8fo8r")
+spread = 0.0
+
+[node name="Arm_3_1_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=949139786]
+transform = Transform3D(-0.6838613, -0.57524556, -0.44880486, -0.49701154, -0.08304746, 0.8637607, -0.534146, 0.8137543, -0.22911078, 1.0752457, 0.8673613, 0.60479087)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_161by")
+spread = 0.0
+
+[node name="@CPUParticles3D@35727" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1086821375]
+transform = Transform3D(-0.87192315, -0.7334381, -0.57222617, -0.6336897, -0.105885506, 1.1012949, -0.6810362, 1.0375367, -0.29211622, 1.0752457, 0.8673613, 0.60479087)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_bh2pk")
+spread = 0.0
+
+[node name="Arm_4_4_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=532868815]
+transform = Transform3D(0.03265538, -0.9989091, -0.033373185, -0.18437006, -0.038838454, 0.9820882, -0.9823132, -0.025917515, -0.18543725, 2.2632172, 1.6969774, 5.285067)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_et8il")
+spread = 0.0
+
+[node name="@CPUParticles3D@35728" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=239605060]
+transform = Transform3D(0.04163561, -1.273609, -0.04255081, -0.23507182, -0.04951903, 1.2521625, -1.2524493, -0.03304483, -0.2364325, 2.2632172, 1.6969774, 5.285067)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_hlsmy")
+spread = 0.0
+
+[node name="Arm_4_3_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1357076573]
+transform = Transform3D(0.10650064, -0.9339524, -0.3411603, -0.8930149, -0.2407255, 0.3802302, -0.43724298, 0.26416662, -0.85967076, 2.0819652, 2.7014625, 4.022213)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_i43lk")
+spread = 0.0
+
+[node name="@CPUParticles3D@35729" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=147620053]
+transform = Transform3D(0.13578832, -1.1907892, -0.43497938, -1.138594, -0.306925, 0.48479348, -0.5574848, 0.33681244, -1.0960802, 2.0819652, 2.7014625, 4.022213)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_33crb")
+spread = 0.0
+
+[node name="Arm_4_2_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1083411488]
+transform = Transform3D(0.12768085, -0.75516146, -0.64298385, -0.98806787, -0.15314896, -0.016337983, -0.08613453, 0.63739794, -0.765705, 1.2166507, 1.4604752, 1.7397995)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_illqu")
+spread = 0.0
+
+[node name="@CPUParticles3D@35730" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1159502895]
+transform = Transform3D(0.16279308, -0.96283084, -0.8198044, -1.2597865, -0.19526492, -0.020830927, -0.10982152, 0.8126824, -0.97627383, 1.2166507, 1.4604752, 1.7397995)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_b6wlk")
+spread = 0.0
+
+[node name="Arm_4_1_003_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1228593176]
+transform = Transform3D(-0.35916165, -0.6492581, -0.6704228, -0.649258, -0.34221143, 0.6792313, -0.6704228, 0.6792313, -0.2986268, 0.7769928, 0.82565606, 1.0548335)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_mpdrr")
+spread = 0.0
+
+[node name="@CPUParticles3D@35731" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1690778196]
+transform = Transform3D(-0.4579311, -0.827804, -0.854789, -0.82780397, -0.43631956, 0.86601985, -0.854789, 0.86601985, -0.38074917, 0.7769928, 0.82565606, 1.0548335)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_jvse2")
+spread = 0.0
+
+[node name="Center_core_001_Particles" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1525435065]
+transform = Transform3D(-1, -1.2300169e-14, 1.509958e-07, 0, 1, 8.146034e-08, -1.509958e-07, 8.146034e-08, -1, 0.03687053, 1.0484297, 0.07283909)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_vph2h")
+spread = 0.0
+
+[node name="@CPUParticles3D@35732" type="CPUParticles3D" parent="body/explosion/ExplosionParticles" unique_id=1747093991]
+transform = Transform3D(-1.275, -1.5682715e-14, 1.9251965e-07, 0, 1.275, 1.03861936e-07, -1.9251965e-07, 1.03861936e-07, -1.275, 0.03687053, 1.0484297, 0.07283909)
+emitting = false
+amount = 1
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("ArrayMesh_jtd7y")
+spread = 0.0
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1261770401]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_u5bk5")
@@ -4058,7 +4718,7 @@ collision_layer = 32
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="collision_scan" unique_id=383301620]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.1383953, 0)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.8161936, 0)
 shape = SubResource("CapsuleShape3D_api3g")
 
 [node name="buff_glow_mesh" type="MeshInstance3D" parent="." unique_id=1408196961]
@@ -4136,6 +4796,19 @@ root_node = NodePath("../..")
 libraries/ = SubResource("AnimationLibrary_uj1gu")
 autoplay = &"new_animation"
 speed_scale = 0.389
+
+[node name="web_shooter" type="Node3D" parent="." unique_id=248283182 node_paths=PackedStringArray("web", "raycast")]
+script = ExtResource("7_mbgft")
+web = NodePath("web_mesh")
+raycast = NodePath("web_raycast")
+
+[node name="web_mesh" type="MeshInstance3D" parent="web_shooter" unique_id=1115341443]
+transform = Transform3D(1, 1.6182979e-07, -1.4409868e-07, -1.6182975e-07, 0.115528695, -0.9933041, -1.4409864e-07, 0.9933042, 0.11552867, 0, 0, 0)
+mesh = SubResource("CylinderMesh_uj1gu")
+
+[node name="web_raycast" type="RayCast3D" parent="web_shooter" unique_id=1874208925]
+target_position = Vector3(0, 0, -5000)
+collision_mask = 128
 
 [connection signal="died" from="." to="body" method="_on_spider_died"]
 [connection signal="fly_consumed" from="." to="." method="_on_fly_consumed"]
