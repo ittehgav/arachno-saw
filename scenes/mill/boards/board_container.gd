@@ -38,7 +38,6 @@ var next_boards:Array;
 
 var safe_board:StaticBody3D:
 	get():
-		print(current_stage)
 		if current_stage == -2:
 			return top_trunk;
 		elif current_stage == -1:
@@ -62,14 +61,12 @@ var touching:bool=false;
 func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
 		touching = true;
-		print("stouch")
 		saw_touched.emit(area)
 		
 
 func board_area_exited(area:Area3D)->void:
 	if area is Saw and touching:
 		touching = false
-		print("sle")
 		saw_left.emit(area)
 
 var glowing:Array[MeshInstance3D]
@@ -149,7 +146,6 @@ func _on_saw_left(_saw: Saw) -> void:
 	
 	if current_stage < total_stages:
 		splitter.set_stage_enabled(current_stage, false)
-	print(current_stage, total_stages)
 	splitter.set_stage_enabled(current_stage + 1, true)
 	
 	set_to_drop()

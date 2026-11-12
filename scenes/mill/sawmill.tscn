@@ -221,7 +221,7 @@ seed = -1753794990
 [sub_resource type="Resource" id="Resource_vx6xw"]
 script = ExtResource("18_r67pe")
 
-[sub_resource type="Resource" id="Resource_83e3e"]
+[sub_resource type="Resource" id="Resource_vgn88"]
 resource_local_to_scene = true
 script = ExtResource("24_5vbex")
 metadata/_custom_type_script = "uid://b8hhnqsugykly"
@@ -237,7 +237,7 @@ emission_enabled = true
 emission = Color(0.68, 0.68, 0.68, 1)
 emission_energy_multiplier = 10.0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_i7in8"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_2fvhf"]
 resource_local_to_scene = true
 resource_name = "NurbsPath"
 _surfaces = [{
@@ -472,10 +472,10 @@ _data = {
 &"combo_increment": SubResource("Animation_b02jn")
 }
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_sccxs"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_eclp4"]
 viewport_path = NodePath("path/board_path_follow/spider/camera_control/Camera3D/saw_pov")
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_wrxns"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_2n3pc"]
 viewport_path = NodePath("path/board_path_follow/spider/camera_control/Camera3D/fly")
 
 [sub_resource type="Animation" id="Animation_uaqmy"]
@@ -582,7 +582,7 @@ stream_0/stream = ExtResource("13_sccxs")
 stream_1/stream = ExtResource("14_wrxns")
 stream_2/stream = ExtResource("15_w0lpd")
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_w0lpd"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_xeok3"]
 viewport_path = NodePath("path/board_path_follow/spider/camera_control/Camera3D/fly")
 
 [sub_resource type="Animation" id="Animation_iqrsf"]
@@ -4463,7 +4463,7 @@ NodePath("../board_path_follow/board_container/split_boards/full_board_s05_ABABA
 NodePath("../board_path_follow/board_container/split_boards/full_board_s06_ABABAB"): [NodePath("../board_path_follow/board_container/split_boards/full_board_s07_ABABABA"), NodePath("../board_path_follow/board_container/split_boards/full_board_s07_ABABABB")]
 }
 
-[node name="board_path_follow" type="PathFollow3D" parent="path" unique_id=1227387309 node_paths=PackedStringArray("board_0", "warning", "camera_anchor", "path")]
+[node name="board_path_follow" type="PathFollow3D" parent="path" unique_id=1227387309 node_paths=PackedStringArray("board_0", "warning", "path")]
 process_physics_priority = 1
 transform = Transform3D(1, 0, 0, 0, 1.0000101, 0, 0, 0, 1, 0, 0, 0)
 rotation_mode = 0
@@ -4473,7 +4473,6 @@ script = ExtResource("8_g2xsm")
 moving = true
 board_0 = NodePath("board_container/full_board")
 warning = NodePath("detectors/roller_killbox_warning")
-camera_anchor = NodePath("")
 path = NodePath("..")
 
 [node name="spider" parent="path/board_path_follow" unique_id=177370040 node_paths=PackedStringArray("pcam") instance=ExtResource("12_sccxs")]
@@ -4481,83 +4480,91 @@ transform = Transform3D(-1.6292068e-07, 0, -1, 0, 1, 0, 1, 0, -1.6292068e-07, -4
 collision_mask = 33
 pcam = NodePath("camera_control/PhantomCamera3D")
 
-[node name="camera_control" type="Node3D" parent="path/board_path_follow/spider" unique_id=17184775 node_paths=PackedStringArray("phantom_camera", "player")]
-process_mode = 3
-transform = Transform3D(1, 0, 0, 0, 0.8804684, 0.4740882, 0, -0.4740834, 0.88047737, 8.583069e-06, 41.4552, 51.68579)
-script = ExtResource("16_uaqmy")
-phantom_camera = NodePath("PhantomCamera3D")
-aim_height = 30.0
-player = NodePath("..")
+[node name="web_shooter" parent="path/board_path_follow/spider" index="10" unique_id=248283182 node_paths=PackedStringArray("camera_control", "crosshair", "relative_raycast")]
+camera_control = NodePath("../camera_control")
+crosshair = NodePath("../camera_control/Camera3D/ui/hud/web_crosshair")
+relative_raycast = NodePath("../camera_control/Camera3D/web_realative")
 
-[node name="PhantomCamera3D" type="Node3D" parent="path/board_path_follow/spider/camera_control" unique_id=1279093286 node_paths=PackedStringArray("follow_target", "look_at_target")]
+[node name="camera_control" type="Node3D" parent="path/board_path_follow/spider" unique_id=1815932100 node_paths=PackedStringArray("player", "pcam")]
+process_mode = 3
+transform = Transform3D(1, 0, 0, 0, 0.8804684, 0.4740882, 0, -0.4740834, 0.88047737, 1.2397766e-05, 41.4552, 79.29956)
+script = ExtResource("16_uaqmy")
+player = NodePath("..")
+pcam = NodePath("PhantomCamera3D")
+mouse_sensitivity = 0.001
+distance = 50.0
+pivot_height = 10.0
+aim_look_height = 40.0
+smoothing = 5.0
+
+[node name="PhantomCamera3D" type="Node3D" parent="path/board_path_follow/spider/camera_control" unique_id=1939411469 node_paths=PackedStringArray("follow_target", "look_at_target")]
 process_mode = 1
-transform = Transform3D(-4.768367e-07, 0.4733532, -0.88087076, 8.940688e-08, 0.8808707, 0.4733532, 0.99999905, 1.6391249e-07, -4.768363e-07, -454.8592, 1113.0292, 14.006044)
+transform = Transform3D(-1.1920956e-07, 0.46328682, -0.8862039, 1.4901195e-08, 0.8862124, 0.46328232, 1.0000023, 1.4901214e-08, -1.1920856e-07, -482.47296, 1113.0292, 14.006043)
 top_level = true
 script = ExtResource("17_diiei")
 follow_mode = 1
 follow_target = NodePath("..")
-look_at_mode = 1
-look_at_target = NodePath("..")
+look_at_mode = 2
+look_at_target = NodePath("../..")
 tween_resource = SubResource("Resource_vx6xw")
 tween_on_load = false
-camera_3d_resource = SubResource("Resource_83e3e")
+camera_3d_resource = SubResource("Resource_vgn88")
 follow_damping = true
-follow_damping_value = Vector3(0.2, 0.2, 0.2)
+follow_damping_value = Vector3(0.05, 0.05, 0.05)
 follow_distance = 80.0
 vertical_rotation_offset = 0.5235987755982988
 spring_length = 80.0
-look_at_damping = true
 noise = SubResource("Resource_pg34l")
 align_transform_with_view = Callable()
 align_position_with_view = Callable()
 align_rotation_with_view = Callable()
 metadata/_custom_type_script = "uid://csjccrhj5wnx7"
 
-[node name="Camera3D" type="Camera3D" parent="path/board_path_follow/spider/camera_control" unique_id=449002658]
+[node name="Camera3D" type="Camera3D" parent="path/board_path_follow/spider/camera_control" unique_id=926432065]
 physics_interpolation_mode = 1
-transform = Transform3D(-4.7683716e-07, 0.473354, -0.8808723, 8.940697e-08, 0.88087225, 0.47335404, 1, 1.4695667e-07, -4.623538e-07, -454.8592, 1113.0292, 14.006044)
+transform = Transform3D(-1.1920929e-07, 0.46328518, -0.8862093, 1.4901161e-08, 0.8862093, 0.46328518, 1, 4.202235e-08, -1.12547866e-07, -482.47296, 1113.0292, 14.006043)
 top_level = true
 current = true
 
-[node name="PhantomCameraHost" type="Node" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=196594189]
+[node name="PhantomCameraHost" type="Node" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=606158341]
 process_priority = 300
 process_physics_priority = 300
 script = ExtResource("20_2lena")
 metadata/_custom_type_script = "uid://bd046eokvcnu2"
 
-[node name="fly" type="SubViewport" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=420491794]
+[node name="fly" type="SubViewport" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=579343671]
 transparent_bg = true
 size = Vector2i(128, 128)
 
-[node name="Node3D" type="Node3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly" unique_id=222830237]
+[node name="Node3D" type="Node3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly" unique_id=1249017536]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.20588, 0)
 
-[node name="combo_fly" type="MeshInstance3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D" unique_id=875276703]
+[node name="combo_fly" type="MeshInstance3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D" unique_id=402208353]
 transform = Transform3D(5.96591, -0.08021787, -7.5526237, 7.5519414, -0.10154424, 5.9664493, -0.12940688, -9.62413, -3.3013566e-07, 0, 1.153449, -0.81145966)
 layers = 2
 material_override = SubResource("StandardMaterial3D_6llfj")
-mesh = SubResource("ArrayMesh_i7in8")
+mesh = SubResource("ArrayMesh_2fvhf")
 
-[node name="combo_spin" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D/combo_fly" unique_id=1213442501]
+[node name="combo_spin" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D/combo_fly" unique_id=1179825405]
 process_mode = 3
 libraries/ = SubResource("AnimationLibrary_gkmcc")
 autoplay = &"spin"
 speed_scale = 0.55
 
-[node name="combo_increment" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D/combo_fly" unique_id=566971604]
+[node name="combo_increment" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D/combo_fly" unique_id=1547515598]
 libraries/ = SubResource("AnimationLibrary_7nlll")
 speed_scale = 2.0
 
-[node name="Camera3D" type="Camera3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D" unique_id=1215053292]
+[node name="Camera3D" type="Camera3D" parent="path/board_path_follow/spider/camera_control/Camera3D/fly/Node3D" unique_id=428481369]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1177449, 1.4564404)
 cull_mask = 2
 fov = 35.4
 
-[node name="saw_pov" type="SubViewport" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=742334953]
+[node name="saw_pov" type="SubViewport" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=432918746]
 transparent_bg = true
 size = Vector2i(256, 256)
 
-[node name="ui" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=506507486 node_paths=PackedStringArray("score_label", "hud", "post_run", "black_fade", "fly_combo_display", "fly_combo_label", "fly_rect", "combo_increment_animation", "fly_mesh", "combo_timeout_bar", "saw_pov", "fly_point_gain_label", "combo_multiplier_label", "you_died_screen", "you_died_message", "you_died_continue_btn", "ui_sfx")]
+[node name="ui" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=1903400207 node_paths=PackedStringArray("score_label", "hud", "post_run", "black_fade", "fly_combo_display", "fly_combo_label", "fly_rect", "combo_increment_animation", "fly_mesh", "combo_timeout_bar", "saw_pov", "fly_point_gain_label", "combo_multiplier_label", "you_died_screen", "you_died_message", "you_died_continue_btn", "ui_sfx")]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
@@ -4584,7 +4591,7 @@ you_died_message = NodePath("you_died_sceen/VBoxContainer/message")
 you_died_continue_btn = NodePath("you_died_sceen/VBoxContainer/continue")
 ui_sfx = NodePath("UISFX")
 
-[node name="fade" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1769712411]
+[node name="fade" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=560475305]
 z_index = 109
 layout_mode = 1
 anchors_preset = 15
@@ -4597,7 +4604,7 @@ color = Color(0, 0, 0, 0)
 
 [node name="UISFX" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1290045078 instance=ExtResource("27_mswun")]
 
-[node name="hud" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1627158316]
+[node name="hud" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=376699894]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -4605,15 +4612,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="saw_pov" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=1521926987]
+[node name="saw_pov" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=2012139392]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 266.0
 offset_bottom = 266.0
-texture = SubResource("ViewportTexture_sccxs")
+texture = SubResource("ViewportTexture_eclp4")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=2021003671]
+[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=1264186543]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -4624,25 +4631,25 @@ offset_right = -10.0
 offset_bottom = 84.0
 grow_horizontal = 0
 
-[node name="score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer" unique_id=842971844]
+[node name="score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer" unique_id=1025859701]
 layout_mode = 2
 offset_transform_enabled = true
 theme_override_font_sizes/font_size = 100
 text = "0"
 horizontal_alignment = 1
 
-[node name="combo" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer" unique_id=530345161]
+[node name="combo" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer" unique_id=1017844171]
 visible = false
 layout_mode = 2
 
-[node name="fly" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=844681670]
+[node name="fly" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=145309099]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
-texture = SubResource("ViewportTexture_wrxns")
+texture = SubResource("ViewportTexture_2n3pc")
 
-[node name="combo_timeout" type="TextureProgressBar" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/fly" unique_id=1130043900]
+[node name="combo_timeout" type="TextureProgressBar" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/fly" unique_id=380972942]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 8
@@ -4662,39 +4669,39 @@ fill_mode = 4
 texture_progress = ExtResource("22_cwvuo")
 tint_progress = Color(1, 1, 1, 0.38431373)
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=1110510263]
+[node name="HBoxContainer2" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=1167746363]
 layout_mode = 2
 
-[node name="combo_label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer2" unique_id=371884964]
+[node name="combo_label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer2" unique_id=1819077713]
 layout_mode = 2
 offset_transform_enabled = true
 theme_override_font_sizes/font_size = 45
 text = "aaw"
 horizontal_alignment = 1
 
-[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer2" unique_id=1742726004]
+[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer2" unique_id=1750728408]
 layout_mode = 2
 theme_override_font_sizes/font_size = 45
 text = "x COMBO"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=87285260]
+[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo" unique_id=581605172]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="gain" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer" unique_id=532306513]
+[node name="gain" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer" unique_id=1632784943]
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 theme_override_font_sizes/font_size = 32
 
-[node name="combo_multiplier" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer" unique_id=255909452]
+[node name="combo_multiplier" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/VBoxContainer/combo/HBoxContainer" unique_id=1172477775]
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 text = "+1 * 1.5"
 horizontal_alignment = 1
 
-[node name="tutorial" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=1070594497 node_paths=PackedStringArray("movement_instructions", "dont_die_instruction")]
+[node name="tutorial" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=134804742 node_paths=PackedStringArray("movement_instructions", "dont_die_instruction")]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
@@ -4702,14 +4709,14 @@ script = ExtResource("18_iqrsf")
 movement_instructions = NodePath("movement_instction")
 dont_die_instruction = NodePath("dont_die")
 
-[node name="movement_instction" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial" unique_id=1735241154]
+[node name="movement_instction" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial" unique_id=2138459643]
 layout_mode = 0
 offset_left = 283.0
 offset_top = 26.0
 offset_right = 491.0
 offset_bottom = 244.0
 
-[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=640041083]
+[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=23981177]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_outline_color = Color(1, 0.32999998, 0.32999998, 0.6239297)
@@ -4717,40 +4724,40 @@ theme_override_constants/outline_size = 48
 theme_override_font_sizes/font_size = 68
 text = "W"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=1736968424]
+[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=1421880662]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=618190777]
+[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=683275398]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 0.32999998, 0.32999998, 0.6239297)
 theme_override_constants/outline_size = 48
 theme_override_font_sizes/font_size = 68
 text = "A "
 
-[node name="Label2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=83937260]
+[node name="Label2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=2071668521]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 0.32999998, 0.32999998, 0.6239297)
 theme_override_constants/outline_size = 48
 theme_override_font_sizes/font_size = 68
 text = "S "
 
-[node name="Label3" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=446454920]
+[node name="Label3" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction/HBoxContainer" unique_id=724732407]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 0.32999998, 0.32999998, 0.6239297)
 theme_override_constants/outline_size = 48
 theme_override_font_sizes/font_size = 68
 text = "D"
 
-[node name="wasd_glow" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=2043744821]
+[node name="wasd_glow" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=1648116792]
 libraries/ = SubResource("AnimationLibrary_r67pe")
 autoplay = &"wasd_glow"
 
-[node name="Label4" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=455624538]
+[node name="Label4" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial/movement_instction" unique_id=393111501]
 layout_mode = 2
 theme_override_font_sizes/font_size = 47
 text = "TO MOVE"
 
-[node name="dont_die" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial" unique_id=288394989]
+[node name="dont_die" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/tutorial" unique_id=751309098]
 visible = false
 layout_mode = 0
 offset_left = 225.0
@@ -4765,7 +4772,7 @@ text = "DON'T GET
 SPLIT IN HALF"
 horizontal_alignment = 1
 
-[node name="pause_overlay" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=389498481 node_paths=PackedStringArray("pause_btn", "pause_sfx", "unpause_sfx")]
+[node name="pause_overlay" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=691755603 node_paths=PackedStringArray("pause_btn", "pause_sfx", "unpause_sfx")]
 process_mode = 3
 visible = false
 layout_mode = 1
@@ -4779,13 +4786,13 @@ pause_btn = NodePath("../pause")
 pause_sfx = NodePath("Pause")
 unpause_sfx = NodePath("Unpause")
 
-[node name="Pause" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=1840590326]
+[node name="Pause" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=444886705]
 stream = ExtResource("13_w0lpd")
 
-[node name="Unpause" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=552709618]
+[node name="Unpause" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=865887774]
 stream = ExtResource("14_iqrsf")
 
-[node name="ColorRect" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=2094965692]
+[node name="ColorRect" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=2075578947]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -4794,7 +4801,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.41568628)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=127668547]
+[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=1497172561]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -4808,17 +4815,17 @@ offset_bottom = -65.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/VBoxContainer" unique_id=1053603698]
+[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/VBoxContainer" unique_id=2100459547]
 layout_mode = 2
 theme_override_font_sizes/font_size = 66
 text = "GAME IS PAUSED"
 
-[node name="Label2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/VBoxContainer" unique_id=1328753515]
+[node name="Label2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/VBoxContainer" unique_id=999598012]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "PRESS P TO UNPAUSE"
 
-[node name="sound_control" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=1297461563 node_paths=PackedStringArray("toggle_bgm")]
+[node name="sound_control" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" unique_id=126682222 node_paths=PackedStringArray("toggle_bgm")]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -4832,7 +4839,7 @@ grow_vertical = 0
 script = ExtResource("15_r67pe")
 toggle_bgm = NodePath("toggle_bgm")
 
-[node name="toggle_bgm" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control" unique_id=447687463]
+[node name="toggle_bgm" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control" unique_id=173306322]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -4849,7 +4856,7 @@ accessibility_name = "Toggle Music"
 icon = ExtResource("16_y5050")
 expand_icon = true
 
-[node name="disabled" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control/toggle_bgm" unique_id=1460905781]
+[node name="disabled" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control/toggle_bgm" unique_id=1514817498]
 visible = false
 modulate = Color(0.5, 0.5, 0.5, 1)
 layout_mode = 1
@@ -4860,7 +4867,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("17_2lena")
 
-[node name="pause" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=246005417]
+[node name="pause" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=1840228930]
 z_index = 489
 layout_mode = 1
 anchors_preset = 3
@@ -4880,7 +4887,7 @@ flat = true
 icon_alignment = 1
 expand_icon = true
 
-[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause" unique_id=235289478]
+[node name="Label" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause" unique_id=478862169]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -4897,7 +4904,7 @@ theme_override_font_sizes/font_size = 32
 text = "[p]"
 horizontal_alignment = 1
 
-[node name="web_crosshair" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=698604407]
+[node name="web_crosshair" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/hud" unique_id=379273652]
 visible = false
 modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(62, 62)
@@ -4916,7 +4923,7 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("19_2fvhf")
 
-[node name="you_died_sceen" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1703599181]
+[node name="you_died_sceen" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=535792439]
 process_mode = 2
 visible = false
 layout_mode = 1
@@ -4926,7 +4933,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen" unique_id=571760661]
+[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen" unique_id=1656456122]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -4940,7 +4947,7 @@ offset_bottom = 101.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="you died" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=2144406737]
+[node name="you died" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=2040750260]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -4949,21 +4956,21 @@ theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 175
 text = "YOU DIED"
 
-[node name="message" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=786543633]
+[node name="message" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=96718148]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/outline_size = 19
 theme_override_font_sizes/font_size = 37
 text = "pee pee poo poo"
 
-[node name="continue" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=1027979768]
+[node name="continue" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer" unique_id=468699811]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 83
 text = "CONTINUE"
 
-[node name="post_run" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1862958131 node_paths=PackedStringArray("result_label", "score_label", "time_label", "new_high_score_label", "fly_panel", "fly_hboxes", "fly_consumed_sfx", "bgm", "victory_sfx")]
+[node name="post_run" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui" unique_id=1597797821 node_paths=PackedStringArray("result_label", "score_label", "time_label", "new_high_score_label", "fly_panel", "fly_hboxes", "fly_consumed_sfx", "bgm", "victory_sfx")]
 process_mode = 2
 visible = false
 layout_mode = 1
@@ -4989,7 +4996,7 @@ fly_consumed_sfx = NodePath("flies/VBoxContainer/AudioStreamPlayer")
 bgm = NodePath("post_game_bgm")
 victory_sfx = NodePath("Victory")
 
-[node name="ColorRect" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1514642562]
+[node name="ColorRect" type="ColorRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1393801699]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -4998,35 +5005,35 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.10919999, 0.10919999, 0.14, 0.2784314)
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=702097930]
+[node name="VBoxContainer2" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1336887472]
 layout_mode = 1
 offset_left = 30.0
 offset_top = 40.0
 offset_right = 571.0
 offset_bottom = 227.0
 
-[node name="result" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=1455460845]
+[node name="result" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=515017600]
 layout_mode = 2
 theme_override_constants/outline_size = 42
 theme_override_font_sizes/font_size = 99
 text = "YOU DIED"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=831753344]
+[node name="HBoxContainer2" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=1188586747]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="score2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=1641648947]
+[node name="score2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=1100200645]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "SCORE: "
 
-[node name="score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=1714483467]
+[node name="score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=1844717204]
 layout_mode = 2
 theme_override_constants/outline_size = 34
 theme_override_font_sizes/font_size = 64
 text = "SCORE: "
 
-[node name="new_high_score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=2103794943]
+[node name="new_high_score" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2" unique_id=955336632]
 visible = false
 layout_mode = 2
 offset_transform_enabled = true
@@ -5034,40 +5041,40 @@ theme_override_font_sizes/font_size = 63
 text = "NEW HIGH 
 SCORE!"
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2/new_high_score" unique_id=657008174]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer2/new_high_score" unique_id=1638682783]
 libraries/ = SubResource("AnimationLibrary_wrxns")
 autoplay = &"new_animation"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=1539685906]
+[node name="HBoxContainer" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=941081037]
 layout_mode = 2
 
-[node name="time2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer" unique_id=688185258]
+[node name="time2" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer" unique_id=889048675]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Time Survived: "
 
-[node name="time" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer" unique_id=1457995598]
+[node name="time" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/HBoxContainer" unique_id=638242424]
 layout_mode = 2
 theme_override_constants/outline_size = 34
 theme_override_font_sizes/font_size = 64
 text = "Time Survived: "
 
-[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=739475925]
+[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2" unique_id=342094660]
 layout_mode = 2
 
-[node name="play_again" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/VBoxContainer" unique_id=1897200991]
+[node name="play_again" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/VBoxContainer" unique_id=2124432231]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 60
 text = "Play Again"
 
-[node name="main_menu" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/VBoxContainer" unique_id=2084442228]
+[node name="main_menu" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/VBoxContainer2/VBoxContainer" unique_id=633264843]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 60
 text = "Main Menu"
 
-[node name="flies" type="PanelContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1172161911]
+[node name="flies" type="PanelContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=363421414]
 visible = false
 layout_mode = 1
 anchors_preset = 6
@@ -5082,117 +5089,117 @@ offset_bottom = 20.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies" unique_id=1752904835]
+[node name="VBoxContainer" type="VBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies" unique_id=974103002]
 layout_mode = 2
 theme_override_constants/separation = -22
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=94758486]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=818978953]
 stream = SubResource("AudioStreamRandomizer_u5bk5")
 
-[node name="flies_consuimed" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1392216928]
+[node name="flies_consuimed" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1542706406]
 layout_mode = 2
 theme_override_font_sizes/font_size = 57
 text = "FLIES CONSUMED:"
 
-[node name="speed" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1958940379]
+[node name="speed" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1573111749]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 offset_transform_scale = Vector2(1.515, 1.515)
 
-[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/speed" unique_id=1589563149]
+[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/speed" unique_id=1957661516]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = SubResource("ViewportTexture_w0lpd")
+texture = SubResource("ViewportTexture_xeok3")
 
-[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/speed" unique_id=1583061212]
+[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/speed" unique_id=2047770926]
 layout_mode = 2
 theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 57
 text = "x1"
 
-[node name="shield" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1752127100]
+[node name="shield" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=876208001]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 
-[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/shield" unique_id=1817936251]
+[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/shield" unique_id=1897333672]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = SubResource("ViewportTexture_w0lpd")
+texture = SubResource("ViewportTexture_xeok3")
 
-[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/shield" unique_id=1899004948]
+[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/shield" unique_id=495524388]
 layout_mode = 2
 theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 57
 text = "x1"
 
-[node name="teleport" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1561070838]
+[node name="teleport" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1460399557]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 
-[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/teleport" unique_id=136205262]
+[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/teleport" unique_id=637615491]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = SubResource("ViewportTexture_w0lpd")
+texture = SubResource("ViewportTexture_xeok3")
 
-[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/teleport" unique_id=1073419430]
+[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/teleport" unique_id=1155223839]
 layout_mode = 2
 theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 57
 text = "x1"
 
-[node name="coin" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=186817427]
+[node name="coin" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=1726657550]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 
-[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/coin" unique_id=1728509752]
+[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/coin" unique_id=1690020256]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = SubResource("ViewportTexture_w0lpd")
+texture = SubResource("ViewportTexture_xeok3")
 
-[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/coin" unique_id=894840505]
+[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/coin" unique_id=1924462059]
 layout_mode = 2
 theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 57
 text = "x1"
 
-[node name="death" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=165827862]
+[node name="death" type="HBoxContainer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer" unique_id=381941796]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 offset_transform_enabled = true
 
-[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/death" unique_id=426727013]
+[node name="icon" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/death" unique_id=86335354]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = SubResource("ViewportTexture_w0lpd")
+texture = SubResource("ViewportTexture_xeok3")
 
-[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/death" unique_id=104975070]
+[node name="amount" type="Label" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/flies/VBoxContainer/death" unique_id=906282933]
 layout_mode = 2
 theme_override_constants/outline_size = 25
 theme_override_font_sizes/font_size = 57
 text = "x1"
 
-[node name="Victory" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1105584262]
+[node name="Victory" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=587175754]
 stream = ExtResource("16_iqrsf")
 
-[node name="post_game_bgm" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=696924387]
+[node name="post_game_bgm" type="AudioStreamPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1760350541]
 stream = ExtResource("34_oneau")
 bus = &"bgm"
 
-[node name="forms" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=181468082]
+[node name="forms" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=849524819]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -5201,7 +5208,7 @@ offset_top = -40.0
 offset_right = 40.0
 grow_vertical = 0
 
-[node name="poll" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms" unique_id=440914941]
+[node name="poll" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms" unique_id=1862402089]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -5214,7 +5221,7 @@ grow_vertical = 0
 theme_override_font_sizes/font_size = 64
 text = "Quick poll"
 
-[node name="TextureRect" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms/poll" unique_id=1599693650]
+[node name="TextureRect" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms/poll" unique_id=584059852]
 layout_mode = 0
 offset_left = -70.0
 offset_right = -6.0
@@ -5222,12 +5229,12 @@ offset_bottom = 64.0
 texture = ExtResource("21_iqrsf")
 expand_mode = 1
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms/poll" unique_id=686061498]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/forms/poll" unique_id=1783598262]
 libraries/ = SubResource("AnimationLibrary_y5050")
 autoplay = &"new_animation"
 speed_scale = 1.5
 
-[node name="sound_control" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=1038255175 node_paths=PackedStringArray("toggle_bgm")]
+[node name="sound_control" type="Control" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run" unique_id=322021479 node_paths=PackedStringArray("toggle_bgm")]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -5241,7 +5248,7 @@ grow_vertical = 0
 script = ExtResource("15_r67pe")
 toggle_bgm = NodePath("toggle_bgm")
 
-[node name="toggle_bgm" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control" unique_id=1880300080]
+[node name="toggle_bgm" type="Button" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control" unique_id=1576473117]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -5258,7 +5265,7 @@ accessibility_name = "Toggle Music"
 icon = ExtResource("16_y5050")
 expand_icon = true
 
-[node name="disabled" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control/toggle_bgm" unique_id=1902434673]
+[node name="disabled" type="TextureRect" parent="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control/toggle_bgm" unique_id=1122696908]
 visible = false
 modulate = Color(0.5, 0.5, 0.5, 1)
 layout_mode = 1
@@ -5269,148 +5276,10 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("17_2lena")
 
-[node name="web_realative" type="RayCast3D" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=873186930]
+[node name="web_realative" type="RayCast3D" parent="path/board_path_follow/spider/camera_control/Camera3D" unique_id=1172993058]
 target_position = Vector3(0, 0, -50000)
 collision_mask = 128
 debug_shape_custom_color = Color(0, 0, 0, 0)
-
-[node name="Skeleton3D" parent="path/board_path_follow/spider/body/Armature_001" parent_id_path=PackedInt32Array(177370040, 217356292) index="0" unique_id=328075129]
-bones/0/position = Vector3(-0.036870543, 0.81369114, -1.04031514e-07)
-bones/9/rotation = Quaternion(0.6833101, 0.70096296, -0.18189901, -0.09301077)
-bones/11/rotation = Quaternion(0.6005771, 0.6920425, -0.37323874, -0.14517945)
-bones/13/rotation = Quaternion(-0.6223031, 0.6362159, 0.3357661, -0.30859247)
-bones/22/rotation = Quaternion(2.7939677e-08, 0, -3.5390258e-08, 1)
-bones/23/rotation = Quaternion(-0.00691192, 0.005534825, 0.0683554, 0.9976218)
-bones/24/rotation = Quaternion(-0.019590558, 0.00554817, -0.26932296, 0.96283466)
-bones/25/rotation = Quaternion(-0.016599335, 0.003366429, -0.7142039, 0.6997328)
-bones/29/rotation = Quaternion(-0.019538024, -0.048623342, -0.33465117, 0.940884)
-bones/30/rotation = Quaternion(-0.08020654, -0.03203262, 0.2936383, 0.95200706)
-bones/31/rotation = Quaternion(-0.0659349, -0.014194043, 0.69892865, 0.7120041)
-bones/33/rotation = Quaternion(0.5445274, 0.8065781, -0.15535514, -0.16966565)
-bones/34/rotation = Quaternion(5.8207664e-08, 3.911555e-08, 1.3038516e-08, 1)
-bones/35/rotation = Quaternion(0.05456501, 0.031768635, -0.120677784, 0.99068177)
-bones/36/rotation = Quaternion(0.074845664, 0.02965058, 0.3167557, 0.9450845)
-bones/37/rotation = Quaternion(0.060242724, 0.013654531, 0.5962465, 0.8004214)
-bones/39/rotation = Quaternion(0.60057706, 0.6920425, -0.37323892, -0.1451794)
-bones/41/rotation = Quaternion(0.21437185, 0.041018914, -0.09804738, 0.9709526)
-bones/42/rotation = Quaternion(0.09253517, 0.042162187, 0.03872587, 0.9940623)
-bones/43/rotation = Quaternion(0.03819155, 0.01338321, 0.13905558, 0.98945737)
-bones/45/rotation = Quaternion(-0.6223031, 0.636216, 0.33576626, -0.30859226)
-bones/47/rotation = Quaternion(-0.015902342, 0.04036708, 0.35574934, 0.9335738)
-bones/48/rotation = Quaternion(-0.061625592, 0.028280513, -0.3442754, 0.9364171)
-bones/49/rotation = Quaternion(-0.0514675, 0.012770765, -0.7559245, 0.6525076)
-bones/52/rotation = Quaternion(-1.5832484e-08, -1.4435501e-08, 5.122274e-08, 1)
-bones/53/rotation = Quaternion(0.031099722, 0.016246151, 0.010966136, 0.9993241)
-bones/54/rotation = Quaternion(0.07167603, 0.015886018, 0.24505384, 0.9667258)
-bones/55/rotation = Quaternion(0.058301475, 0.009851312, 0.61666995, 0.7849981)
-bones/58/rotation = Quaternion(2.5611375e-09, 8.393545e-08, -3.2596292e-09, 1)
-bones/59/rotation = Quaternion(0.10483121, -0.03843005, 0.08342001, 0.9902397)
-bones/60/rotation = Quaternion(0.08471412, -0.03787776, -0.15104747, 0.9841613)
-bones/61/rotation = Quaternion(0.058502547, -0.016063944, -0.3690019, 0.9274465)
-bones/65/rotation = Quaternion(0.009843143, -0.10991204, 0.3981992, 0.9106371)
-bones/66/rotation = Quaternion(0.2025831, -0.060782313, -0.24719188, 0.9456013)
-bones/67/rotation = Quaternion(0.17781284, -0.02577297, -0.58061624, 0.79410523)
-bones/69/position = Vector3(2.2878702, -0.0066850185, -7.707036)
-bones/73/position = Vector3(2.3823507, 0.045321226, 4.8100443)
-bones/73/rotation = Quaternion(0.43750492, 0.5555083, 0.5555084, -0.43750486)
-bones/75/position = Vector3(3.5956888, 0.97783184, 1.1234587)
-bones/75/rotation = Quaternion(0.23749854, 0.66602886, 0.6660289, -0.23749861)
-bones/77/position = Vector3(-2.2878702, 0.74913406, -5.7511983)
-bones/81/position = Vector3(-2.382351, -0.029731989, 4.2032366)
-bones/83/position = Vector3(-3.5956886, -0.012949467, 1.9135152)
-
-[node name="Bone_007_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="2" unique_id=1253756175]
-transform = Transform3D(-0.9042273, 0.29256213, -0.31109467, -0.2706549, -0.9560866, -0.11244644, -0.33033082, -0.017477952, 0.9437036, 3.1069129, 2.5756128, 1.1527295)
-
-[node name="Bone_006_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="3" unique_id=1087806113]
-transform = Transform3D(0.3018051, 0.8920853, -0.33629903, -0.9532347, 0.2882947, -0.090716645, 0.016026163, 0.34795055, 0.937376, 1.7776465, 2.1460345, 0.6342601)
-
-[node name="Bone_005_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="4" unique_id=1267396782]
-transform = Transform3D(0.7133277, 0.5937144, -0.37237975, -0.66736233, 0.73767996, -0.10225349, 0.21398762, 0.32145247, 0.92243046, 0.9921045, 1.1700118, 0.2089471)
-
-[node name="Bone_004_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="5" unique_id=1618418465]
-transform = Transform3D(0.62183815, 0.6799253, -0.38861156, -0.7627831, 0.6382607, -0.10385208, 0.1774238, 0.36100543, 0.91553056, 0.61252356, 0.8136911, 0.0074091665)
-
-[node name="Bone_003_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="6" unique_id=522857004]
-transform = Transform3D(0.30621603, -0.09793018, 0.94691133, 0.11536349, -0.98354614, -0.13902582, 0.94494575, 0.15181108, -0.2898801, 2.6186922, 2.4182086, 4.443908)
-
-[node name="Bone_002_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="7" unique_id=1781553847]
-transform = Transform3D(-0.0022104336, 0.3740626, 0.9274007, 0.9952933, 0.090672635, -0.034200262, -0.09688305, 0.92296, -0.3725025, 1.7780498, 2.2144375, 2.3697126)
-
-[node name="Bone_001_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="8" unique_id=2103610538]
-transform = Transform3D(-0.30928424, 0.42767787, 0.84937316, 0.77508396, 0.63086456, -0.035421032, -0.5509882, 0.6473802, -0.5266028, 0.82845104, 0.8136909, 0.93229586)
-
-[node name="Bone_015_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="10" unique_id=1031004183]
-transform = Transform3D(0.6708071, 0.12171889, -0.73157555, 0.23508063, -0.97046983, 0.0540876, -0.70338845, -0.20826158, -0.67961174, 2.985296, 1.6996305, -2.1748447)
-
-[node name="Bone_014_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="11" unique_id=1873216393]
-transform = Transform3D(0.009072804, 0.7343181, -0.6787451, 0.9976276, -0.052967526, -0.043969113, -0.06823878, -0.67673606, -0.73305655, 2.0267746, 1.7687702, -1.2914867)
-
-[node name="Bone_013_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="12" unique_id=1591836707]
-transform = Transform3D(-0.49937987, 0.667482, -0.55234724, 0.8226099, 0.5653786, -0.06049606, 0.27190536, -0.48457694, -0.83141595, 1.1517915, 1.0276316, -0.65626866)
-
-[node name="Bone_012_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="13" unique_id=1723208040]
-transform = Transform3D(-0.34940687, 0.825691, -0.44288754, 0.93112457, 0.35870942, -0.065836705, 0.10450717, -0.4353874, -0.8941566, 0.65933573, 0.8136913, -0.39659628)
-
-[node name="Bone_011_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="14" unique_id=1463826721]
-transform = Transform3D(-0.10838432, 0.136644, -0.98467314, 0.9268502, -0.34425423, -0.14979205, -0.3594461, -0.92887956, -0.089336775, 1.9665738, 0.8027766, -5.522913)
-
-[node name="Bone_010_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="15" unique_id=1040179943]
-transform = Transform3D(-0.17815286, 0.17177954, -0.9688928, 0.9794957, -0.06317595, -0.1913031, -0.09407267, -0.98310757, -0.15700236, 1.5917954, 0.94061023, -3.3780277)
-
-[node name="Bone_009_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="16" unique_id=1432283561]
-transform = Transform3D(-0.2770306, 0.32830074, -0.90303516, 0.9600397, 0.055721223, -0.27426055, -0.039721683, -0.9429283, -0.33061823, 0.84400725, 0.81369114, -1.2302694)
-
-[node name="Bone_008_L" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="17" unique_id=383038121]
-transform = Transform3D(-0.23646034, 0.72287655, -0.649258, 0.939623, -6.565411e-08, -0.34221143, -0.24737664, -0.69097716, -0.67923146, 0.3776483, 0.81369126, -0.78449)
-
-[node name="Bone_003_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="18" unique_id=1400574765]
-transform = Transform3D(0.35499424, 0.1549474, -0.9219381, 0.11545249, -0.98588634, -0.12123971, -0.92771196, -0.06340055, -0.36787304, -2.756333, 2.3488028, 4.3563747)
-
-[node name="Bone_002_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="19" unique_id=1595227098]
-transform = Transform3D(0.01472427, -0.41774258, -0.90844584, -0.99925756, 0.026203502, -0.028245632, 0.035603944, 0.9081872, -0.41704667, -1.8175278, 2.2899153, 2.3153796)
-
-[node name="Bone_001_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="20" unique_id=675879241]
-transform = Transform3D(-0.34334487, -0.41224647, -0.8438998, -0.7466746, 0.6648579, -0.020995889, 0.5697289, 0.6229096, -0.53608966, -0.902192, 0.81369096, 0.9322956)
-
-[node name="Bone_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="21" unique_id=1008956786]
-transform = Transform3D(-0.035019208, -0.58460844, -0.8105594, -0.9990681, -4.020197e-07, 0.043163743, -0.025234194, 0.8113154, -0.58406365, -0.53087956, 0.81369114, 0.41699088)
-
-[node name="Bone_007_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="22" unique_id=24912597]
-transform = Transform3D(-0.76093435, -0.11802493, 0.6380038, 0.20411913, -0.97693455, 0.06272485, 0.6158848, 0.17795825, 0.7674743, -3.3988404, 1.6195805, 1.6163368)
-
-[node name="Bone_006_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="23" unique_id=1777340024]
-transform = Transform3D(-0.012171328, -0.8156913, 0.5783592, 0.9990305, -0.03439526, -0.02748508, 0.042312086, 0.57746375, 0.8153191, -2.1834056, 1.6708317, 0.755877)
-
-[node name="Bone_005_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="24" unique_id=1859204491]
-transform = Transform3D(0.41199479, -0.79078513, 0.45267984, 0.89294827, 0.4492995, -0.027813314, -0.1813945, 0.41567853, 0.8912392, -1.1371197, 1.0763646, 0.20589373)
-
-[node name="Bone_004_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="25" unique_id=1838997221]
-transform = Transform3D(0.44321856, -0.80759525, 0.38903365, 0.8819465, 0.47051474, -0.028042702, -0.16039895, 0.35553595, 0.92079645, -0.6862646, 0.81369114, 0.0074092)
-
-[node name="Bone_015_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="26" unique_id=763016208]
-transform = Transform3D(0.3620039, -0.26681894, 0.89317423, -0.70937, -0.7004788, 0.07825302, 0.60477024, -0.66191894, -0.44284937, -2.7291975, 1.2231874, -2.7993295)
-
-[node name="Bone_014_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="27" unique_id=1522085198]
-transform = Transform3D(0.01593256, -0.5271232, 0.8496391, -0.9996676, -0.025622128, 0.0028496012, 0.020267539, -0.84940207, -0.5273562, -2.0411322, 1.2566324, -1.690587)
-
-[node name="Bone_013_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="28" unique_id=1427323466]
-transform = Transform3D(-0.22326551, -0.6322943, 0.74185973, -0.95892215, 0.2790989, -0.050712682, -0.1749869, -0.7227082, -0.6686343, -1.212275, 0.89076936, -0.7432091)
-
-[node name="Bone_012_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="29" unique_id=498693989]
-transform = Transform3D(-0.15342948, -0.80346256, 0.57524514, -0.9881302, 0.12923528, -0.08304745, -0.007616429, -0.5811589, -0.8137543, -0.7330764, 0.8136912, -0.3965961)
-
-[node name="Bone_011_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="30" unique_id=1724814362]
-transform = Transform3D(-0.040623955, -0.023018152, 0.9989093, -0.44927618, -0.8925481, -0.038838506, 0.89246863, -0.45036393, 0.025917307, -2.2338486, 2.847765, -4.6925087)
-
-[node name="Bone_010_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="31" unique_id=163420046]
-transform = Transform3D(-0.28134015, -0.22041017, 0.93395233, -0.9510288, 0.1938946, -0.24072559, -0.12802994, -0.95594144, -0.26416677, -1.7529709, 2.4247375, -2.6068935)
-
-[node name="Bone_009_R" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="32" unique_id=148439722]
-transform = Transform3D(-0.5433892, -0.366687, 0.75516146, -0.69012856, 0.7072961, -0.1531489, -0.47796506, -0.60437804, -0.6373983, -0.9177485, 0.8136913, -1.2302693)
-
-[node name="Core" parent="path/board_path_follow/spider/body/Armature_001/Skeleton3D" index="34" unique_id=2125671796]
-transform = Transform3D(1, 0, 0, 0, 1, -2.0066963e-07, 0, 2.0066963e-07, 1, -0.036870543, 0.81369114, -1.04031514e-07)
 
 [node name="board_container" type="Node3D" parent="path/board_path_follow" unique_id=1368644839 node_paths=PackedStringArray("spider", "splitter", "top_trunk", "bottom_trunk", "left_trunk", "right_trunk", "full_board")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
@@ -9003,12 +8872,11 @@ shape = SubResource("BoxShape3D_vi1dg")
 
 [connection signal="timeout" from="freeze_frame" to="." method="_on_freeze_frame_timeout"]
 [connection signal="point_reached" from="path/board_path_follow" to="path/board_path_follow" method="_on_point_reached"]
-[connection signal="died" from="path/board_path_follow/spider" to="path/board_path_follow/spider/camera_control" method="_on_spider_died"]
 [connection signal="died" from="path/board_path_follow/spider" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_spider_died"]
 [connection signal="fly_consumed" from="path/board_path_follow/spider" to="." method="_on_spider_fly_consumed"]
-[connection signal="fly_consumed" from="path/board_path_follow/spider" to="path/board_path_follow/spider/camera_control" method="_on_spider_fly_consumed"]
-[connection signal="run_won" from="path/board_path_follow/spider" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_spider_run_won"]
 [connection signal="run_won" from="path/board_path_follow/spider" to="bgm" method="_on_spider_run_won"]
+[connection signal="started_aiming" from="path/board_path_follow/spider/camera_control" to="path/board_path_follow/spider/web_shooter" method="_on_camera_control_started_aiming"]
+[connection signal="stopped_aiming" from="path/board_path_follow/spider/camera_control" to="path/board_path_follow/spider/web_shooter" method="_on_camera_control_stopped_aiming"]
 [connection signal="pressed" from="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control/toggle_bgm" to="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay/sound_control" method="_on_toggle_music_pressed"]
 [connection signal="pressed" from="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause" to="path/board_path_follow/spider/camera_control/Camera3D/ui/hud/pause_overlay" method="_on_pause_pressed"]
 [connection signal="pressed" from="path/board_path_follow/spider/camera_control/Camera3D/ui/you_died_sceen/VBoxContainer/continue" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_continue_pressed"]
@@ -9018,12 +8886,10 @@ shape = SubResource("BoxShape3D_vi1dg")
 [connection signal="pressed" from="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control/toggle_bgm" to="path/board_path_follow/spider/camera_control/Camera3D/ui/post_run/sound_control" method="_on_toggle_music_pressed"]
 [connection signal="boards_changed" from="path/board_path_follow/board_container" to="path/board_path_follow/spider/body" method="_on_board_container_boards_changed"]
 [connection signal="ready" from="path/board_path_follow/board_container" to="path/board_path_follow/detectors/fly_spawner" method="_on_board_container_ready"]
-[connection signal="saw_left" from="path/board_path_follow/board_container" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="path/board_path_follow/board_container" to="path/board_path_follow" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="path/board_path_follow/board_container" to="path/board_path_follow/spider" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="path/board_path_follow/board_container" to="path/board_path_follow/board_container" method="_on_saw_left"]
 [connection signal="saw_left" from="path/board_path_follow/board_container" to="path/board_path_follow/detectors/fly_spawner" method="_on_board_container_saw_left"]
-[connection signal="saw_touched" from="path/board_path_follow/board_container" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_board_container_saw_touched"]
 [connection signal="saw_touched" from="path/board_path_follow/board_container" to="path/board_path_follow/spider" method="_on_board_container_saw_touched"]
 [connection signal="saw_touched" from="path/board_path_follow/board_container" to="path/board_path_follow/board_container" method="_on_saw_touched"]
 [connection signal="area_entered" from="path/board_path_follow/board_container/full_board/Area3D" to="path/board_path_follow/board_container" method="board_area_entered"]
@@ -9077,11 +8943,9 @@ shape = SubResource("BoxShape3D_vi1dg")
 [connection signal="board_touched" from="path/stage_points/splits/y_trunk_cuts/trunk_bottom" to="path/stage_points/splits/y_trunk_cuts/trunk_bottom" method="_on_board_touched"]
 [connection signal="point_reached" from="path_02/board_path_follow" to="path_02/board_path_follow" method="_on_point_reached"]
 [connection signal="ready" from="path_02/board_path_follow/board_container" to="path_02/board_path_follow/detectors/fly_spawner" method="_on_board_container_ready"]
-[connection signal="saw_left" from="path_02/board_path_follow/board_container" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="path_02/board_path_follow/board_container" to="path_02/board_path_follow" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="path_02/board_path_follow/board_container" to="path_02/board_path_follow/board_container" method="_on_saw_left"]
 [connection signal="saw_left" from="path_02/board_path_follow/board_container" to="path_02/board_path_follow/detectors/fly_spawner" method="_on_board_container_saw_left"]
-[connection signal="saw_touched" from="path_02/board_path_follow/board_container" to="path/board_path_follow/spider/camera_control/Camera3D/ui" method="_on_board_container_saw_touched"]
 [connection signal="saw_touched" from="path_02/board_path_follow/board_container" to="path_02/board_path_follow/board_container" method="_on_saw_touched"]
 [connection signal="area_entered" from="path_02/board_path_follow/board_container/full_board/Area3D" to="path_02/board_path_follow/board_container" method="board_area_entered"]
 [connection signal="area_exited" from="path_02/board_path_follow/board_container/full_board/Area3D" to="path_02/board_path_follow/board_container" method="board_area_exited"]

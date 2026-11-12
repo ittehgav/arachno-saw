@@ -3,7 +3,7 @@ extends Node3D
 @export var surface_check:RayCast3D;
 @export var surface_finder:RayCast3D;
 @export var spider:Crawler
-
+@export var ticker:Timer;
 
 func _on_stick_ticker_timeout() -> void:
 	if not surface_check.is_colliding():
@@ -21,3 +21,10 @@ func _on_stick_ticker_timeout() -> void:
 		
 		var r:Vector3 = t.basis.get_euler() + Vector3(-PI/2.0, 0, 0);
 		spider.rotation = r;
+
+
+func _on_spider_movement_disabled() -> void:
+	ticker.stop()
+
+func _on_spider_movement_enabled() -> void:
+	ticker.start()

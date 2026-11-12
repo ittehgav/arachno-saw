@@ -17,7 +17,6 @@ const z_meters_per_second = 40;
 
 ## gets incremented by run
 var accel:float = 1.0;
-@export var camera_anchor:Node3D;
 @export var path:BodySplitPath
 	
 func _enter_tree() -> void:
@@ -41,7 +40,10 @@ func _physics_process(delta: float) -> void:
 		else:
 			progress += delta * base_speed * z_meters_per_second * accel;
 
-
+func _input(e: InputEvent) -> void:
+	if e.is_action_pressed("autowin"):
+		moving = false
+		progress_ratio = 1;
 
 func _on_turn_scan_area_entered(area: Area3D) -> void:
 	## turn = switch from x to z movement
@@ -53,15 +55,9 @@ func board_fall()->void:
 	var t:= create_tween();
 	t.tween_property(self, "v_offset", path.saw_offset.y, .5);
 	t.parallel().tween_property(warning, "position:y", warning.position.y - path.saw_offset.y, .5)
-	t.tween_callback(board_fall_camera_feedback);
 
-func board_fall_camera_feedback()->void:
-	const recoil = 100
-	var origin:=camera_anchor.position
-	camera_anchor.global_position.y -= recoil
 	
-	var t := create_tween();
-	t.tween_property(camera_anchor, "position", origin, .15)
+
 
 
 func _on_board_container_saw_left(saw: Saw) -> void:

@@ -237,6 +237,9 @@ visible = false
 [node name="stick_ticker" parent="main_menu/main_menu_bg/spider/surface_stick" parent_id_path=PackedInt32Array(177370040, 1305565370) index="0" unique_id=1463672595]
 process_mode = 4
 
+[node name="web_shooter" parent="main_menu/main_menu_bg/spider" index="10" unique_id=248283182]
+process_mode = 4
+
 [node name="Camera3D" type="Camera3D" parent="main_menu/main_menu_bg/spider" unique_id=1987818891]
 transform = Transform3D(0.97744495, -0.21119058, 0, 0.21119058, 0.97744495, 0, 0, 0, 1, 8.182238, 18.962624, 111.20998)
 fov = 37.849285

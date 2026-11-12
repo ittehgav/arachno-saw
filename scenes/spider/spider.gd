@@ -5,6 +5,9 @@ signal fly_consumed(fly:Fly)
 signal died(source:DeathType)
 signal shield_lost;
 
+signal movement_enabled;
+signal movement_disabled;
+
 signal run_won;
 
 enum DeathType{
@@ -59,10 +62,50 @@ var surface_normal := Vector3.UP;
 @export var home_point := Vector3.ZERO   # in the parent's local space
 @export var recovery_speed := 4.0        # keep recovery_speed * delta well under SEARCH_RANGE
 
+var _movement_enabled := true
+var _pending_resume := false
+var _resume_instant := true
+
+
+## Stops all self-movement so something else (a tween, a platform, a script)
+## can move the body. Takes effect immediately.
+func disable_movement() -> void:
+	_movement_enabled = false
+	movement_disabled.emit()
+	velocity = Vector3.ZERO
+	moving = false
+
+
+## Re-enables movement on the next physics frame. It finds the surface the body
+## is now on and rotates to match it (instantly, or eased if instant_align is false).
+func enable_movement(instant_align := true) -> void:
+	_pending_resume = true
+	_resume_instant = instant_align
+
+
+func _resume_movement() -> void:
+	var origin := global_position
+
+	# Straight below the body first, then the nearest surface in any direction.
+	var hit := _raycast(origin, origin - _up() * PROBE_LENGTH)
+	if hit.is_empty():
+		hit = _find_nearest_surface_anywhere()
+
+	if hit.is_empty() or not _set_surface_normal(hit.normal):
+		push_warning("Can't re-enable movement: no surface near %s" % origin)
+		return   # stays disabled
+
+	velocity = Vector3.ZERO
+	if _resume_instant:
+		global_basis = (Basis(_rotation_to_surface()) * global_basis.orthonormalized()).orthonormalized()
+	last_valid_transform = global_transform
+	_movement_enabled = true
+	movement_enabled.emit()
+
 func _ready()->void:
 	last_valid_transform = global_transform
 	GLB.spider = self;
-	
+
 
 func _physics_process(delta: float) -> void:
 	# Left/right turn the body around its own up axis (works on any surface).
@@ -76,6 +119,13 @@ func _physics_process(delta: float) -> void:
 	if _has_pending_teleport:
 		_has_pending_teleport = false
 		_apply_teleport(_pending_teleport)
+		return
+	
+	if _pending_resume:
+		_pending_resume = false
+		_resume_movement()
+	if not _movement_enabled:
+
 		return
 
 	var turn := Input.get_axis("move_right", "move_left")
