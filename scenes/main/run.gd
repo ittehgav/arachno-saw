@@ -22,6 +22,12 @@ class_name RunControl;
 signal run_started;
 signal finished(won:bool)
 
+var current_stage:int:
+	set(val):
+		current_stage = val;
+		GLB.board_container.board_dropped.connect(_on_board_dropped)
+		
+
 ## score system
 @export var progress_timers:Array[Timer]
 signal score_changed;
@@ -159,6 +165,7 @@ func _on_score_time_ticker_timeout() -> void:
 
 func _on_accelerate_timeout() -> void:
 	var pf:BoardPathFollow = GLB.board_path_follow;
+	if not pf:return
 	if pf.moving:
 		## might skip some beats but still outputs
 		## the same acceleration curve for any given seed

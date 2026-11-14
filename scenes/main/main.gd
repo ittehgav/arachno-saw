@@ -1,4 +1,5 @@
 extends Node3D
+class_name MainNode
 ## design doc or something?
 ## COLLISION LAYERS/MASKS:
 ## 1: spider - killboxes - flies

@@ -2,11 +2,35 @@
 class_name BodySplitPath
 extends Path3D
 
-const EPS := 0.0001
 
 const MARKER_META := &"split_center_marker"
-const DIVIDER_GROUP := &"room_divider"
-const DIVIDER_GAP := 0.5
+## Add nodes that your stage_started functions spawn to this group so path copies leave them out.
+const SPAWNED_GROUP := &"stage_spawned"
+
+signal stage_started
+
+var _room_lo := Vector3.ZERO
+var _room_hi := Vector3.ZERO
+var _room_fitted := false
+
+func _ready() -> void:
+	if process_mode == PROCESS_MODE_INHERIT:
+		print("isinh?")
+		GLB.current_path = self
+		if not Engine.is_editor_hint():
+			stage_started.emit.call_deferred()  # deferred so the generator has connected by then
+
+
+## Makes this the active path and tells the generator.
+func start_stage() -> void:
+	print("stage?")
+	process_mode = Node.PROCESS_MODE_INHERIT
+	GLB.current_path = self
+	stage_started.emit()
+
+const EPS := 0.0001
+
+
 
 @export var x_saw: PackedScene  # X cuts
 @export var y_saw: PackedScene  # Y cuts
@@ -332,10 +356,10 @@ func create_split_markers() -> void:
 	_fit_saws = saws
 	fit_room()
 
-## Sizes and places the room planes around this path and any others that share the room.
-func fit_room(others: Array[BodySplitPath] = [], opening_width := 0.0, opening_height := 0.0) -> void:
+## Sizes and places the room planes around this path.
+func fit_room(others: Array[BodySplitPath] = [], grow_only := false) -> void:
 	var to_local_xform := global_transform.affine_inverse()
-	var fit: Array[AABB] = []  # everything the room must contain, in this node's local space
+	var fit: Array[AABB] = []
 	_collect_fit_boxes(fit, to_local_xform)
 	for other in others:
 		if other != null and other != self:
@@ -345,12 +369,11 @@ func fit_room(others: Array[BodySplitPath] = [], opening_width := 0.0, opening_h
 	var room := fit[0]
 	for k in range(1, fit.size()):
 		room = room.merge(fit[k])
-		
+
 	var content := room  # everything that has to fit, before the margin
 	room = room.grow(room_margin)
 
 	# Fixed height: the floor sits at world Y = 0 and the ceiling room_height above it.
-	# X and Z are still fitted around the system.
 	var floor_y := (to_local_xform * Vector3.ZERO).y
 	var lo := room.position
 	var hi := room.end
@@ -358,10 +381,17 @@ func fit_room(others: Array[BodySplitPath] = [], opening_width := 0.0, opening_h
 	hi.y = floor_y + room_height
 	if content.position.y < lo.y or content.end.y > hi.y:
 		push_warning("BodySplitPath: part of the system sticks out of the room vertically. Raise room_height or move the path up.")
+	
 	var c := (lo + hi) * 0.5
 	var s := hi - lo
-
-		# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
+	if grow_only and _room_fitted:
+		lo = Vector3(minf(lo.x, _room_lo.x), lo.y, minf(lo.z, _room_lo.z))
+		hi = Vector3(maxf(hi.x, _room_hi.x), hi.y, maxf(hi.z, _room_hi.z))
+	_room_lo = lo
+	_room_hi = hi
+	_room_fitted = true
+	
+	# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
 	_place_plane(wall_front, Basis(Vector3.BACK, Vector3.LEFT, Vector3.DOWN),
 			Vector3(hi.x, c.y, c.z), Vector2(s.z, s.y), true)
 	_place_plane(wall_back, Basis(Vector3.FORWARD, Vector3.RIGHT, Vector3.DOWN),
@@ -370,82 +400,12 @@ func fit_room(others: Array[BodySplitPath] = [], opening_width := 0.0, opening_h
 			Vector3(c.x, c.y, hi.z), Vector2(s.x, s.y), true)
 	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
 			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
-	
+
 	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y + 300, c.z), Vector2(s.x, s.z))
 	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
 	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
 	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
-	var all_paths: Array[BodySplitPath] = [self]
-	all_paths.append_array(others)
-	_build_dividers(all_paths, lo, hi, opening_width, opening_height)
 
-## A wall between each pair of neighbouring paths, with an opening where one ends and the next starts.
-## Skipped on paths that have no wall planes, so extra paths never touch the shared dividers.
-func _build_dividers(paths: Array[BodySplitPath], lo: Vector3, hi: Vector3, opening_width: float, opening_height: float) -> void:
-	if wall_left == null or wall_right == null:
-		return
-	_clear_dividers()
-	if paths.size() < 2:
-		return
-
-	var to_local_xform := global_transform.affine_inverse()
-	var scene_root := get_tree().edited_scene_root if Engine.is_editor_hint() else null
-	var half := maxf(opening_width, 0.0) * 0.5
-	var height := hi.y - lo.y
-	var door := height if (opening_height <= 0.0 or opening_height >= height) else opening_height
-
-	for i in paths.size() - 1:
-		var a := paths[i]
-		var b := paths[i + 1]
-		if a.curve == null or b.curve == null:
-			continue
-		var end_a := to_local_xform * a.to_global(a.curve.get_point_position(a.curve.point_count - 1))
-		var start_b := to_local_xform * b.to_global(b.curve.get_point_position(0))
-		var z := (end_a.z + start_b.z) * 0.5
-		var x_open := (end_a.x + start_b.x) * 0.5
-		var x0 := clampf(x_open - half, lo.x, hi.x)
-		var x1 := clampf(x_open + half, lo.x, hi.x)
-
-		# Wall pieces as rectangles in (x, y): left of the opening, right of it, and above it.
-		var pieces: Array[Rect2] = [
-			Rect2(lo.x, lo.y, x0 - lo.x, height),
-			Rect2(x1, lo.y, hi.x - x1, height),
-		]
-		if door < height:
-			pieces.append(Rect2(x0, lo.y + door, x1 - x0, height - door))
-
-		var k := 0
-		for r in pieces:
-			if r.size.x <= EPS or r.size.y <= EPS:
-				continue
-			k += 1
-			var center := Vector3(r.position.x + r.size.x * 0.5, r.position.y + r.size.y * 0.5, z)
-			# One plane facing +Z and one facing -Z, so the wall shows on both sides.
-			_add_divider_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
-					center + Vector3(0.0, 0.0, DIVIDER_GAP), r.size, "Divider_%02d_%d_A" % [i + 1, k], scene_root)
-			_add_divider_plane(wall_right, Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN),
-					center - Vector3(0.0, 0.0, DIVIDER_GAP), r.size, "Divider_%02d_%d_B" % [i + 1, k], scene_root)
-
-
-func _add_divider_plane(template: MeshInstance3D, plane_basis: Basis, local_pos: Vector3, size: Vector2, plane_name: String, scene_root: Node) -> void:
-	var plane := template.duplicate() as MeshInstance3D
-	plane.name = plane_name
-	template.get_parent().add_child(plane)
-	plane.add_to_group(DIVIDER_GROUP, true)
-	if scene_root and template.owner == scene_root:
-		plane.owner = scene_root
-	_place_plane(plane, plane_basis, local_pos, size, true)
-
-
-func _clear_dividers() -> void:
-	if not is_inside_tree():
-		return
-	for n in get_tree().get_nodes_in_group(DIVIDER_GROUP):
-		if is_instance_valid(n) and not n.is_queued_for_deletion():
-			var p := n.get_parent()
-			if p != null:
-				p.remove_child(n)
-			n.queue_free()
 
 ## Adds everything this path puts in the room (the board's sweep along the path, the saws) to `fit`,
 ## as boxes in the space that to_local_xform maps world space into.

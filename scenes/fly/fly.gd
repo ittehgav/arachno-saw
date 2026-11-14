@@ -45,8 +45,10 @@ func roll_type(current_types:Array[Type])->void:
 	while type == Type.teleport and Type.teleport in current_types:
 		type = Type.values().pick_random();
 
+var original:bool=true;
 func _ready()->void:
 	_setup();
+	original = false;
 	animation.play("enter")
 
 func _setup()->void:
@@ -79,7 +81,9 @@ func apply_effect(spider:Crawler)->void:
 			if not tp_done:
 				tp_done = true;
 				tp_target.tp_done = true
-				spider.teleport_to(tp_target.global_transform)
+				var t:Transform3D = tp_target.global_transform;
+				t.origin = t.origin.move_toward(GLB.board_container.global_position, -5)
+				spider.teleport_to(t)
 				tp_target.queue_free();
 		#Type.coin: increases score just like every other fly type, controlled via RunControl
 

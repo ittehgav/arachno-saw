@@ -1,9 +1,8 @@
 extends MeshInstance3D
 
-@export var spider:Crawler
 
 func _physics_process(_delta: float) -> void:
-	position.x = spider.position.x
+	position.x = GLB.spider.position.x
 
 
 func _on_warning_region_body_entered(body: Node3D) -> void:

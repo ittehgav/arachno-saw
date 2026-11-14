@@ -22,6 +22,8 @@ signal board_dropped(board:StaticBody3D);
 @export var bottom_trunk:StaticBody3D;
 @export var left_trunk:StaticBody3D;
 @export var right_trunk:StaticBody3D;
+@onready var quarter_trunks:Array[StaticBody3D] = \
+		[top_trunk, bottom_trunk, left_trunk, right_trunk]
 
 @export var full_board:StaticBody3D
 
@@ -312,3 +314,9 @@ func _is_face_free(space: PhysicsDirectSpaceState3D, f: FaceData, offset: float)
 		if not space.intersect_point(query, 1).is_empty():
 			return false
 	return true
+
+
+func _on_path_stage_started() -> void:
+	print("opss?")
+	for t:StaticBody3D in quarter_trunks:
+		t.set_collision_layer_value(8, false)

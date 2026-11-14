@@ -7,9 +7,15 @@ var current_flies:Array[Fly];
 
 const surface_mask = 3
 
-func _on_board_container_ready()->void:
+func _ready()->void:
+	await Run.run_started;
 	if splitter.process_mode == ProcessMode.PROCESS_MODE_INHERIT:
 		refresh_flies();
+	else:
+		for c:Node in get_children().filter(func(n:Node)->bool:return n is Fly):
+			## this gets the generated flies from ready from original
+			c.queue_free()
+
 
 func _on_board_container_saw_left(_saw: Saw) -> void:
 	await get_tree().create_timer(.1).timeout
@@ -225,3 +231,7 @@ func _random_wall_point(region: AABB) -> Vector3:
 		4: p.z = region.end.z
 
 	return p
+
+
+func _on_path_stage_started() -> void:
+	refresh_flies();

@@ -454,6 +454,8 @@ grow_vertical = 2
 texture = ExtResource("11_blune")
 
 [node name="loader" type="Node" parent="." unique_id=1659978574]
+process_priority = -5
+process_physics_priority = -5
 script = ExtResource("9_b1x3f")
 scene_paths = Array[String](["uid://blcd732gwqct6"])
 

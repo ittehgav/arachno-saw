@@ -149,6 +149,6 @@ func _on_play_again_pressed() -> void:
 	await fade_in(black_fade).finished;
 	var new_run:Sawmill = SceneIndex.sawmill_scene.instantiate();
 	new_run.ready.connect(func()->void:get_tree().paused=false;new_run.gen.generate_level(), CONNECT_ONE_SHOT)
-	
+	new_run.ready.connect(Run.start_run)
 	GLB.sawmill.queue_free();
 	get_tree().current_scene.add_child(new_run);

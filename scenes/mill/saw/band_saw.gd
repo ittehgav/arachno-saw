@@ -15,5 +15,6 @@ func _on_area_entered(area: Area3D) -> void:
 		play_sfx_loop();
 
 func start_motion()->void:
+	motion_animation.speed_scale *= GLB.board_path_follow.accel;
 	motion_animation.play("saw_motion");
 	band_animation.play("band_spin")

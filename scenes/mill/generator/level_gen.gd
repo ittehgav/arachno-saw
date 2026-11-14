@@ -2,14 +2,17 @@
 class_name NoiseSplitSequence
 extends Node
 
-## Group the generated extra-path copies are put in (persistent, so they survive saving the scene).
-const EXTRA_GROUP := &"extra_path_copy"
-## Meta on each top-level copy: the level number it belongs to (the first path is level 1).
-const LEVEL_META := &"level_number"
+
 ## Smallest a falling piece may be, in meters. It only keeps a cut from sitting exactly on a face.
-const MIN_FALLING_PIECE := 0.1
-## The scene tree, fetched once when this node enters it (get_tree() is only called here).
+const MIN_FALLING_PIECE := 0.001
+
+const EXTRA_GROUP := &"extra_path_copy"
+const LEVEL_META := &"level_number"
+const LAYER8_META := &"layer8_copy"
+
 var _tree: SceneTree
+## Runtime only. Slot i is level i + 1; a freed path leaves null.
+var paths: Array[BodySplitPath] = []
 
 @export var splitter: BodySplitPath
 @export var noise: Noise
@@ -31,44 +34,42 @@ var _tree: SceneTree
 
 ## Never place two cuts in a row on the same axis (needs at least two axes enabled).
 @export var no_repeat_axis := false
-## Bodies that get collision layer 8 turned on in their copies. The originals are left alone.
-@export var layer_8_on_copy: Array[StaticBody3D] = []
-## Minimum distance (meters) between a cut and the board's faces, or another cut on the same axis.
+
+## Minimum size (meters) of a piece that stays attached after a cut. The piece that falls can be any size.
 @export var min_piece_size := 0.05
+
 ## The most a single saw may cut off, as a fraction of the board still attached along that cut's axis.
 ## 1 = no limit. Y cuts drop the top, X and Z cuts drop the smaller side, so below 0.5 the
 ## X and Z cuts have to sit close to one end of the board.
 @export_range(0.01, 1.0, 0.01) var max_cut_fraction := 1.0
 
-@export_group("Extra Paths")
-## Additional paths built by generate_level(), after the first one. Each is a copy of `splitter`
-## (its children, markers, roller root and board splitter) with its own seed-derived cuts,
-## spacing and safe spots. All paths share the first path's room. 0 = only the first path.
-@export var extra_path_count := 0
-## How far along the world Z axis each extra path starts from the final point of the path before it.
-## The first extra path is placed from the first path's final point, the next from that one's, and so on.
-## Negative values go the other way.
+@export_group("Levels")
+## Stop building new levels after this many (the first path counts). 0 = endless.
+@export var max_levels := 0
+## How far along world Z each new path starts from the final point of the path it was copied from.
 @export var extra_path_z_offset := 3000.0
-## Nodes the extra paths should NOT get a copy of (typically children of the path). A node listed
-## here is left out together with everything under it, and the copies keep pointing at the original.
+## Nodes the copies should NOT get a copy of (with everything under them). Copies keep pointing at the originals.
 @export var skip_duplicating: Array[Node] = []
-## Width of the opening in the wall between two neighbouring paths, centered where the first path
-## ends and the next one begins. 0 = a solid wall.
-@export var divider_opening_width := 600.0
-## Height of that opening, measured from the floor. 0 = the opening goes all the way up.
-@export var divider_opening_height := 0.0
-## Also copy the board splitter's source_body for every extra path, moved along with the path.
-## If off, the extra paths' splitters keep using the original source body.
+## Bodies that get collision layer 8 turned on in their copies.
+@export var layer_8_on_copy: Array[StaticBody3D] = []
+## Also copy the board splitter's source_body, moved along with the path.
 @export var copy_source_body := true
 
-@export_group("")
+@export_group("buttons")
 @export_tool_button("Generate Cuts") var cuts_action := generate_into_splitter
 @export_tool_button("Generate Cuts + Splits + Markers") var all_action := generate_everything
 @export_tool_button("Generate Level (random seed, with extra paths)") var level_action := generate_level
 
 
+
 func _enter_tree() -> void:
 	_tree = get_tree()
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint() or splitter == null:
+		return
+	paths = [splitter]
 
 
 func _exit_tree() -> void:
@@ -214,25 +215,28 @@ func _generate_cuts_for(target: BodySplitPath) -> Array[SplitCut]:
 	if result.size() < cut_count:
 		push_warning("NoiseSplitSequence: only %d of %d cuts fit; lower min_piece_size or cut_count." % [result.size(), cut_count])
 	return result
-	## True if a board this long on an axis can take a cut: the piece that stays keeps min_piece_size.
+
+
+## True if a board this long on an axis can take a cut: the piece that stays keeps min_piece_size.
 func _has_room(axis_size: float) -> bool:
 	return axis_size > min_piece_size + MIN_FALLING_PIECE
 
-
-## Noise (-1..1) -> 0..1, with contrast, never reaching exactly 1.
-func _unit(v: float) -> float:
-	return clampf(v * noise_contrast * 0.5 + 0.5, 0.0, 0.9999)
 
 ## True if a Y or Z cut could still be placed in `remaining` (the same room test the cut placement uses).
 ## skip_axis is left out of the check (-1 = none).
 func _can_cut_non_x(remaining: AABB, skip_axis: int) -> bool:
 	if allow_y_cuts and skip_axis != SplitCut.Axis.Y \
-			and remaining.size[SplitCut.Axis.Y] - 2.0 * min_piece_size > 0.0:
+			and _has_room(remaining.size[SplitCut.Axis.Y]):
 		return true
 	if allow_z_cuts and skip_axis != SplitCut.Axis.Z \
-			and remaining.size[SplitCut.Axis.Z] - 2.0 * min_piece_size > 0.0:
+			and _has_room(remaining.size[SplitCut.Axis.Z]):
 		return true
 	return false
+
+
+## Noise (-1..1) -> 0..1, with contrast, never reaching exactly 1.
+func _unit(v: float) -> float:
+	return clampf(v * noise_contrast * 0.5 + 0.5, 0.0, 0.9999)
 
 signal level_generated(level_seed: int)
 
@@ -240,7 +244,7 @@ signal level_generated(level_seed: int)
 var current_seed := 0
 
 
-## Builds a whole level (cuts, split boards, markers, saws, room, plus any extra paths) from a seed.
+## Builds a whole level (cuts, split boards, markers, saws, room) from a seed.
 ## With no argument it picks a new random seed. Returns the seed used, or 0 on failure.
 func generate_level(level_seed: int = 0) -> int:
 	if splitter == null or noise == null:
@@ -251,26 +255,17 @@ func generate_level(level_seed: int = 0) -> int:
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
 		level_seed = maxi(rng.randi(), 1)  # 0 means "pick one for me", so never use it as a seed
-
-	# Copies from an earlier level go first (also when extra_path_count is now 0).
-	_clear_extra_paths()
-
-	# The seed drives both the cuts and the spacing between the path points.
+	
 	_apply_seed(level_seed)
 	splitter.positioning_seed = level_seed
+
+	_clear_extra_paths()
+	paths = [splitter]
 
 	if not generate_into_splitter():
 		return 0
 	splitter.generate_splits()
 	splitter.create_split_markers()
-
-	var extras := _build_extra_paths(level_seed)
-	_apply_seed(level_seed)  # leave the noise on the level's own seed
-
-	# One room for every path: refit the first path's walls, floor and ceiling around all of them,
-	# with a divider wall (and an opening) between each pair of neighbouring paths.
-	if not extras.is_empty():
-		splitter.fit_room(extras, divider_opening_width, divider_opening_height)
 
 	current_seed = level_seed
 	level_generated.emit(level_seed)
@@ -291,83 +286,138 @@ func _extra_seed(level_seed: int, n: int) -> int:
 	return maxi(absi(("%d_path_%d" % [level_seed, n]).hash()), 1)
 
 
-# --- Extra paths ---------------------------------------------------------------
+# --- Levels --------------------------------------------------------------------
 
-func _build_extra_paths(level_seed: int) -> Array[BodySplitPath]:
-	var built: Array[BodySplitPath] = []
-	var previous := splitter
-	for n in range(2, extra_path_count + 2):
-		var path_seed := _extra_seed(level_seed, n)
-		var path := _clone_path(splitter, n, previous)
-		if path == null:
-			return built
-
-		_apply_seed(path_seed)
-		path.positioning_seed = path_seed
-		if not _generate_into(path):
-			push_warning("NoiseSplitSequence: couldn't generate cuts for path %d; stopping." % n)
-			return built
-		path.generate_splits()
-		path.create_split_markers()
-		built.append(path)
-		previous = path
-	return built
+func _watch(path: BodySplitPath) -> void:
+	path.stage_started.connect(_on_stage_started.bind(path))
 
 
-## Copies `source` and everything it needs so it can be regenerated on its own, and places the
-## copy so its start point is extra_path_offset away from the final point of `previous`.
-## Copied: the path with all its children; and, when they sit outside the path, its markers node,
-## roller root and board splitter (plus its output root and, optionally, source body).
-## The room planes are not copied: every path shares the first path's room.
-## Generated nodes are left out of the copies; everything else is kept.
-func _clone_path(source: BodySplitPath, n: int, previous: BodySplitPath) -> BodySplitPath:
+## A path started: free the one before it, then build the next one as a copy of this one.
+func _on_stage_started(path: BodySplitPath=splitter) -> void:
+	var idx := paths.find(path)
+	if idx < 0:
+		return
+	if idx > 0 and paths[idx - 1] != null:
+		_free_path(idx - 1)
+	if max_levels > 0 and paths.size() >= max_levels:
+		return
+	if idx + 1 >= paths.size():
+		_build_next_path(path)
+
+
+## Turns on level `level` (2 and up) and starts it. Call this when the player reaches the end of the path before it.
+func start_level(level: int) -> void:
+	if level < 2 or level > paths.size() or paths[level - 1] == null:
+		return
+	set_level_enabled(level, true)
+	paths[level - 1].start_stage()
+
+
+func _build_next_path(from: BodySplitPath) -> BodySplitPath:
+	var n := paths.size() + 1  # level number, also the copy's name suffix
+	var path := _clone_path(from, n)
+	if path == null:
+		return null
+
+	var base_seed := splitter.positioning_seed
+	var path_seed := _extra_seed(base_seed, n)
+	_apply_seed(path_seed)
+	path.positioning_seed = path_seed
+	var ok := _generate_into(path)
+	if base_seed != 0:
+		_apply_seed(base_seed)  # leave the noise on the level's own seed
+	if not ok:
+		push_warning("NoiseSplitSequence: couldn't generate cuts for path %d." % n)
+		_free_level_nodes(n)
+		return null
+	path.generate_splits()
+	path.create_split_markers()
+	paths.append(path)
+	_watch(path)
+
+	# Grow the first path's room around every path that still exists.
+	var live: Array[BodySplitPath] = []
+	for p in paths:
+		if p != null and is_instance_valid(p) and p != splitter:
+			live.append(p)
+	splitter.fit_room(live, true)
+	return path
+
+
+## Frees the path in slot `index` with all its copied nodes. The first path's nodes belong to the
+## scene, so only what was generated for them is cleared.
+func _free_path(index: int) -> void:
+	var path := paths[index]
+	if path != null and is_instance_valid(path):
+		if path == splitter:
+			if splitter.markers != null:
+				splitter._clear_markers()
+			splitter._clear_rollers()
+			if splitter.board_splitter != null and splitter.output_root != null:
+				splitter.board_splitter._clear_generated()
+		else:
+			_free_level_nodes(index + 1)
+	paths[index] = null
+
+
+## Turns a level on or off by its number. Level 1 is the first path and is left alone.
+func set_level_enabled(level: int, enabled: bool) -> void:
+	if level < 2 or _tree == null:
+		return
+	for n in _tree.get_nodes_in_group(EXTRA_GROUP):
+		if is_instance_valid(n) and n.get_meta(LEVEL_META, 0) == level:
+			n.process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
+
+
+## Copies `source` (the path that just started) and what it needs to be regenerated on its own, and
+## places the copy extra_path_z_offset along world Z from source's final point. The copy starts disabled.
+func _clone_path(source: BodySplitPath, n: int) -> BodySplitPath:
 	if _tree == null or source.get_parent() == null:
 		push_warning("NoiseSplitSequence: this node and the splitter must be in the scene tree to copy paths.")
 		return null
-	var scene_root := _tree.edited_scene_root if Engine.is_editor_hint() else null
-	var copies := {}  # original node -> its copy, for every node duplicated here
+	var copies := {}  # original node -> its copy
+	var path := _clone_subtree(source, n, copies) as BodySplitPath
 
-	var path := _clone_subtree(source, n, copies, scene_root) as BodySplitPath
-
-	# Place the copy: its first curve point lands on (previous final point + offset). Height is
-	# left alone, because create_split_markers() pins every line to line_start_height anyway.
-	var target := _final_point_global(previous) + Vector3(0.0, 0.0, extra_path_z_offset)
+	var target := _final_point_global(source) + Vector3(0.0, 0.0, extra_path_z_offset)
 	var start_local := _start_point_local(path)
 	var pos := target - path.global_transform.basis * start_local
-	pos.y = source.global_position.y
+	var base := source.global_position
+	pos.y = base.y
 	path.global_position = pos
-	var delta := Vector3(pos.x - source.global_position.x, 0.0, pos.z - source.global_position.z)
+	var delta := Vector3(pos.x - base.x, 0.0, pos.z - base.z)
 
-	# Things that live outside the path's subtree get their own copies, moved by the same amount
-	# so any non-generated children keep their place relative to the path.
 	for prop: StringName in [&"board_splitter", &"split_gen", &"markers", &"roller_root"]:
-		_copy_outside(source.get(prop) as Node, source, n, copies, scene_root, delta)
-
+		_copy_outside(source.get(prop) as Node, source, n, copies, delta)
 	for s: BoardSplitter in [source.board_splitter, source.split_gen]:
 		if s == null:
 			continue
-		_copy_outside(s.output_root, source, n, copies, scene_root, delta)
+		_copy_outside(s.output_root, source, n, copies, delta)
 		if copy_source_body:
-			_copy_outside(s.source_body, source, n, copies, scene_root, delta)
+			_copy_outside(s.source_body, source, n, copies, delta)
 
-	# Point every reference between copied nodes at the copies, so nothing in a copy still
-	# touches (and clears) the first path's nodes.
 	for c: Node in copies.values():
 		if is_instance_valid(c):
 			_remap_references(c, copies)
 			if c is BoardSplitter:
-				c.split_map = {}  # never share the original's split map
-	# Collision layer 8 on the copies of the listed bodies (before anything is generated from them).
+				c.split_map = {}
+	_remap_connections(copies)
+
 	for body in layer_8_on_copy:
 		if body != null and copies.has(body):
 			var body_copy := copies[body] as StaticBody3D
 			if is_instance_valid(body_copy):
 				body_copy.set_collision_layer_value(8, true)
 				body_copy.process_mode = Node.PROCESS_MODE_ALWAYS
-				body_copy.add_to_group(StringName("level_%d" % n), true)
-	# The copy uses the first path's room. If the planes are children of the path they were
-	# duplicated along with it, so remove those; then clear the references so the copy never
-	# moves the shared planes when it generates.
+				body_copy.set_meta(LAYER8_META, true)
+	# A copy of a copy carries the meta and the old level group over: move it to this level's group.
+	for c: Node in copies.values():
+		if is_instance_valid(c) and c.has_meta(LAYER8_META):
+			for g in c.get_groups():
+				if String(g).begins_with("level_"):
+					c.remove_from_group(g)
+			c.add_to_group(StringName("level_%d" % n))
+
+	# The copy uses the first path's room, so it gets no planes of its own.
 	for prop: StringName in [&"floor_plane", &"ceiling", &"wall_front", &"wall_back", &"wall_left", &"wall_right"]:
 		var original_plane := source.get(prop) as Node
 		if original_plane != null and copies.has(original_plane):
@@ -383,17 +433,7 @@ func _is_skipped(node: Node) -> bool:
 	return false
 
 
-## Turns a level on or off by its number: level 1 is the first path, 2 and up are the extra paths.
-## Only extra levels are managed here (they start disabled); the first path is left alone.
-func set_level_enabled(level: int, enabled: bool) -> void:
-	if level < 2 or _tree == null:
-		return
-	for n in _tree.get_nodes_in_group(EXTRA_GROUP):
-		if is_instance_valid(n) and n.get_meta(LEVEL_META, 0) == level:
-			n.process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
-
-
-func _copy_outside(orig: Node, source: BodySplitPath, n: int, copies: Dictionary, scene_root: Node, delta: Vector3) -> void:
+func _copy_outside(orig: Node, source: BodySplitPath, n: int, copies: Dictionary, delta: Vector3) -> void:
 	if orig == null or not is_instance_valid(orig) or copies.has(orig) or orig.get_parent() == null:
 		return
 	if _is_skipped(orig):
@@ -401,28 +441,31 @@ func _copy_outside(orig: Node, source: BodySplitPath, n: int, copies: Dictionary
 	if orig.is_ancestor_of(source):
 		push_warning("NoiseSplitSequence: '%s' contains the path, so it can't be copied separately; the copy shares it." % orig.name)
 		return
-	var copy := _clone_subtree(orig, n, copies, scene_root)
+	var copy := _clone_subtree(orig, n, copies)
 	if copy is Node3D:
 		(copy as Node3D).global_position += delta
 
 
-## Duplicates a node (with its children) next to the original, records every original -> copy
-## pair in `copies`, and leaves out the nodes in skip_duplicating and the generated nodes.
-## Everything is removed from the copy BEFORE it is added to the tree, so the skipped and
-## generated nodes never enter the tree and their _ready() never runs.
-func _clone_subtree(orig: Node, n: int, copies: Dictionary, scene_root: Node) -> Node:
-	var copy := orig.duplicate()  # not in the tree yet
-	copy.name = "%s_%02d" % [orig.name, n]
+## "Path_02" -> "Path", so a copy of a copy is named Path_03 and not Path_02_03.
+func _base_name(node: Node) -> String:
+	var s := String(node.name)
+	if node.has_meta(LEVEL_META):
+		return s.rsplit("_", true, 1)[0]
+	return s
 
-	# Pair every original node with its copy (relative paths work while the copy is off-tree).
-	var pairs := {}
-	pairs[orig] = copy
+
+## Duplicates a node (with children) next to the original and records every original -> copy pair.
+## Skipped and generated nodes are removed BEFORE the copy enters the tree, so their _ready() never runs.
+func _clone_subtree(orig: Node, n: int, copies: Dictionary) -> Node:
+	var copy := orig.duplicate()  # not in the tree yet
+	copy.name = "%s_%02d" % [_base_name(orig), n]
+
+	var pairs := {orig: copy}
 	for o: Node in orig.find_children("*", "", true, false):
 		var c := copy.get_node_or_null(orig.get_path_to(o))
 		if c != null:
 			pairs[o] = c
 
-	# Leave out the skipped nodes (and everything under them): the copies keep pointing at the originals.
 	for o: Node in pairs.keys():
 		if o != orig and _is_skipped(o):
 			var skipped_copy: Node = pairs[o]
@@ -432,24 +475,17 @@ func _clone_subtree(orig: Node, n: int, copies: Dictionary, scene_root: Node) ->
 
 	_strip_generated(copy)
 
-	copy.add_to_group(EXTRA_GROUP, true)
-	# Levels after the first start disabled. Everything under the copy (saws, split boards,
-	# markers) inherits this. set_level_enabled() turns a level back on.
+	copy.add_to_group(EXTRA_GROUP)
 	copy.set_meta(LEVEL_META, n)
-	copy.process_mode = Node.PROCESS_MODE_DISABLED
-
-	# Only now does the copy enter the tree.
+	copy.process_mode = Node.PROCESS_MODE_DISABLED  # set_level_enabled() / start_level() turn it on
+	if copy is Node3D:
+		(copy as Node3D).visible = true
 	orig.get_parent().add_child(copy)
 
 	for o: Node in pairs:
 		var c: Node = pairs[o]
-		if not is_instance_valid(c) or not (c == copy or copy.is_ancestor_of(c)):
-			continue  # removed above
-		copies[o] = c
-		# Same ownership as the original, so saved scenes keep the copy without flattening
-		# instanced scenes into it.
-		if scene_root and o.owner == scene_root:
-			c.owner = scene_root
+		if is_instance_valid(c) and (c == copy or copy.is_ancestor_of(c)):
+			copies[o] = c
 	return copy
 
 
@@ -458,7 +494,8 @@ func _strip_generated(root: Node) -> void:
 	for n: Node in root.find_children("*", "", true, false):
 		if not is_instance_valid(n) or n.get_parent() == null:
 			continue
-		if n.has_meta(BodySplitPath.MARKER_META) or n.has_meta(BoardSplitter.META_KEY):
+		if n.has_meta(BodySplitPath.MARKER_META) or n.has_meta(BoardSplitter.META_KEY) or \
+			n.is_in_group(BodySplitPath.SPAWNED_GROUP):
 			_free_now(n)
 
 
@@ -467,14 +504,58 @@ func _remap_references(node: Node, copies: Dictionary) -> void:
 	if node.get_script() == null:
 		return
 	for info in node.get_property_list():
-		# Stored script variables only: this skips getter-only properties such as source_body.
 		if info.type != TYPE_OBJECT:
 			continue
 		if not (info.usage & PROPERTY_USAGE_SCRIPT_VARIABLE) or not (info.usage & PROPERTY_USAGE_STORAGE):
 			continue
-		var value:Variant = node.get(info.name)
+		var value: Variant = node.get(info.name)
 		if value is Node and copies.has(value):
 			node.set(info.name, copies[value])
+
+
+## Gives every copied node the signal connections of its original, aimed at the copy of the target
+## when the target was copied too, and at the original target when it wasn't.
+func _remap_connections(copies: Dictionary) -> void:
+	var scene: Node = _tree.edited_scene_root if Engine.is_editor_hint() else _tree.current_scene
+	if scene != null and scene != self and not scene.is_ancestor_of(self):
+		scene = null
+	for o: Node in copies:
+		var c: Node = copies[o]
+		if not is_instance_valid(o) or not is_instance_valid(c):
+			continue
+		for sig in o.get_signal_list():
+			var sig_name: StringName = sig.name
+			for conn in o.get_signal_connection_list(sig_name):
+				var callable: Callable = conn.callable
+				if callable.is_custom():
+					continue  # lambdas and bound callables (including the stage_started watch) are left alone
+				var target := callable.get_object() as Node
+				if target == null:
+					continue
+				if not (copies.has(target) or _is_skipped(target) or _in_level_tree(target, scene)):
+					continue
+				var method := callable.get_method()
+				var new_target: Node = copies.get(target, target)
+				if new_target != target and c.is_connected(sig_name, Callable(target, method)):
+					c.disconnect(sig_name, Callable(target, method))
+				var new_callable := Callable(new_target, method)
+				if is_instance_valid(new_target) and not c.is_connected(sig_name, new_callable):
+					var err := c.connect(sig_name, new_callable, conn.flags)
+					if err != OK:
+						push_warning("NoiseSplitSequence: couldn't connect %s.%s to %s.%s (error %d)." % [
+								c.name, sig_name, new_target.name, method, err])
+
+
+func _in_level_tree(node: Node, scene: Node) -> bool:
+	if not node.is_inside_tree():
+		return false
+	return scene == null or node == scene or scene.is_ancestor_of(node)
+
+
+func _free_level_nodes(level: int) -> void:
+	for n in _tree.get_nodes_in_group(EXTRA_GROUP):
+		if is_instance_valid(n) and not n.is_queued_for_deletion() and n.get_meta(LEVEL_META, 0) == level:
+			_free_now(n)
 
 
 func _clear_extra_paths() -> void:

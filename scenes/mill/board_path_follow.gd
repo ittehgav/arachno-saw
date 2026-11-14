@@ -5,7 +5,7 @@ class_name BoardPathFollow
 @export var board_0:StaticBody3D
 
 
-signal point_reached(i:int, split_center:Node3D);
+signal point_reached(i:int, area:Area3D);
 
 var moving_x:bool=true;
 
@@ -20,6 +20,7 @@ var accel:float = 1.0;
 @export var path:BodySplitPath
 	
 func _enter_tree() -> void:
+	progress_ratio = 0
 	var p:Node = get_parent();
 	while not p is BodySplitPath:
 		p = p.get_parent();
@@ -42,13 +43,12 @@ func _physics_process(delta: float) -> void:
 
 func _input(e: InputEvent) -> void:
 	if e.is_action_pressed("autowin"):
-		moving = false
-		progress_ratio = 1;
+		progress_ratio = .95;
 
 func _on_turn_scan_area_entered(area: Area3D) -> void:
 	## turn = switch from x to z movement
 	var i:int = int(area.name.split("_")[1])
-	point_reached.emit(i, area.get_parent());
+	point_reached.emit(i, area);
 
 
 func board_fall()->void:
@@ -67,7 +67,9 @@ func _on_board_container_saw_left(saw: Saw) -> void:
 	
 
 
-func _on_point_reached(i: int, center:Node3D) -> void:
+func _on_point_reached(i: int, area:Area3D) -> void:
+	if area.name == "final_point":return;
+	var center:Node3D = area.get_parent()
 	var tpi:int = i - 2;
 	if tpi < 0:return;
 	var saw:Saw = center.get_node("Saw")

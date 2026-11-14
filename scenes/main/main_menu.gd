@@ -28,6 +28,7 @@ func _on_new_game_pressed() -> void:
 	await fade_in(fade_out_rect).finished
 	var mill:Sawmill = SceneIndex.sawmill_scene.instantiate();
 	mill.ready.connect(mill.gen.generate_level, CONNECT_ONE_SHOT)
+	mill.ready.connect(Run.start_run)
 	get_parent().add_child(mill);
 	await fade_out(self).finished;
 	queue_free()

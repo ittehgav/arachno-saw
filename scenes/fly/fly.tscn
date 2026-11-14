@@ -565,7 +565,7 @@ shading_mode = 0
 albedo_color = Color(0.22, 0.0418, 0.0418, 1)
 texture_filter = 0
 
-[node name="Fly" type="Area3D" unique_id=339986561 node_paths=PackedStringArray("animation", "contact", "speed_sfx", "fly_body", "buff_icons", "type_sfx")]
+[node name="Fly" type="Area3D" unique_id=339986561 node_paths=PackedStringArray("animation", "contact", "speed_sfx", "fly_body", "buff_icons", "type_sfx") groups=["stage_spawned"]]
 monitoring = false
 script = ExtResource("2_0d60d")
 animation = NodePath("base_animations")

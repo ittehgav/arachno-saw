@@ -23,9 +23,18 @@ class_name WebShooter
 
 var aim_valid:bool;
 
+@onready var tip_origin: = tip_node.position;
+@onready var web_origin: = web.position
+@onready var raycast_origin: = raycast.position
+
 const web_speed = 2000.0
-func shoot_web(target:Vector3)->void:
-	## only shoot when valid
+func shoot_web(target:Vector3, body:StaticBody3D)->void:
+	for c:Node in get_children():
+		c.position = Vector3.ZERO;
+		for c2 in c.get_children():
+			c2.position = Vector3.ZERO
+
+
 	web_shoot_sfx.play()
 	reset_cylinder(web)
 	show()
@@ -34,15 +43,27 @@ func shoot_web(target:Vector3)->void:
 	spider.disable_movement();
 	
 	await t.finished
-	web_hit(target)
+	var p:Node = body.get_parent();
+	while not p is BodySplitPath:
+		assert(not p is MainNode)
+		p = p.get_parent();
 
-func web_hit(target:Vector3)->void:
+	web_hit(target, p)
+
+func web_hit(target:Vector3, path:BodySplitPath)->void:
+	LevelControl.level_transition_started.emit()
+	spider.reparent.bind(path.get_node("board_path_follow")).call_deferred()
+	
 	web_hit_sfx.play()
-	camera_control.reset_camera_move();
+	camera_control.reset_camera();
 	var t:= create_tween();
-	t.tween_property(spider, "global_position", target, 1);
+	spider.process_mode = Node.PROCESS_MODE_ALWAYS
+	t.tween_property(spider, "global_position", target.move_toward(spider.global_position, 3), 1);
 	await t.finished;
+	spider.process_mode = Node.PROCESS_MODE_INHERIT
+	LevelControl.next_level(path)
 	spider.enable_movement()
+	hide()
 	
 
 func reset_cylinder(mesh_instance: MeshInstance3D) -> void:
@@ -58,7 +79,7 @@ func reset_cylinder(mesh_instance: MeshInstance3D) -> void:
 	if cyl == null:
 		return
 
-	cyl.height = 0.0
+	cyl.height = 0.1
 
 	# Collapse the tip back onto the origin and park the node there
 	if mesh_instance.has_meta("stretch_origin"):
@@ -144,7 +165,7 @@ func _input(e:InputEvent)->void:
 		if not aim_valid:
 			web_fail_sfx.play();
 		else:
-			shoot_web(raycast.get_collision_point())
+			shoot_web(raycast.get_collision_point(), raycast.get_collider())
 func _on_camera_control_started_aiming() -> void:
 	crosshair.show()
 
