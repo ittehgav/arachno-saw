@@ -33,7 +33,6 @@ func recursive_check_assign(target:Node)->void:
 		target.moving = true
 	if target is BoardContainer:
 		board_container = target
-		for t:StaticBody3D in target.quarter_trunks:
-			t.set_collision_layer_value(8, false)
+
 	for c in target.get_children():
 		recursive_check_assign(c)

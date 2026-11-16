@@ -70,7 +70,8 @@ func _ready() -> void:
 	if Engine.is_editor_hint() or splitter == null:
 		return
 	paths = [splitter]
-
+	await splitter.ready
+	_watch(splitter)
 
 func _exit_tree() -> void:
 	_tree = null
@@ -289,11 +290,15 @@ func _extra_seed(level_seed: int, n: int) -> int:
 # --- Levels --------------------------------------------------------------------
 
 func _watch(path: BodySplitPath) -> void:
-	path.stage_started.connect(_on_stage_started.bind(path))
-
+	var existing := path.stage_started.get_connections()
+	for conn:Dictionary in existing:
+		path.stage_started.disconnect(conn.callable)
+	path.stage_started.connect(_on_stage_started.bind(path))  # now first in line
+	for conn:Dictionary in existing:
+		path.stage_started.connect(conn.callable, conn.flags)  # same order, same flags
 
 ## A path started: free the one before it, then build the next one as a copy of this one.
-func _on_stage_started(path: BodySplitPath=splitter) -> void:
+func _on_stage_started(path: BodySplitPath) -> void:
 	var idx := paths.find(path)
 	if idx < 0:
 		return
@@ -325,6 +330,7 @@ func _build_next_path(from: BodySplitPath) -> BodySplitPath:
 	path.positioning_seed = path_seed
 	var ok := _generate_into(path)
 	if base_seed != 0:
+		
 		_apply_seed(base_seed)  # leave the noise on the level's own seed
 	if not ok:
 		push_warning("NoiseSplitSequence: couldn't generate cuts for path %d." % n)

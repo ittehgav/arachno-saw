@@ -381,7 +381,5 @@ autoplay = &"band_rotation"
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]
-[connection signal="board_left" from="." to="." method="_on_board_left"]
-[connection signal="board_touched" from="." to="." method="_on_board_touched"]
 
 [editable path="z_saw_foundation"]

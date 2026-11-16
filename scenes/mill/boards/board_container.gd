@@ -317,6 +317,5 @@ func _is_face_free(space: PhysicsDirectSpaceState3D, f: FaceData, offset: float)
 
 
 func _on_path_stage_started() -> void:
-	print("opss?")
 	for t:StaticBody3D in quarter_trunks:
 		t.set_collision_layer_value(8, false)

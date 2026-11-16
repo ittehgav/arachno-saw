@@ -29,20 +29,17 @@ var aim_valid:bool;
 
 const web_speed = 2000.0
 func shoot_web(target:Vector3, body:StaticBody3D)->void:
-	for c:Node in get_children():
-		c.position = Vector3.ZERO;
-		for c2 in c.get_children():
-			c2.position = Vector3.ZERO
-
-
+	print("\nSHOOT WEB")
 	web_shoot_sfx.play()
-	reset_cylinder(web)
+	reset_web()
+	await get_tree().process_frame
 	show()
-	var t := stretch_cylinder_to(web, target)
+	print("SHOW shoot")
+	shoot_web_cylinder(target)
 	camera_control.move_camera_toward(target, web_speed)
 	spider.disable_movement();
 	
-	await t.finished
+	await web_tween.finished
 	var p:Node = body.get_parent();
 	while not p is BodySplitPath:
 		assert(not p is MainNode)
@@ -59,70 +56,40 @@ func web_hit(target:Vector3, path:BodySplitPath)->void:
 	var t:= create_tween();
 	spider.process_mode = Node.PROCESS_MODE_ALWAYS
 	t.tween_property(spider, "global_position", target.move_toward(spider.global_position, 3), 1);
+	
 	await t.finished;
 	spider.process_mode = Node.PROCESS_MODE_INHERIT
 	LevelControl.next_level(path)
 	spider.enable_movement()
-	hide()
+	reset_web()
+
 	
 
-func reset_cylinder(mesh_instance: MeshInstance3D) -> void:
-	hide()
-	# Cancel any stretch in progress
-	if mesh_instance.has_meta("stretch_tween"):
-		var tween: Tween = mesh_instance.get_meta("stretch_tween")
-		if tween and tween.is_valid():
-			tween.kill()
-		mesh_instance.remove_meta("stretch_tween")
 
-	var cyl := mesh_instance.mesh as CylinderMesh
-	if cyl == null:
-		return
 
-	cyl.height = 0.1
 
-	# Collapse the tip back onto the origin and park the node there
-	if mesh_instance.has_meta("stretch_origin"):
-		var origin: Vector3 = mesh_instance.get_meta("stretch_origin")
-		mesh_instance.set_meta("stretch_tip", origin)
-		mesh_instance.global_position = origin
+var web_tween:Tween;
+func shoot_web_cylinder(target:Vector3)->void:
+	if web_tween and web_tween.is_running():
+		web_tween.kill();
+		
+	
+	var cyl:CylinderMesh = web.mesh;
+	look_at(target);
+	var distance:float = global_position.distance_to(target);
+	var duration := distance/web_speed;
+	web_tween = create_tween();
+	web_tween.tween_property(cyl, "height", distance, duration);
+	web_tween.parallel().tween_property(web, "global_position", web.global_position.move_toward(target, distance/2), duration)
+	web_tween.parallel().tween_property(tip_node, "global_position", target, duration)
 
-func stretch_cylinder_to(mesh_instance: MeshInstance3D, target: Vector3, speed: float=web_speed) -> Tween:
-	web.show()
-	var cyl := mesh_instance.mesh as CylinderMesh
-	if cyl == null:
-		return null
-
-	# Cache the fixed origin (base) and the current tip on first call
-	if not mesh_instance.has_meta("stretch_origin"):
-		var y_axis := mesh_instance.global_transform.basis.y
-		var half_h := cyl.height * 0.5 * y_axis.length()
-		mesh_instance.set_meta(
-			"stretch_origin",
-			mesh_instance.global_position - y_axis.normalized() * half_h
-		)
-		mesh_instance.set_meta(
-			"stretch_tip",
-			mesh_instance.global_position + y_axis.normalized() * half_h
-		)
-
-	var origin: Vector3 = mesh_instance.get_meta("stretch_origin")
-	var start_tip: Vector3 = mesh_instance.get_meta("stretch_tip")
-
-	var duration := start_tip.distance_to(target) / speed
-	if duration <= 0.0:
-		return null
-
-	# Cancel any stretch already in progress so a new target takes over from the current tip
-	if mesh_instance.has_meta("stretch_tween"):
-		var old: Tween = mesh_instance.get_meta("stretch_tween")
-		if old and old.is_valid():
-			old.kill()
-
-	var tween := mesh_instance.create_tween()
-	tween.tween_method(_update_stretch.bind(mesh_instance, origin), start_tip, target, duration)
-	mesh_instance.set_meta("stretch_tween", tween)
-	return tween
+func reset_web()->void:
+	hide();
+	var cyl:CylinderMesh = web.mesh;
+	cyl.height = .01;
+	tip_node.position = Vector3.ZERO;
+	web.position = Vector3.ZERO
+	
 
 
 func _update_stretch(tip: Vector3, mesh_instance: MeshInstance3D, origin: Vector3) -> void:
@@ -166,6 +133,7 @@ func _input(e:InputEvent)->void:
 			web_fail_sfx.play();
 		else:
 			shoot_web(raycast.get_collision_point(), raycast.get_collider())
+			
 func _on_camera_control_started_aiming() -> void:
 	crosshair.show()
 

@@ -15,15 +15,13 @@ var _room_fitted := false
 
 func _ready() -> void:
 	if process_mode == PROCESS_MODE_INHERIT:
-		print("isinh?")
 		GLB.current_path = self
 		if not Engine.is_editor_hint():
-			stage_started.emit.call_deferred()  # deferred so the generator has connected by then
+			start_stage.call_deferred()  # deferred so the generator has connected by then
 
 
 ## Makes this the active path and tells the generator.
 func start_stage() -> void:
-	print("stage?")
 	process_mode = Node.PROCESS_MODE_INHERIT
 	GLB.current_path = self
 	stage_started.emit()

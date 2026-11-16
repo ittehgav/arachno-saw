@@ -43,9 +43,9 @@ const SEARCH_RANGE := 5.0   # how far the wide search looks if that misses
 var last_valid_transform: Transform3D
 
 var SPEED: = 70.0;
-const TURN_SPEED := 5     # radians per second
+const TURN_SPEED := PI*2     # radians per second
 const STICK_SPEED := 15.0      # how hard it's pulled into the surface (replaces gravity)
-const ALIGN_SPEED := 5     # how quickly the body rotates to the new surface
+const ALIGN_SPEED := PI*2     # how quickly the body rotates to the new surface
 const PROBE_LENGTH := 5
 	 # must be a bit more than center-to-surface distance
 

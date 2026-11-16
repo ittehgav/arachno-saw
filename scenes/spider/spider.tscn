@@ -2265,7 +2265,7 @@ clearcoat = 0.0
 material = SubResource("StandardMaterial3D_2fvhf")
 top_radius = 0.25
 bottom_radius = 0.25
-height = 34.481
+height = 0.001
 
 [node name="spider" type="CharacterBody3D" unique_id=177370040 node_paths=PackedStringArray("body", "death_sfx", "blink_animation", "cheat_death_sfx", "buff_glow_mesh", "buff_glow_animation")]
 collision_layer = 97
@@ -4194,6 +4194,7 @@ autoplay = &"new_animation"
 speed_scale = 0.389
 
 [node name="web_shooter" type="Node3D" parent="." unique_id=248283182 node_paths=PackedStringArray("spider", "web_fail_sfx", "web_shoot_sfx", "web_hit_sfx", "web_land_sfx", "web", "tip_node", "raycast")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.377037, 6.1935043)
 visible = false
 script = ExtResource("7_mbgft")
 spider = NodePath("..")
@@ -4206,14 +4207,14 @@ tip_node = NodePath("web_tip")
 raycast = NodePath("web_raycast")
 
 [node name="web_tip" type="Node3D" parent="web_shooter" unique_id=2112982907]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.8242793, 22.636196)
+transform = Transform3D(-1, -8.742278e-08, -3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 
 [node name="web_tip" type="MeshInstance3D" parent="web_shooter/web_tip" unique_id=1851724051]
-transform = Transform3D(4, 0, 0, 0, -1.7484555e-07, -4, 0, 4, -1.7484555e-07, 0, 0, 0)
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
 mesh = SubResource("ArrayMesh_4umg6")
 
 [node name="web_mesh" type="MeshInstance3D" parent="web_shooter" unique_id=1115341443]
-transform = Transform3D(1, 1.618298e-07, -1.4409868e-07, -1.6530527e-07, 0.13978523, -0.9901819, -1.4009804e-07, 0.99018204, 0.1397852, 0, 5.773156, 6.62471)
+transform = Transform3D(-1, -8.7422784e-08, -3.821371e-15, 0, -4.3711392e-08, 1, -8.742278e-08, 1.0000001, 4.371139e-08, 0, 0, 0)
 mesh = SubResource("CylinderMesh_uj1gu")
 
 [node name="web_raycast" type="RayCast3D" parent="web_shooter" unique_id=1874208925]
