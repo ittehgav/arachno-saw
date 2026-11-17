@@ -2,18 +2,11 @@
 class_name BodySplitPath
 extends Path3D
 
+## ONLY USED TO CLEAR INCONSITENCIES WITH _READY/OTHER 
+## STARTUP RELATED STUFF ON DUPLICATES
+signal stage_started;
 
-const MARKER_META := &"split_center_marker"
-## Add nodes that your stage_started functions spawn to this group so path copies leave them out.
-const SPAWNED_GROUP := &"stage_spawned"
-
-signal stage_started
-
-var _room_lo := Vector3.ZERO
-var _room_hi := Vector3.ZERO
-var _room_fitted := false
-
-func _ready() -> void:
+func _ready()->void:
 	if process_mode == PROCESS_MODE_INHERIT:
 		GLB.current_path = self
 		if not Engine.is_editor_hint():
@@ -28,7 +21,18 @@ func start_stage() -> void:
 
 const EPS := 0.0001
 
+const MARKER_META := &"split_center_marker"
+const DIVIDER_GROUP := &"room_divider"
+const DIVIDER_GAP := 0.5
 
+const DIVIDER_META := &"divider_pair"
+
+
+var _opening_width := 0.0
+var _opening_height := 0.0
+## pair number -> {"z", "x", "covered", "cover"} for every divider that exists.
+## Pair p stands between path p - 1 and path p of the generator's `paths` list.
+var _dividers := {}
 
 @export var x_saw: PackedScene  # X cuts
 @export var y_saw: PackedScene  # Y cuts
@@ -50,24 +54,8 @@ const EPS := 0.0001
 
 const POINT_AREA_SIZE := 50.0
 
-@export var floor_plane: MeshInstance3D
-@export var ceiling: MeshInstance3D
-@export var wall_front: MeshInstance3D
-@export var wall_back: MeshInstance3D
-@export var wall_left: MeshInstance3D
-@export var wall_right: MeshInstance3D
 
-var _fit_bounds := AABB()
-var _fit_turn_radius := 0.0
-var _fit_saws: Array[Node3D] = []
 
-@export var floor_ceiling_texture_scale := 2.0
-## Extra space between the system and each wall, in meters.
-const room_margin := 500
-
-## Fixed height of the room, in meters. The floor is always at world Y = 0.
-@export var room_height := 1000.0
-## Height of the start of the line above the floor (world Y = 0), in meters.
 @export var line_start_height := 200.0
 
 
@@ -182,7 +170,6 @@ func create_split_markers() -> void:
 		push_warning("BodySplitPath: assign source_body and markers first.")
 		return
 	
-	var saws: Array[Node3D] = []
 	var valid_cuts: Array[SplitCut] = []
 	for cut in cuts:
 		if cut != null:
@@ -198,11 +185,7 @@ func create_split_markers() -> void:
 	var bounds := _union(boxes)
 	var board_size := bounds.size
 	var remaining_before := _remaining_bounds_per_cut(valid_cuts, bounds)
-	# Farthest the board reaches from its origin in the XZ plane: the radius it sweeps when turning.
-	var turn_radius := Vector2(
-		maxf(absf(bounds.position.x), absf(bounds.end.x)),
-		maxf(absf(bounds.position.z), absf(bounds.end.z))
-	).length()
+
 
 	# Start from a copy of pre_curve (falls back to a single point at the origin).
 	var new_curve: Curve3D = (pre_curve.duplicate() as Curve3D) if pre_curve != null else Curve3D.new()
@@ -305,7 +288,6 @@ func create_split_markers() -> void:
 		saw.add_to_group("circular_saws" if circular else "band_saws", true)
 		saw.set_meta(&"cut_number", k + 1)
 		marker.add_child(saw)
-		saws.append(saw)
 
 		# Every saw keeps the rotation its scene was authored with.
 		saw.global_transform = Transform3D(native_basis, marker.global_position)
@@ -349,177 +331,8 @@ func create_split_markers() -> void:
 	
 	_create_rollers(scene_root)
 	
-	_fit_bounds = bounds
-	_fit_turn_radius = turn_radius
-	_fit_saws = saws
-	fit_room()
-
-## Sizes and places the room planes around this path.
-func fit_room(others: Array[BodySplitPath] = [], grow_only := false) -> void:
-	var to_local_xform := global_transform.affine_inverse()
-	var fit: Array[AABB] = []
-	_collect_fit_boxes(fit, to_local_xform)
-	for other in others:
-		if other != null and other != self:
-			other._collect_fit_boxes(fit, to_local_xform)
-	if fit.is_empty():
-		return
-	var room := fit[0]
-	for k in range(1, fit.size()):
-		room = room.merge(fit[k])
-
-	var content := room  # everything that has to fit, before the margin
-	room = room.grow(room_margin)
-
-	# Fixed height: the floor sits at world Y = 0 and the ceiling room_height above it.
-	var floor_y := (to_local_xform * Vector3.ZERO).y
-	var lo := room.position
-	var hi := room.end
-	lo.y = floor_y
-	hi.y = floor_y + room_height
-	if content.position.y < lo.y or content.end.y > hi.y:
-		push_warning("BodySplitPath: part of the system sticks out of the room vertically. Raise room_height or move the path up.")
-	
-	var c := (lo + hi) * 0.5
-	var s := hi - lo
-	if grow_only and _room_fitted:
-		lo = Vector3(minf(lo.x, _room_lo.x), lo.y, minf(lo.z, _room_lo.z))
-		hi = Vector3(maxf(hi.x, _room_hi.x), hi.y, maxf(hi.z, _room_hi.z))
-	_room_lo = lo
-	_room_hi = hi
-	_room_fitted = true
-	
-	# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
-	_place_plane(wall_front, Basis(Vector3.BACK, Vector3.LEFT, Vector3.DOWN),
-			Vector3(hi.x, c.y, c.z), Vector2(s.z, s.y), true)
-	_place_plane(wall_back, Basis(Vector3.FORWARD, Vector3.RIGHT, Vector3.DOWN),
-			Vector3(lo.x, c.y, c.z), Vector2(s.z, s.y), true)
-	_place_plane(wall_right, Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN),
-			Vector3(c.x, c.y, hi.z), Vector2(s.x, s.y), true)
-	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
-			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
-
-	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y + 300, c.z), Vector2(s.x, s.z))
-	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
-	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
-	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
 
 
-## Adds everything this path puts in the room (the board's sweep along the path, the saws) to `fit`,
-## as boxes in the space that to_local_xform maps world space into.
-func _collect_fit_boxes(fit: Array[AABB], to_local_xform: Transform3D) -> void:
-	if curve == null:
-		return
-	for p in curve.get_baked_points():
-		var c := to_local_xform * to_global(p)
-		fit.append(AABB(
-			c + Vector3(-_fit_turn_radius, _fit_bounds.position.y, -_fit_turn_radius),
-			Vector3(2.0 * _fit_turn_radius, _fit_bounds.size.y, 2.0 * _fit_turn_radius)
-		))
-	for saw in _fit_saws:
-		if not is_instance_valid(saw):
-			continue
-		fit.append(AABB(to_local_xform * saw.global_position, Vector3.ZERO))
-		var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)
-		if saw is VisualInstance3D:
-			visuals.append(saw)
-		for vi: Node in visuals:
-			var global_box: AABB = vi.global_transform * vi.get_aabb()
-			fit.append(to_local_xform * global_box)
-
-## Repeats the node's texture across a plane of the given size (x, z), drawing each tile
-## texture_size * texel_scale world units across.
-func _tile_texture(node: MeshInstance3D, size: Vector2, texel_scale: float) -> void:
-	if node == null:
-		return
-	var mesh := node.mesh as PlaneMesh
-
-	# Find the StandardMaterial3D the node actually renders with.
-	var source: StandardMaterial3D = null
-	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
-	if node.material_override is StandardMaterial3D:
-		source = node.material_override
-		slot = 1
-	elif node.get_surface_override_material(0) is StandardMaterial3D:
-		source = node.get_surface_override_material(0) as StandardMaterial3D
-		slot = 2
-	elif mesh != null and mesh.material is StandardMaterial3D:
-		source = mesh.material as StandardMaterial3D
-		slot = 3
-	if source == null or source.albedo_texture == null:
-		push_warning("BodySplitPath: '%s' has no StandardMaterial3D with an albedo texture to tile." % node.name)
-		return
-
-	var tile := source.albedo_texture.get_size() * texel_scale  # one tile, in world units
-	if tile.x <= 0.0 or tile.y <= 0.0:
-		return
-
-	# A per-plane copy, because the floor and ceiling each need their own scale.
-	var material := source.duplicate() as StandardMaterial3D
-	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
-	material.texture_repeat = true
-	material.uv1_offset = Vector3.ZERO
-	material.uv1_scale = Vector3(size.x / tile.x, size.y / tile.y, 1.0)
-
-	match slot:
-		1: node.material_override = material
-		2: node.set_surface_override_material(0, material)
-		3: mesh.material = material
-
-## Gives the node its own PlaneMesh of the right size and puts it at local_pos (in this
-## node's space), rotated so the plane's visible side faces into the room.
-func _place_plane(node: MeshInstance3D, r: Basis, local_pos: Vector3, size: Vector2, fit_texture := false) -> void:
-	if node == null:
-		return
-	var mesh := (node.mesh.duplicate() as PlaneMesh) if node.mesh is PlaneMesh else PlaneMesh.new()
-	mesh.size = size
-	mesh.orientation = PlaneMesh.FACE_Y  # the rotations assume the plane faces +Y
-	mesh.flip_faces = false
-	mesh.center_offset = Vector3.ZERO
-	node.mesh = mesh
-	node.global_transform = global_transform * Transform3D(r, local_pos)
-	if fit_texture:
-		_fit_wall_texture(node, mesh, size)
-
-
-## Makes the wall's texture span its full height once and repeat across its width,
-## keeping the texture's aspect ratio. size = (width, height).
-func _fit_wall_texture(node: MeshInstance3D, mesh: PlaneMesh, size: Vector2) -> void:
-	# Find the StandardMaterial3D the node actually renders with.
-	var source: StandardMaterial3D = null
-	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
-	if node.material_override is StandardMaterial3D:
-		source = node.material_override
-		slot = 1
-	elif node.get_surface_override_material(0) is StandardMaterial3D:
-		source = node.get_surface_override_material(0) as StandardMaterial3D
-		slot = 2
-	elif mesh.material is StandardMaterial3D:
-		source = mesh.material as StandardMaterial3D
-		slot = 3
-	if source == null or source.albedo_texture == null or size.y <= 0.0:
-		push_warning("BodySplitPath: '%s' has no StandardMaterial3D with an albedo texture to fit." % node.name)
-		return
-
-	var tex_size := source.albedo_texture.get_size()
-	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
-		return
-
-	# One tile is as tall as the wall and (height * texture aspect) wide.
-	var tile_width := size.y * tex_size.x / tex_size.y
-	var repeats := size.x / tile_width
-
-	# A per-wall copy, because the walls usually share one material but each needs its own scale.
-	var material := source.duplicate() as StandardMaterial3D
-	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
-	material.texture_repeat = true
-	material.uv1_offset = Vector3.ZERO
-	material.uv1_scale = Vector3(repeats, 1.0, 1.0)
-
-	match slot:
-		1: node.material_override = material
-		2: node.set_surface_override_material(0, material)
-		3: mesh.material = material
 
 ## Board orientation at curve point i: local +X along the segment arriving at the point,
 ## with the path's own up direction kept as the board's up.
@@ -576,6 +389,36 @@ func get_remaining_boards(stage: int) -> Array[StaticBody3D]:
 			result.append(body)
 	return result
 
+## Everything this path puts in the room (the board's sweep along the path, the saws), as boxes in the
+## space that to_local_xform maps world space into.
+func get_room_boxes(to_local_xform: Transform3D) -> Array[AABB]:
+	var boxes: Array[AABB] = []
+	if curve == null:
+		return boxes
+	var bounds := get_board_bounds()
+	# Farthest the board reaches from its origin in the XZ plane: the radius it sweeps when turning.
+	var turn_radius := Vector2(
+		maxf(absf(bounds.position.x), absf(bounds.end.x)),
+		maxf(absf(bounds.position.z), absf(bounds.end.z))
+	).length()
+	for p in curve.get_baked_points():
+		var c := to_local_xform * to_global(p)
+		boxes.append(AABB(
+			c + Vector3(-turn_radius, bounds.position.y, -turn_radius),
+			Vector3(2.0 * turn_radius, bounds.size.y, 2.0 * turn_radius)
+		))
+	if markers != null:
+		for saw: Node in markers.find_children("*", "Node3D", true, false):
+			if not saw.is_in_group("saws"):
+				continue
+			boxes.append(AABB(to_local_xform * (saw as Node3D).global_position, Vector3.ZERO))
+			var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)
+			if saw is VisualInstance3D:
+				visuals.append(saw)
+			for vi: Node in visuals:
+				var global_box: AABB = vi.global_transform * vi.get_aabb()
+				boxes.append(to_local_xform * global_box)
+	return boxes
 
 ## The board of a stage that won't be removed, or null if there isn't one.
 func get_remaining_board(stage: int) -> StaticBody3D:

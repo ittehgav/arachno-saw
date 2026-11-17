@@ -16,9 +16,10 @@ func _ready() -> void:
 	UIRoot.fade_out(dont_die_instruction, 10)
 	
 
-
-func _on_board_path_follow_point_reached(i: int, split_center: Node3D) -> void:
-	if split_center.name == "final_point":
+var m2_instruction_cleared:bool=false;
+func _on_board_path_follow_point_reached(_i: int, split_center: Node3D) -> void:
+	if split_center.name == "final_point" and not m2_instruction_cleared:
+		m2_instruction_cleared = true;
 		rmb_instruction.show();
 		var cc:CameraControl = GLB.spider.get_node("camera_control")
 		await cc.started_aiming;
@@ -27,3 +28,6 @@ func _on_board_path_follow_point_reached(i: int, split_center: Node3D) -> void:
 		## ugly bad referencing will probably case trouble in the future and i deser it
 		var next_path:BodySplitPath = path.get_parent().get_node("path_02")
 		cc.pcam.look_at(next_path.global_position)
+		print(len(GLB.board_path_follow.point_reached.get_connections()))
+		GLB.board_path_follow.point_reached.disconnect(_on_board_path_follow_point_reached)
+		print(len(GLB.board_path_follow.point_reached.get_connections()))

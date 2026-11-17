@@ -2,15 +2,18 @@
 class_name NoiseSplitSequence
 extends Node
 
-
+## Group the generated extra-path copies are put in.
+const EXTRA_GROUP := &"extra_path_copy"
+## Meta on each top-level copy: the level number it belongs to (the first path is level 1).
+const LEVEL_META := &"level_number"
 ## Smallest a falling piece may be, in meters. It only keeps a cut from sitting exactly on a face.
 const MIN_FALLING_PIECE := 0.001
+## Never copied from the first path to a new one (each path makes its own).
+const NOT_COPIED: Array[StringName] = [&"cuts", &"positioning_seed", &"split_map"]
 
-const EXTRA_GROUP := &"extra_path_copy"
-const LEVEL_META := &"level_number"
-const LAYER8_META := &"layer8_copy"
-
+## The scene tree, fetched once when this node enters it (get_tree() is only called here).
 var _tree: SceneTree
+
 ## Runtime only. Slot i is level i + 1; a freed path leaves null.
 var paths: Array[BodySplitPath] = []
 
@@ -44,23 +47,53 @@ var paths: Array[BodySplitPath] = []
 @export_range(0.01, 1.0, 0.01) var max_cut_fraction := 1.0
 
 @export_group("Levels")
+## Scene each new level is instantiated from. Its root is a BodySplitPath, or contains one.
+## The first path is the reference for exported values and signal connections the scene doesn't have.
+@export var path_scene: PackedScene
 ## Stop building new levels after this many (the first path counts). 0 = endless.
 @export var max_levels := 0
-## How far along world Z each new path starts from the final point of the path it was copied from.
+## How far along the world Z axis each new path starts from the final point of the path before it.
+## Negative values go the other way.
 @export var extra_path_z_offset := 3000.0
-## Nodes the copies should NOT get a copy of (with everything under them). Copies keep pointing at the originals.
-@export var skip_duplicating: Array[Node] = []
-## Bodies that get collision layer 8 turned on in their copies.
+## Bodies (of the first path) that get collision layer 8 turned on in the new levels.
 @export var layer_8_on_copy: Array[StaticBody3D] = []
-## Also copy the board splitter's source_body, moved along with the path.
-@export var copy_source_body := true
 
-@export_group("buttons")
+@export_group("")
 @export_tool_button("Generate Cuts") var cuts_action := generate_into_splitter
 @export_tool_button("Generate Cuts + Splits + Markers") var all_action := generate_everything
-@export_tool_button("Generate Level (random seed, with extra paths)") var level_action := generate_level
+@export_tool_button("Generate Level (random seed)") var level_action := generate_level
 
 
+
+@export_group("Room")
+@export var floor_plane: MeshInstance3D
+@export var ceiling: MeshInstance3D
+@export var wall_front: MeshInstance3D
+@export var wall_back: MeshInstance3D
+@export var wall_left: MeshInstance3D
+@export var wall_right: MeshInstance3D
+@export var floor_ceiling_texture_scale := 2.0
+## Extra space between the paths and each wall, in meters.
+@export var room_margin := 500.0
+## Fixed height of the room, in meters. The floor is always at world Y = 0.
+@export var room_height := 1000.0
+## Width of the opening in the wall after each path, centered where that path ends and the next begins. 0 = solid wall.
+@export var divider_opening_width := 600.0
+## Height of that opening, measured from the floor. 0 = all the way up.
+@export var divider_opening_height := 0.0
+## Fills the openings (needed to see anything in them).
+@export var cover_material: Material
+
+const DIVIDER_GROUP := &"room_divider"
+const DIVIDER_GAP := 0.5
+const EXIT_META := &"exit_level"
+const EPS := 0.0001
+
+var _room_lo := Vector3.ZERO  # the room as last fitted, in the first path's local space
+var _room_hi := Vector3.ZERO
+var _room_fitted := false
+## level -> {"z", "x", "covered"} for the wall after that level (between it and the next one).
+var _exits := {}
 
 func _enter_tree() -> void:
 	_tree = get_tree()
@@ -70,8 +103,9 @@ func _ready() -> void:
 	if Engine.is_editor_hint() or splitter == null:
 		return
 	paths = [splitter]
-	await splitter.ready
+	_build_first_room()
 	_watch(splitter)
+
 
 func _exit_tree() -> void:
 	_tree = null
@@ -90,7 +124,7 @@ func generate_everything() -> void:
 	if generate_into_splitter():
 		splitter.generate_splits()
 		splitter.create_split_markers()
-
+		_build_first_room()
 
 func _generate_into(target: BodySplitPath) -> bool:
 	var result := _generate_cuts_for(target)
@@ -256,17 +290,19 @@ func generate_level(level_seed: int = 0) -> int:
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
 		level_seed = maxi(rng.randi(), 1)  # 0 means "pick one for me", so never use it as a seed
-	
-	_apply_seed(level_seed)
-	splitter.positioning_seed = level_seed
 
+	# Levels from an earlier run go first.
 	_clear_extra_paths()
 	paths = [splitter]
+
+	_apply_seed(level_seed)
+	splitter.positioning_seed = level_seed
 
 	if not generate_into_splitter():
 		return 0
 	splitter.generate_splits()
 	splitter.create_split_markers()
+	_build_first_room()
 
 	current_seed = level_seed
 	level_generated.emit(level_seed)
@@ -281,29 +317,33 @@ func _apply_seed(s: int) -> void:
 		sample_origin = Vector2(s % 100000, (s / 100000) % 100000)
 
 
-## The seed of extra path number n (2 and up), derived from the level seed so the same level seed
-## always rebuilds the same extra paths.
+## The seed of level n (2 and up), derived from the level seed so the same level seed
+## always rebuilds the same levels.
 func _extra_seed(level_seed: int, n: int) -> int:
 	return maxi(absi(("%d_path_%d" % [level_seed, n]).hash()), 1)
 
 
 # --- Levels --------------------------------------------------------------------
 
+## Connects the generator's handler to a path's stage_started and makes it the FIRST callback:
+## the connections already on the signal are taken off and put back after it, flags and order kept.
 func _watch(path: BodySplitPath) -> void:
 	var existing := path.stage_started.get_connections()
 	for conn:Dictionary in existing:
 		path.stage_started.disconnect(conn.callable)
-	path.stage_started.connect(_on_stage_started.bind(path))  # now first in line
+	path.stage_started.connect(_on_stage_started.bind(path))
 	for conn:Dictionary in existing:
-		path.stage_started.connect(conn.callable, conn.flags)  # same order, same flags
+		path.stage_started.connect(conn.callable, conn.flags)
 
-## A path started: free the one before it, then build the next one as a copy of this one.
+
+## A path started: free the one before it, then build the next one.
 func _on_stage_started(path: BodySplitPath) -> void:
 	var idx := paths.find(path)
 	if idx < 0:
 		return
 	if idx > 0 and paths[idx - 1] != null:
 		_free_path(idx - 1)
+	_cover_only_exit(idx)  # the wall after level `idx` is the one between this path and the one before it
 	if max_levels > 0 and paths.size() >= max_levels:
 		return
 	if idx + 1 >= paths.size():
@@ -319,8 +359,8 @@ func start_level(level: int) -> void:
 
 
 func _build_next_path(from: BodySplitPath) -> BodySplitPath:
-	var n := paths.size() + 1  # level number, also the copy's name suffix
-	var path := _clone_path(from, n)
+	var n := paths.size() + 1  # level number, also the new scene's name suffix
+	var path := _instantiate_path(from, n)
 	if path == null:
 		return null
 
@@ -330,7 +370,6 @@ func _build_next_path(from: BodySplitPath) -> BodySplitPath:
 	path.positioning_seed = path_seed
 	var ok := _generate_into(path)
 	if base_seed != 0:
-		
 		_apply_seed(base_seed)  # leave the noise on the level's own seed
 	if not ok:
 		push_warning("NoiseSplitSequence: couldn't generate cuts for path %d." % n)
@@ -338,19 +377,16 @@ func _build_next_path(from: BodySplitPath) -> BodySplitPath:
 		return null
 	path.generate_splits()
 	path.create_split_markers()
+	
 	paths.append(path)
 	_watch(path)
-
-	# Grow the first path's room around every path that still exists.
-	var live: Array[BodySplitPath] = []
-	for p in paths:
-		if p != null and is_instance_valid(p) and p != splitter:
-			live.append(p)
-	splitter.fit_room(live, true)
+	if _has_next(n):
+		_register_exit(n, path)
+	_fit_room(true)  # grows the room around the new path and rebuilds every wall
 	return path
 
 
-## Frees the path in slot `index` with all its copied nodes. The first path's nodes belong to the
+## Frees the path in slot `index` with all its nodes. The first path's nodes belong to the
 ## scene, so only what was generated for them is cleared.
 func _free_path(index: int) -> void:
 	var path := paths[index]
@@ -364,6 +400,8 @@ func _free_path(index: int) -> void:
 		else:
 			_free_level_nodes(index + 1)
 	paths[index] = null
+	if index >= 1:
+		_free_exit(index)  # the wall between the path before it and this one
 
 
 ## Turns a level on or off by its number. Level 1 is the first path and is left alone.
@@ -375,187 +413,140 @@ func set_level_enabled(level: int, enabled: bool) -> void:
 			n.process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
 
 
-## Copies `source` (the path that just started) and what it needs to be regenerated on its own, and
-## places the copy extra_path_z_offset along world Z from source's final point. The copy starts disabled.
-func _clone_path(source: BodySplitPath, n: int) -> BodySplitPath:
-	if _tree == null or source.get_parent() == null:
-		push_warning("NoiseSplitSequence: this node and the splitter must be in the scene tree to copy paths.")
+## Instantiates path_scene as level n, places its start extra_path_z_offset along world Z from the
+## final point of `previous`, and fills in everything the first path has that the scene doesn't.
+## The new level starts disabled.
+func _instantiate_path(previous: BodySplitPath, n: int) -> BodySplitPath:
+	if path_scene == null:
+		push_warning("NoiseSplitSequence: assign path_scene to build more levels.")
 		return null
-	var copies := {}  # original node -> its copy
-	var path := _clone_subtree(source, n, copies) as BodySplitPath
+	if _tree == null or splitter.get_parent() == null:
+		push_warning("NoiseSplitSequence: this node and the splitter must be in the scene tree to build paths.")
+		return null
 
-	var target := _final_point_global(source) + Vector3(0.0, 0.0, extra_path_z_offset)
-	var start_local := _start_point_local(path)
-	var pos := target - path.global_transform.basis * start_local
-	var base := source.global_position
-	pos.y = base.y
-	path.global_position = pos
-	var delta := Vector3(pos.x - base.x, 0.0, pos.z - base.z)
+	var root := path_scene.instantiate()  # not in the tree yet
+	var path := root as BodySplitPath
+	if path == null:
+		for c: Node in root.find_children("*", "Path3D", true, false):
+			if c is BodySplitPath:
+				path = c
+				break
+	if path == null:
+		push_warning("NoiseSplitSequence: path_scene has no BodySplitPath.")
+		root.free()
+		return null
+	_strip_generated(root)
 
-	for prop: StringName in [&"board_splitter", &"split_gen", &"markers", &"roller_root"]:
-		_copy_outside(source.get(prop) as Node, source, n, copies, delta)
-	for s: BoardSplitter in [source.board_splitter, source.split_gen]:
-		if s == null:
-			continue
-		_copy_outside(s.output_root, source, n, copies, delta)
-		if copy_source_body:
-			_copy_outside(s.source_body, source, n, copies, delta)
+	# The first path's scene root: walk up from the splitter as far as the new path sits below its root.
+	var rel := root.get_path_to(path)
+	var ref_root: Node = splitter
+	if rel != ^".":
+		for i in rel.get_name_count():
+			if ref_root.get_parent() != null:
+				ref_root = ref_root.get_parent()
 
-	for c: Node in copies.values():
-		if is_instance_valid(c):
-			_remap_references(c, copies)
-			if c is BoardSplitter:
-				c.split_map = {}
-	_remap_connections(copies)
+	# Reference node -> the matching node in the new scene (matched by relative path).
+	var map := {}
+	for o: Node in [ref_root] + ref_root.find_children("*", "", true, false):
+		var c := root.get_node_or_null(ref_root.get_path_to(o))
+		if c != null:
+			map[o] = c
+	for o: Node in map:
+		_copy_exports(o, map[o], map)
+	_remap_connections(map)
+
+	# Every path shares the first path's room, so the new one gets no planes of its own.
+	for prop: StringName in [&"floor_plane", &"ceiling", &"wall_front", &"wall_back", &"wall_left", &"wall_right"]:
+		var plane := path.get(prop) as Node
+		if plane != null and root.is_ancestor_of(plane):
+			_free_now(plane)
+		path.set(prop, null)
 
 	for body in layer_8_on_copy:
-		if body != null and copies.has(body):
-			var body_copy := copies[body] as StaticBody3D
-			if is_instance_valid(body_copy):
-				body_copy.set_collision_layer_value(8, true)
-				body_copy.process_mode = Node.PROCESS_MODE_ALWAYS
-				body_copy.set_meta(LAYER8_META, true)
-	# A copy of a copy carries the meta and the old level group over: move it to this level's group.
-	for c: Node in copies.values():
-		if is_instance_valid(c) and c.has_meta(LAYER8_META):
-			for g in c.get_groups():
-				if String(g).begins_with("level_"):
-					c.remove_from_group(g)
-			c.add_to_group(StringName("level_%d" % n))
+		var body_copy := map.get(body) as StaticBody3D
+		if body_copy != null:
+			body_copy.set_collision_layer_value(8, true)
+			body_copy.process_mode = Node.PROCESS_MODE_ALWAYS
+			body_copy.add_to_group(StringName("level_%d" % n), true)
 
-	# The copy uses the first path's room, so it gets no planes of its own.
-	for prop: StringName in [&"floor_plane", &"ceiling", &"wall_front", &"wall_back", &"wall_left", &"wall_right"]:
-		var original_plane := source.get(prop) as Node
-		if original_plane != null and copies.has(original_plane):
-			_free_now(copies[original_plane])
-		path.set(prop, null)
+	root.name = "%s_%02d" % [ref_root.name, n]
+	root.add_to_group(EXTRA_GROUP)
+	root.set_meta(LEVEL_META, n)
+	root.process_mode = Node.PROCESS_MODE_DISABLED  # start_level() turns it on
+	ref_root.get_parent().add_child(root)
+
+	# Same orientation as the first path, then slide the new path's start onto the target point.
+	var mover := (root as Node3D) if root is Node3D else path
+	if ref_root is Node3D:
+		mover.global_basis = (ref_root as Node3D).global_basis
+	var wanted := _final_point_global(previous) + Vector3(0.0, 0.0, extra_path_z_offset) \
+			- path.global_transform.basis * _start_point_local(path)
+	mover.global_position += Vector3(wanted.x - path.global_position.x, 0.0, wanted.z - path.global_position.z)
 	return path
 
 
-func _is_skipped(node: Node) -> bool:
-	for s in skip_duplicating:
-		if s != null and is_instance_valid(s) and (s == node or s.is_ancestor_of(node)):
-			return true
-	return false
-
-
-func _copy_outside(orig: Node, source: BodySplitPath, n: int, copies: Dictionary, delta: Vector3) -> void:
-	if orig == null or not is_instance_valid(orig) or copies.has(orig) or orig.get_parent() == null:
+## Copies the exported variables of `from` onto `to` (same script). References to nodes of the first
+## path's scene become the matching nodes of the new scene; references to anything else stay as they are.
+func _copy_exports(from: Node, to: Node, map: Dictionary) -> void:
+	if from.get_script() == null or from.get_script() != to.get_script():
 		return
-	if _is_skipped(orig):
-		return
-	if orig.is_ancestor_of(source):
-		push_warning("NoiseSplitSequence: '%s' contains the path, so it can't be copied separately; the copy shares it." % orig.name)
-		return
-	var copy := _clone_subtree(orig, n, copies)
-	if copy is Node3D:
-		(copy as Node3D).global_position += delta
-
-
-## "Path_02" -> "Path", so a copy of a copy is named Path_03 and not Path_02_03.
-func _base_name(node: Node) -> String:
-	var s := String(node.name)
-	if node.has_meta(LEVEL_META):
-		return s.rsplit("_", true, 1)[0]
-	return s
-
-
-## Duplicates a node (with children) next to the original and records every original -> copy pair.
-## Skipped and generated nodes are removed BEFORE the copy enters the tree, so their _ready() never runs.
-func _clone_subtree(orig: Node, n: int, copies: Dictionary) -> Node:
-	var copy := orig.duplicate()  # not in the tree yet
-	copy.name = "%s_%02d" % [_base_name(orig), n]
-
-	var pairs := {orig: copy}
-	for o: Node in orig.find_children("*", "", true, false):
-		var c := copy.get_node_or_null(orig.get_path_to(o))
-		if c != null:
-			pairs[o] = c
-
-	for o: Node in pairs.keys():
-		if o != orig and _is_skipped(o):
-			var skipped_copy: Node = pairs[o]
-			if is_instance_valid(skipped_copy) and skipped_copy.get_parent() != null:
-				_free_now(skipped_copy)
-			pairs.erase(o)
-
-	_strip_generated(copy)
-
-	copy.add_to_group(EXTRA_GROUP)
-	copy.set_meta(LEVEL_META, n)
-	copy.process_mode = Node.PROCESS_MODE_DISABLED  # set_level_enabled() / start_level() turn it on
-	if copy is Node3D:
-		(copy as Node3D).visible = true
-	orig.get_parent().add_child(copy)
-
-	for o: Node in pairs:
-		var c: Node = pairs[o]
-		if is_instance_valid(c) and (c == copy or copy.is_ancestor_of(c)):
-			copies[o] = c
-	return copy
-
-
-## Removes everything the generators made (split markers, saws, areas, rollers, split boards).
-func _strip_generated(root: Node) -> void:
-	for n: Node in root.find_children("*", "", true, false):
-		if not is_instance_valid(n) or n.get_parent() == null:
-			continue
-		if n.has_meta(BodySplitPath.MARKER_META) or n.has_meta(BoardSplitter.META_KEY) or \
-			n.is_in_group(BodySplitPath.SPAWNED_GROUP):
-			_free_now(n)
-
-
-## Sets exported node references that point at an original (now copied) node to its copy.
-func _remap_references(node: Node, copies: Dictionary) -> void:
-	if node.get_script() == null:
-		return
-	for info in node.get_property_list():
-		if info.type != TYPE_OBJECT:
-			continue
+	for info in from.get_property_list():
 		if not (info.usage & PROPERTY_USAGE_SCRIPT_VARIABLE) or not (info.usage & PROPERTY_USAGE_STORAGE):
 			continue
-		var value: Variant = node.get(info.name)
-		if value is Node and copies.has(value):
-			node.set(info.name, copies[value])
+		if info.name in NOT_COPIED:
+			continue
+		var value: Variant = from.get(info.name)
+		if value is Node:
+			value = map.get(value, value)
+		elif value is Array:
+			var arr: Array = value.duplicate()
+			for i in arr.size():
+				if arr[i] is Node:
+					arr[i] = map.get(arr[i], arr[i])
+			value = arr
+		to.set(info.name, value)
 
 
-## Gives every copied node the signal connections of its original, aimed at the copy of the target
-## when the target was copied too, and at the original target when it wasn't.
-func _remap_connections(copies: Dictionary) -> void:
+## Gives each new node the signal connections its reference node has and it doesn't. Targets inside the
+## first path's scene become the new scene's nodes; other targets in the scene stay as they are.
+## Connections to engine objects, lambdas and bound callables are left alone.
+func _remap_connections(map: Dictionary) -> void:
 	var scene: Node = _tree.edited_scene_root if Engine.is_editor_hint() else _tree.current_scene
 	if scene != null and scene != self and not scene.is_ancestor_of(self):
 		scene = null
-	for o: Node in copies:
-		var c: Node = copies[o]
-		if not is_instance_valid(o) or not is_instance_valid(c):
-			continue
+	for o: Node in map:
+		var c: Node = map[o]
 		for sig in o.get_signal_list():
 			var sig_name: StringName = sig.name
 			for conn in o.get_signal_connection_list(sig_name):
 				var callable: Callable = conn.callable
 				if callable.is_custom():
-					continue  # lambdas and bound callables (including the stage_started watch) are left alone
+					continue
 				var target := callable.get_object() as Node
-				if target == null:
+				if target == null or not (map.has(target) or _in_level_tree(target, scene)):
 					continue
-				if not (copies.has(target) or _is_skipped(target) or _in_level_tree(target, scene)):
-					continue
-				var method := callable.get_method()
-				var new_target: Node = copies.get(target, target)
-				if new_target != target and c.is_connected(sig_name, Callable(target, method)):
-					c.disconnect(sig_name, Callable(target, method))
-				var new_callable := Callable(new_target, method)
+				var new_target: Node = map.get(target, target)
+				var new_callable := Callable(new_target, callable.get_method())
 				if is_instance_valid(new_target) and not c.is_connected(sig_name, new_callable):
 					var err := c.connect(sig_name, new_callable, conn.flags)
 					if err != OK:
 						push_warning("NoiseSplitSequence: couldn't connect %s.%s to %s.%s (error %d)." % [
-								c.name, sig_name, new_target.name, method, err])
+								c.name, sig_name, new_target.name, callable.get_method(), err])
 
 
 func _in_level_tree(node: Node, scene: Node) -> bool:
 	if not node.is_inside_tree():
 		return false
 	return scene == null or node == scene or scene.is_ancestor_of(node)
+
+
+## Removes anything the generators made or your code tagged as spawned, so it never reaches a new level.
+func _strip_generated(root: Node) -> void:
+	for n: Node in root.find_children("*", "", true, false):
+		if not is_instance_valid(n) or n.get_parent() == null:
+			continue
+		if n.has_meta(BodySplitPath.MARKER_META) or n.has_meta(BoardSplitter.META_KEY):
+			_free_now(n)
 
 
 func _free_level_nodes(level: int) -> void:
@@ -589,3 +580,290 @@ func _start_point_local(path: BodySplitPath) -> Vector3:
 	if path.pre_curve != null and path.pre_curve.point_count > 0:
 		return path.pre_curve.get_point_position(0)
 	return Vector3.ZERO
+
+
+# --- Room ----------------------------------------------------------------------
+
+## True if a level after `level` will be built, so the wall after it needs an opening.
+func _has_next(level: int) -> bool:
+	return path_scene != null and (max_levels <= 0 or level < max_levels)
+
+
+## Fits the room around the first path and builds the wall after it.
+func _build_first_room() -> void:
+	_clear_exits()
+	paths = [splitter]
+	if _has_next(1):
+		_register_exit(1, splitter)
+	_fit_room()
+
+
+## Covers or uncovers the opening in the wall after `level` by hand. Stage starts overwrite this:
+## only the opening behind the stage that just started stays covered.
+func set_exit_covered(level: int, covered: bool) -> void:
+	if not _exits.has(level):
+		return
+	_exits[level]["covered"] = covered
+	_rebuild_exit(level)
+
+## Covers the opening in the wall after `level` and uncovers every other one.
+func _cover_only_exit(level: int) -> void:
+	for l: int in _exits.keys():
+		var covered := l == level
+		if _exits[l]["covered"] != covered:
+			_exits[l]["covered"] = covered
+			_rebuild_exit(l)
+
+## Sizes and places the room planes around every path that exists. grow_only keeps the room from
+## shrinking when a path has been freed.
+func _fit_room(grow_only := false) -> void:
+	print("froom?")
+	if splitter == null:
+		return
+	var to_local := splitter.global_transform.affine_inverse()
+	var fit: Array[AABB] = []  # everything the room must contain, in the first path's local space
+	var last: BodySplitPath = null
+	for p in paths:
+		if p != null and is_instance_valid(p):
+			fit.append_array(p.get_room_boxes(to_local))
+			last = p
+	if last == null or fit.is_empty():
+		return
+	# The room reaches the start of the path after the last one, so the opening between them lies inside it.
+	if _exits.has(paths.find(last) + 1):
+		fit.append(AABB(to_local * (_final_point_global(last) + Vector3(0.0, 0.0, extra_path_z_offset)), Vector3.ZERO))
+	var room := fit[0]
+	for k in range(1, fit.size()):
+		room = room.merge(fit[k])
+
+	var content := room  # everything that has to fit, before the margin
+	room = room.grow(room_margin)
+
+	# Fixed height: the floor sits at world Y = 0 and the ceiling room_height above it.
+	var floor_y := (to_local * Vector3.ZERO).y
+	var lo := room.position
+	var hi := room.end
+	lo.y = floor_y
+	hi.y = floor_y + room_height
+	if content.position.y < lo.y or content.end.y > hi.y:
+		push_warning("NoiseSplitSequence: part of the system sticks out of the room vertically. Raise room_height or move the path up.")
+	if grow_only and _room_fitted:
+		lo = Vector3(minf(lo.x, _room_lo.x), lo.y, minf(lo.z, _room_lo.z))
+		hi = Vector3(maxf(hi.x, _room_hi.x), hi.y, maxf(hi.z, _room_hi.z))
+	_room_lo = lo
+	_room_hi = hi
+	_room_fitted = true
+
+	var c := (lo + hi) * 0.5
+	var s := hi - lo
+
+	# Walls: sizes are (width, height). The extra `true` makes the texture fit the wall.
+	_place_plane(wall_front, Basis(Vector3.BACK, Vector3.LEFT, Vector3.DOWN),
+			Vector3(hi.x, c.y, c.z), Vector2(s.z, s.y), true)
+	_place_plane(wall_back, Basis(Vector3.FORWARD, Vector3.RIGHT, Vector3.DOWN),
+			Vector3(lo.x, c.y, c.z), Vector2(s.z, s.y), true)
+	_place_plane(wall_right, Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN),
+			Vector3(c.x, c.y, hi.z), Vector2(s.x, s.y), true)
+	_place_plane(wall_left, Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN),
+			Vector3(c.x, c.y, lo.z), Vector2(s.x, s.y), true)
+
+	_place_plane(floor_plane, Basis.IDENTITY, Vector3(c.x, lo.y + 300, c.z), Vector2(s.x, s.z))
+	_place_plane(ceiling, Basis(Vector3.RIGHT, PI), Vector3(c.x, hi.y, c.z), Vector2(s.x, s.z))
+	_tile_texture(floor_plane, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+	_tile_texture(ceiling, Vector2(s.x, s.z), floor_ceiling_texture_scale)
+
+	for level: int in _exits.keys():
+		_rebuild_exit(level)
+
+
+## Registers the wall after `level`: halfway between where `path` ends and where the next path will start.
+func _register_exit(level: int, path: BodySplitPath) -> void:
+	if path == null or path.curve == null or path.curve.point_count == 0:
+		return
+	var to_local := splitter.global_transform.affine_inverse()
+	var end_global := _final_point_global(path)
+	var end_a := to_local * end_global
+	var start_b := to_local * (end_global + Vector3(0.0, 0.0, extra_path_z_offset))
+	_exits[level] = {
+		"z": (end_a.z + start_b.z) * 0.5,
+		"x": (end_a.x + start_b.x) * 0.5,
+		"covered": false,
+	}
+
+
+func _free_exit(level: int) -> void:
+	_free_exit_planes(level)
+	_exits.erase(level)
+
+
+func _clear_exits() -> void:
+	_exits.clear()
+	if _tree == null:
+		return
+	for n in _tree.get_nodes_in_group(DIVIDER_GROUP):
+		if is_instance_valid(n) and not n.is_queued_for_deletion():
+			_free_now(n)
+
+
+func _free_exit_planes(level: int) -> void:
+	if _tree == null:
+		return
+	for n in _tree.get_nodes_in_group(DIVIDER_GROUP):
+		if is_instance_valid(n) and not n.is_queued_for_deletion() and n.get_meta(EXIT_META, -1) == level:
+			_free_now(n)
+
+
+## Builds the wall after `level` with its opening, and the cover that fills the opening.
+func _rebuild_exit(level: int) -> void:
+	_free_exit_planes(level)
+	if wall_left == null or wall_right == null or not _room_fitted or not _exits.has(level):
+		return
+	var d: Dictionary = _exits[level]
+	var lo := _room_lo
+	var hi := _room_hi
+	var scene_root := _tree.edited_scene_root if Engine.is_editor_hint() else null
+	var half := maxf(divider_opening_width, 0.0) * 0.5
+	var height := hi.y - lo.y
+	var door := height if (divider_opening_height <= 0.0 or divider_opening_height >= height) else divider_opening_height
+	var z: float = d["z"]
+	var x0 := clampf(float(d["x"]) - half, lo.x, hi.x)
+	var x1 := clampf(float(d["x"]) + half, lo.x, hi.x)
+	var facing_pos := Basis(Vector3.RIGHT, Vector3.BACK, Vector3.DOWN)
+	var facing_neg := Basis(Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN)
+
+	# Wall pieces as rectangles in (x, y): left of the opening, right of it, and above it.
+	var pieces: Array[Rect2] = [
+		Rect2(lo.x, lo.y, x0 - lo.x, height),
+		Rect2(x1, lo.y, hi.x - x1, height),
+	]
+	if door < height:
+		pieces.append(Rect2(x0, lo.y + door, x1 - x0, height - door))
+	var k := 0
+	for r in pieces:
+		if r.size.x <= EPS or r.size.y <= EPS:
+			continue
+		k += 1
+		var center := Vector3(r.position.x + r.size.x * 0.5, r.position.y + r.size.y * 0.5, z)
+		_add_exit_plane(wall_left, facing_pos, center + Vector3(0.0, 0.0, DIVIDER_GAP), r.size,
+				"Divider_%02d_%d_A" % [level, k], scene_root, level)
+		_add_exit_plane(wall_right, facing_neg, center - Vector3(0.0, 0.0, DIVIDER_GAP), r.size,
+				"Divider_%02d_%d_B" % [level, k], scene_root, level)
+
+	# The cover fills the opening itself, from the floor up to the top of the opening.
+	if d["covered"] and cover_material != null and x1 - x0 > EPS:
+		var cover_center := Vector3((x0 + x1) * 0.5, lo.y + door * 0.5, z)
+		var cover_size := Vector2(x1 - x0, door)
+		_add_exit_plane(wall_left, facing_pos, cover_center + Vector3(0.0, 0.0, DIVIDER_GAP), cover_size,
+				"DividerCover_%02d_A" % level, scene_root, level, cover_material)
+		_add_exit_plane(wall_right, facing_neg, cover_center - Vector3(0.0, 0.0, DIVIDER_GAP), cover_size,
+				"DividerCover_%02d_B" % level, scene_root, level, cover_material)
+
+
+func _add_exit_plane(template: MeshInstance3D, plane_basis: Basis, local_pos: Vector3, size: Vector2,
+		plane_name: String, scene_root: Node, level: int, material: Material = null) -> void:
+	var plane := template.duplicate() as MeshInstance3D
+	plane.name = plane_name
+	template.get_parent().add_child(plane)
+	plane.add_to_group(DIVIDER_GROUP, true)
+	plane.set_meta(EXIT_META, level)
+	if scene_root and template.owner == scene_root:
+		plane.owner = scene_root
+	_place_plane(plane, plane_basis, local_pos, size, material == null)
+	if material != null:
+		plane.material_override = material
+
+
+## Repeats the node's texture across a plane of the given size (x, z), drawing each tile
+## texture_size * texel_scale world units across.
+func _tile_texture(node: MeshInstance3D, size: Vector2, texel_scale: float) -> void:
+	if node == null:
+		return
+	var mesh := node.mesh as PlaneMesh
+
+	# Find the StandardMaterial3D the node actually renders with.
+	var source: StandardMaterial3D = null
+	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
+	if node.material_override is StandardMaterial3D:
+		source = node.material_override
+		slot = 1
+	elif node.get_surface_override_material(0) is StandardMaterial3D:
+		source = node.get_surface_override_material(0) as StandardMaterial3D
+		slot = 2
+	elif mesh != null and mesh.material is StandardMaterial3D:
+		source = mesh.material as StandardMaterial3D
+		slot = 3
+	if source == null or source.albedo_texture == null:
+		push_warning("NoiseSplitSequence: '%s' has no StandardMaterial3D with an albedo texture to tile." % node.name)
+		return
+
+	var tile := source.albedo_texture.get_size() * texel_scale  # one tile, in world units
+	if tile.x <= 0.0 or tile.y <= 0.0:
+		return
+
+	# A per-plane copy, because the floor and ceiling each need their own scale.
+	var material := source.duplicate() as StandardMaterial3D
+	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
+	material.texture_repeat = true
+	material.uv1_offset = Vector3.ZERO
+	material.uv1_scale = Vector3(size.x / tile.x, size.y / tile.y, 1.0)
+
+	match slot:
+		1: node.material_override = material
+		2: node.set_surface_override_material(0, material)
+		3: mesh.material = material
+
+
+## Gives the node its own PlaneMesh of the right size and puts it at local_pos (in the first path's
+## space), rotated so the plane's visible side faces into the room.
+func _place_plane(node: MeshInstance3D, r: Basis, local_pos: Vector3, size: Vector2, fit_texture := false) -> void:
+	if node == null:
+		return
+	var mesh := (node.mesh.duplicate() as PlaneMesh) if node.mesh is PlaneMesh else PlaneMesh.new()
+	mesh.size = size
+	mesh.orientation = PlaneMesh.FACE_Y  # the rotations assume the plane faces +Y
+	mesh.flip_faces = false
+	mesh.center_offset = Vector3.ZERO
+	node.mesh = mesh
+	node.global_transform = splitter.global_transform * Transform3D(r, local_pos)
+	if fit_texture:
+		_fit_wall_texture(node, mesh, size)
+
+
+## Makes the wall's texture span its full height once and repeat across its width,
+## keeping the texture's aspect ratio. size = (width, height).
+func _fit_wall_texture(node: MeshInstance3D, mesh: PlaneMesh, size: Vector2) -> void:
+	# Find the StandardMaterial3D the node actually renders with.
+	var source: StandardMaterial3D = null
+	var slot := 0  # 1 = material_override, 2 = surface override, 3 = the mesh's own material
+	if node.material_override is StandardMaterial3D:
+		source = node.material_override
+		slot = 1
+	elif node.get_surface_override_material(0) is StandardMaterial3D:
+		source = node.get_surface_override_material(0) as StandardMaterial3D
+		slot = 2
+	elif mesh.material is StandardMaterial3D:
+		source = mesh.material as StandardMaterial3D
+		slot = 3
+	if source == null or source.albedo_texture == null or size.y <= 0.0:
+		push_warning("NoiseSplitSequence: '%s' has no StandardMaterial3D with an albedo texture to fit." % node.name)
+		return
+
+	var tex_size := source.albedo_texture.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return
+
+	# One tile is as tall as the wall and (height * texture aspect) wide.
+	var tile_width := size.y * tex_size.x / tex_size.y
+	var repeats := size.x / tile_width
+
+	# A per-wall copy, because the walls usually share one material but each needs its own scale.
+	var material := source.duplicate() as StandardMaterial3D
+	material.uv1_triplanar = false  # triplanar mapping would ignore the UV scale
+	material.texture_repeat = true
+	material.uv1_offset = Vector3.ZERO
+	material.uv1_scale = Vector3(repeats, 1.0, 1.0)
+
+	match slot:
+		1: node.material_override = material
+		2: node.set_surface_override_material(0, material)
+		3: mesh.material = material
