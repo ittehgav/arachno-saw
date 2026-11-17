@@ -20,7 +20,6 @@ var accel:float = 1.0;
 @export var path:BodySplitPath
 	
 func _enter_tree() -> void:
-	progress_ratio = 0
 	var p:Node = get_parent();
 	while not p is BodySplitPath:
 		p = p.get_parent();

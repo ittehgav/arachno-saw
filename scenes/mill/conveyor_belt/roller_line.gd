@@ -8,6 +8,8 @@ var angle: float = 0.0
 var base_basis: Basis = Basis(Vector3.FORWARD, deg_to_rad(90.0))
 var origins: PackedVector3Array = PackedVector3Array()
 
+@export var warning_animation:AnimationPlayer
+
 
 func _ready() -> void:
 	setup_positions()

@@ -98,44 +98,6 @@ albedo_color = Color(0.8, 0, 0, 1)
 material = SubResource("StandardMaterial3D_kddjp")
 size = Vector2(500, 300)
 
-[sub_resource type="Animation" id="Animation_vgn88"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:mesh:material:albedo_color:a")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [1.0]
-}
-
-[sub_resource type="Animation" id="Animation_2fvhf"]
-resource_name = "warning_blink"
-length = 0.5
-loop_mode = 2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:mesh:material:albedo_color:a")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.75, 0.0]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_eclp4"]
-_data = {
-&"RESET": SubResource("Animation_vgn88"),
-&"warning_blink": SubResource("Animation_2fvhf")
-}
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_kh5iw"]
 size = Vector3(126.13501, 50.1568, 219.9375)
 
@@ -242,8 +204,6 @@ z_saw = ExtResource("4_7iwb6")
 pre_curve = SubResource("Curve3D_7smn1")
 saw_offset = Vector3(0, -20, 0)
 board_splitter = NodePath("splitter")
-floor_ceiling_texture_scale = 4.0
-room_height = 2000.0
 line_start_height = 1000.0
 cuts = Array[ExtResource("5_y8vph")]([SubResource("Resource_1c5mu"), SubResource("Resource_k82ej"), SubResource("Resource_kunue"), SubResource("Resource_c4gnm"), SubResource("Resource_4tg1t"), SubResource("Resource_3oxd0"), SubResource("Resource_xkhf6")])
 markers = NodePath("stage_points/splits")
@@ -276,7 +236,7 @@ tilt_enabled = false
 script = ExtResource("8_8r78h")
 moving = true
 board_0 = NodePath("board_container/full_board")
-warning = NodePath("detectors/roller_killbox_warning")
+warning = NodePath("../stage_points/roller_killbox_warning")
 path = NodePath("..")
 
 [node name="board_container" type="Node3D" parent="board_path_follow" unique_id=1492277024 node_paths=PackedStringArray("splitter", "top_trunk", "bottom_trunk", "left_trunk", "right_trunk", "full_board")]
@@ -350,27 +310,28 @@ splitter = NodePath("../../..")
 visible = false
 shape = SubResource("BoxShape3D_kddjp")
 
-[node name="roller_killbox_warning" type="MeshInstance3D" parent="board_path_follow/detectors" unique_id=494270245]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -72.8999, 0)
+[node name="stage_points" type="Node3D" parent="." unique_id=1646018957]
+transform = Transform3D(1, 0, 0, 0, 0.9998901, -0.014824363, 0, 0.014824363, 0.9998901, -0.17175293, -0.17785645, -0.080444336)
+
+[node name="roller_killbox_warning" type="MeshInstance3D" parent="stage_points" unique_id=494270245 node_paths=PackedStringArray("refresh_ticker", "roller_line")]
+transform = Transform3D(1, 0, 0, 0, 0.9998902, 0.014824365, 0, -0.014824365, 0.9998902, 0.17175293, -72.71287, 1.1584936)
 visible = false
 mesh = SubResource("PlaneMesh_u5bk5")
 script = ExtResource("13_1x8js")
+refresh_ticker = NodePath("refresh_rollers_ticker")
+roller_line = NodePath("../line")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="board_path_follow/detectors/roller_killbox_warning" unique_id=1897490934]
-libraries/ = SubResource("AnimationLibrary_eclp4")
-autoplay = &"warning_blink"
-
-[node name="warning_region" type="Area3D" parent="board_path_follow/detectors/roller_killbox_warning" unique_id=609192977]
+[node name="warning_region" type="Area3D" parent="stage_points/roller_killbox_warning" unique_id=609192977]
 collision_layer = 0
 collision_mask = 64
 monitorable = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="board_path_follow/detectors/roller_killbox_warning/warning_region" unique_id=1574630572]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage_points/roller_killbox_warning/warning_region" unique_id=1574630572]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24.578491, 0)
 shape = SubResource("BoxShape3D_kh5iw")
 
-[node name="stage_points" type="Node3D" parent="." unique_id=1646018957]
-transform = Transform3D(1, 0, 0, 0, 0.9998901, -0.014824363, 0, 0.014824363, 0.9998901, -0.17175293, -0.17785645, -0.080444336)
+[node name="refresh_rollers_ticker" type="Timer" parent="stage_points/roller_killbox_warning" unique_id=1513853127]
+wait_time = 0.1
 
 [node name="line" type="Node3D" parent="stage_points" unique_id=65402958]
 
@@ -762,8 +723,9 @@ scale_amount_curve = SubResource("Curve_7q4vo")
 [connection signal="area_entered" from="board_path_follow/board_container/full_board/Area3D" to="board_path_follow/board_container" method="board_area_entered"]
 [connection signal="area_exited" from="board_path_follow/board_container/full_board/Area3D" to="board_path_follow/board_container" method="board_area_exited"]
 [connection signal="area_entered" from="board_path_follow/detectors/turn_scan" to="board_path_follow" method="_on_turn_scan_area_entered"]
-[connection signal="body_entered" from="board_path_follow/detectors/roller_killbox_warning/warning_region" to="board_path_follow/detectors/roller_killbox_warning" method="_on_warning_region_body_entered"]
-[connection signal="body_exited" from="board_path_follow/detectors/roller_killbox_warning/warning_region" to="board_path_follow/detectors/roller_killbox_warning" method="_on_warning_region_body_exited"]
+[connection signal="body_entered" from="stage_points/roller_killbox_warning/warning_region" to="stage_points/roller_killbox_warning" method="_on_warning_region_body_entered"]
+[connection signal="body_exited" from="stage_points/roller_killbox_warning/warning_region" to="stage_points/roller_killbox_warning" method="_on_warning_region_body_exited"]
+[connection signal="timeout" from="stage_points/roller_killbox_warning/refresh_rollers_ticker" to="stage_points/roller_killbox_warning" method="_on_refresh_rollers_ticker_timeout"]
 [connection signal="area_entered" from="stage_points/splits/side_trunk_cuts/saw" to="stage_points/splits/side_trunk_cuts/saw" method="_on_area_entered"]
 [connection signal="area_exited" from="stage_points/splits/side_trunk_cuts/saw" to="stage_points/splits/side_trunk_cuts/saw" method="_on_area_exited"]
 [connection signal="board_left" from="stage_points/splits/side_trunk_cuts/saw" to="stage_points/splits/side_trunk_cuts/saw" method="_on_board_left"]

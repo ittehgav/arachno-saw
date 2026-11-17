@@ -45,9 +45,6 @@
 [ext_resource type="PackedScene" uid="uid://c7kiuhg6ojw8y" path="res://scenes/mill/path.tscn" id="37_w0lpd"]
 [ext_resource type="Texture2D" uid="uid://b4ckxkeuxn8vn" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_shutters_pt_1.png" id="41_pk54b"]
 [ext_resource type="Texture2D" uid="uid://bxhf1rk4tjjx2" path="res://assets/textures/psx normals/Normal Maps II/metal_shutters_pt_1_normal.png" id="42_figey"]
-[ext_resource type="Script" uid="uid://bo8cii1u2o63x" path="res://scenes/mill/conveyor_belt/roller_line.gd" id="43_pk54b"]
-[ext_resource type="Script" uid="uid://c02btu3ve6jb6" path="res://scenes/mill/saw/circular_saw.gd" id="45_figey"]
-[ext_resource type="Script" uid="uid://cnosd31ycpaih" path="res://scenes/mill/saw/band_saw.gd" id="48_icatd"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_22887"]
 seed = 1857033988
@@ -137,7 +134,7 @@ drop_side = 2
 [sub_resource type="Resource" id="Resource_2fvhf"]
 script = ExtResource("7_245by")
 axis = 2
-offset = 46.058333182097044
+offset = 46.05833318209704
 drop_side = 2
 
 [sub_resource type="Resource" id="Resource_eclp4"]
@@ -4344,250 +4341,209 @@ mesh = SubResource("BoxMesh_3l26r")
 [node name="@Node3D@31053" type="Node3D" parent="paths/path/board_path_follow/board_container/split_boards/full_board_s07_AAABAAB" unique_id=839161685]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.37683, 3.4842873, -21.078463)
 
-[node name="RollerLine_01" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="0" unique_id=838034453 instance=ExtResource("34_2lena")]
+[node name="RollerLine_01" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="0" unique_id=838034453 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 225.17175, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_02" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="1" unique_id=2145997027 instance=ExtResource("34_2lena")]
+[node name="RollerLine_02" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="1" unique_id=2145997027 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 675.17175, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_03" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="2" unique_id=764008496 instance=ExtResource("34_2lena")]
+[node name="RollerLine_03" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="2" unique_id=764008496 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 1125.1718, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_04" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="3" unique_id=261324651 instance=ExtResource("34_2lena")]
+[node name="RollerLine_04" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="3" unique_id=261324651 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 1575.1718, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_05" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="4" unique_id=2068040063 instance=ExtResource("34_2lena")]
+[node name="RollerLine_05" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="4" unique_id=2068040063 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 2025.1718, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_06" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="5" unique_id=542041973 instance=ExtResource("34_2lena")]
+[node name="RollerLine_06" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="5" unique_id=542041973 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 2475.1719, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_07" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="6" unique_id=336584809 instance=ExtResource("34_2lena")]
+[node name="RollerLine_07" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="6" unique_id=336584809 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 2925.1719, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_08" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="7" unique_id=328567321 instance=ExtResource("34_2lena")]
+[node name="RollerLine_08" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="7" unique_id=328567321 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 3375.1719, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_09" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="8" unique_id=499031072 instance=ExtResource("34_2lena")]
+[node name="RollerLine_09" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="8" unique_id=499031072 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 3825.1719, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_10" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="9" unique_id=132982902 instance=ExtResource("34_2lena")]
+[node name="RollerLine_10" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="9" unique_id=132982902 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 4275.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_11" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="10" unique_id=1293516188 instance=ExtResource("34_2lena")]
+[node name="RollerLine_11" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="10" unique_id=1293516188 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 4725.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_12" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="11" unique_id=1523284820 instance=ExtResource("34_2lena")]
+[node name="RollerLine_12" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="11" unique_id=1523284820 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 5175.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_13" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="12" unique_id=744602562 instance=ExtResource("34_2lena")]
+[node name="RollerLine_13" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="12" unique_id=744602562 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 5625.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_14" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="13" unique_id=1565944755 instance=ExtResource("34_2lena")]
+[node name="RollerLine_14" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="13" unique_id=1565944755 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 6075.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_15" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="14" unique_id=1241205748 instance=ExtResource("34_2lena")]
+[node name="RollerLine_15" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="14" unique_id=1241205748 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 6525.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_16" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="15" unique_id=1158694460 instance=ExtResource("34_2lena")]
+[node name="RollerLine_16" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="15" unique_id=1158694460 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 6975.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_17" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="16" unique_id=1487593902 instance=ExtResource("34_2lena")]
+[node name="RollerLine_17" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="16" unique_id=1487593902 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 7425.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_18" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="17" unique_id=2025620073 instance=ExtResource("34_2lena")]
+[node name="RollerLine_18" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="17" unique_id=2025620073 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 7875.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_19" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="18" unique_id=819880246 instance=ExtResource("34_2lena")]
+[node name="RollerLine_19" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="18" unique_id=819880246 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 8325.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_20" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="19" unique_id=846323810 instance=ExtResource("34_2lena")]
+[node name="RollerLine_20" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="19" unique_id=846323810 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 8775.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_21" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="20" unique_id=717166548 instance=ExtResource("34_2lena")]
+[node name="RollerLine_21" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="20" unique_id=717166548 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 9225.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_22" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="21" unique_id=677302698 instance=ExtResource("34_2lena")]
+[node name="RollerLine_22" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="21" unique_id=677302698 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 9675.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_23" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="22" unique_id=503976809 instance=ExtResource("34_2lena")]
+[node name="RollerLine_23" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="22" unique_id=503976809 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 10125.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_24" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="23" unique_id=1125865014 instance=ExtResource("34_2lena")]
+[node name="RollerLine_24" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="23" unique_id=1125865014 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 10575.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_25" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="24" unique_id=1056216875 instance=ExtResource("34_2lena")]
+[node name="RollerLine_25" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="24" unique_id=1056216875 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 11025.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_26" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="25" unique_id=1595869941 instance=ExtResource("34_2lena")]
+[node name="RollerLine_26" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="25" unique_id=1595869941 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 11475.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_27" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="26" unique_id=2029357303 instance=ExtResource("34_2lena")]
+[node name="RollerLine_27" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="26" unique_id=2029357303 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 11925.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_28" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="27" unique_id=1797123641 instance=ExtResource("34_2lena")]
+[node name="RollerLine_28" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="27" unique_id=1797123641 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 12375.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_29" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="28" unique_id=815833973 instance=ExtResource("34_2lena")]
+[node name="RollerLine_29" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="28" unique_id=815833973 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 12825.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_30" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="29" unique_id=96133261 instance=ExtResource("34_2lena")]
+[node name="RollerLine_30" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="29" unique_id=96133261 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 13275.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_31" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="30" unique_id=2026490454 instance=ExtResource("34_2lena")]
+[node name="RollerLine_31" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="30" unique_id=2026490454 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 13725.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_32" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="31" unique_id=162353431 instance=ExtResource("34_2lena")]
+[node name="RollerLine_32" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="31" unique_id=162353431 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 14175.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_33" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="32" unique_id=2066910889 instance=ExtResource("34_2lena")]
+[node name="RollerLine_33" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="32" unique_id=2066910889 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 14625.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_34" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="33" unique_id=2124992012 instance=ExtResource("34_2lena")]
+[node name="RollerLine_34" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="33" unique_id=2124992012 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 15075.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_35" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="34" unique_id=1567164104 instance=ExtResource("34_2lena")]
+[node name="RollerLine_35" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="34" unique_id=1567164104 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 15525.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_36" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="35" unique_id=355746270 instance=ExtResource("34_2lena")]
+[node name="RollerLine_36" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="35" unique_id=355746270 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 15975.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_37" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="36" unique_id=2024836604 instance=ExtResource("34_2lena")]
+[node name="RollerLine_37" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="36" unique_id=2024836604 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 16425.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_38" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="37" unique_id=1596363393 instance=ExtResource("34_2lena")]
+[node name="RollerLine_38" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="37" unique_id=1596363393 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 16875.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_39" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="38" unique_id=187303421 instance=ExtResource("34_2lena")]
+[node name="RollerLine_39" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="38" unique_id=187303421 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 17325.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_40" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="39" unique_id=854199698 instance=ExtResource("34_2lena")]
+[node name="RollerLine_40" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="39" unique_id=854199698 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 17775.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
-[node name="RollerLine_41" type="MultiMeshInstance3D" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="40" unique_id=793275758 instance=ExtResource("34_2lena")]
+[node name="RollerLine_41" parent="paths/path/stage_points/line" parent_id_path=PackedInt32Array(1417468114, 65402958) index="40" unique_id=793275758 instance=ExtResource("34_2lena")]
 transform = Transform3D(0, 0, 1, -0.014824365, 0.9998902, 0, -0.9998902, -0.014824365, 0, 18225.172, -99.80994, 1.560236)
 multimesh = SubResource("MultiMesh_u5bk5")
-script = ExtResource("43_pk54b")
 metadata/split_center_marker = true
 
 [node name="point_0" type="Area3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="2" unique_id=627060137]
@@ -4630,15 +4586,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31057" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_01/point_3" unique_id=1049064855]
 shape = SubResource("BoxShape3D_4nog0")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_01" unique_id=359837355 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_01" unique_id=359837355 groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.18261719, 0.42895508, -45.202847)
-script = ExtResource("45_figey")
-sfx_start = NodePath("saw_rotation_anchor/sfx/sfx_start")
-sfx_loop = NodePath("saw_rotation_anchor/sfx/sfx_loop")
-sfx_end = NodePath("saw_rotation_anchor/sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 1
 
 [node name="SplitCenter_02" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="6" unique_id=259052366]
@@ -4654,15 +4603,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31058" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_02/point_4" unique_id=990254226]
 shape = SubResource("BoxShape3D_3cxrr")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_02" unique_id=1120489273 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("5_mswun")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_02" unique_id=1120489273 groups=["circular_saws", "saws"] instance=ExtResource("5_mswun")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18261719, -36.49878, -91.06001)
-script = ExtResource("45_figey")
-sfx_start = NodePath("sfx/sfx_start")
-sfx_loop = NodePath("sfx/sfx_loop")
-sfx_end = NodePath("sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 2
 
 [node name="SplitCenter_03" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="7" unique_id=1799147345]
@@ -4678,15 +4620,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31059" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_03/point_5" unique_id=512931694]
 shape = SubResource("BoxShape3D_k0153")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_03" unique_id=1072927054 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_03" unique_id=1072927054 groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.18261719, -13.572815, -43.03084)
-script = ExtResource("45_figey")
-sfx_start = NodePath("saw_rotation_anchor/sfx/sfx_start")
-sfx_loop = NodePath("saw_rotation_anchor/sfx/sfx_loop")
-sfx_end = NodePath("saw_rotation_anchor/sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 3
 
 [node name="SplitCenter_04" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="8" unique_id=734595654]
@@ -4702,16 +4637,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31060" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_04/point_6" unique_id=1297808410]
 shape = SubResource("BoxShape3D_6rlda")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_04" unique_id=2013329940 node_paths=PackedStringArray("motion_animation", "band_animation", "sfx_start", "sfx_loop", "sfx_end", "camera", "particles_container") groups=["band_saws", "saws"] instance=ExtResource("6_y704n")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_04" unique_id=2013329940 groups=["band_saws", "saws"] instance=ExtResource("6_y704n")]
 transform = Transform3D(4.3711402e-08, 8.742276e-08, 1, -2.6226832e-07, -1, 8.742278e-08, 1, -2.6226832e-07, -4.3711378e-08, -43.030857, -43.499634, -350.03223)
-script = ExtResource("48_icatd")
-motion_animation = NodePath("saw_motion")
-band_animation = NodePath("foundation/band/band_motion")
-sfx_start = NodePath("sfx/sfx_start")
-sfx_loop = NodePath("sfx/sfx_loop")
-sfx_end = NodePath("sfx/sfx_end")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 4
 
 [node name="SplitCenter_05" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="9" unique_id=518238584]
@@ -4727,15 +4654,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31061" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_05/point_7" unique_id=1706644800]
 shape = SubResource("BoxShape3D_c8qql")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_05" unique_id=1423009406 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_05" unique_id=1423009406 groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -74.984375, -33.46039, -43.03084)
-script = ExtResource("45_figey")
-sfx_start = NodePath("saw_rotation_anchor/sfx/sfx_start")
-sfx_loop = NodePath("saw_rotation_anchor/sfx/sfx_loop")
-sfx_end = NodePath("saw_rotation_anchor/sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 5
 
 [node name="SplitCenter_06" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="10" unique_id=1263895078]
@@ -4751,15 +4671,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31062" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_06/point_8" unique_id=930963406]
 shape = SubResource("BoxShape3D_rk7s7")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_06" unique_id=662124571 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("5_mswun")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_06" unique_id=662124571 groups=["circular_saws", "saws"] instance=ExtResource("5_mswun")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74.984375, -53.44342, -88.946686)
-script = ExtResource("45_figey")
-sfx_start = NodePath("sfx/sfx_start")
-sfx_loop = NodePath("sfx/sfx_loop")
-sfx_end = NodePath("sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 6
 
 [node name="SplitCenter_07" type="Node3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="11" unique_id=397153089]
@@ -4775,15 +4688,8 @@ metadata/split_center_marker = true
 [node name="@CollisionShape3D@31063" type="CollisionShape3D" parent="paths/path/stage_points/splits/SplitCenter_07/point_9" unique_id=2143877116]
 shape = SubResource("BoxShape3D_r1gu6")
 
-[node name="Saw" type="Area3D" parent="paths/path/stage_points/splits/SplitCenter_07" unique_id=2142780775 node_paths=PackedStringArray("sfx_start", "sfx_loop", "sfx_end", "collision_shape", "camera", "particles_container") groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
+[node name="Saw" parent="paths/path/stage_points/splits/SplitCenter_07" unique_id=2142780775 groups=["circular_saws", "saws"] instance=ExtResource("33_cwvuo")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -74.984375, -40.428955, -41.974182)
-script = ExtResource("45_figey")
-sfx_start = NodePath("saw_rotation_anchor/sfx/sfx_start")
-sfx_loop = NodePath("saw_rotation_anchor/sfx/sfx_loop")
-sfx_end = NodePath("saw_rotation_anchor/sfx/sfx_end")
-collision_shape = NodePath("CollisionShape3D")
-camera = NodePath("saw_cam")
-particles_container = NodePath("particles_container")
 metadata/cut_number = 7
 
 [node name="final_point" type="Area3D" parent="paths/path/stage_points/splits" parent_id_path=PackedInt32Array(1417468114, 2106014652) index="12" unique_id=584128837]
@@ -4842,20 +4748,6 @@ shape = SubResource("BoxShape3D_ovo3d")
 [connection signal="area_exited" from="paths/path/board_path_follow/board_container/split_boards/full_board_s07_AAABAAA/Area3D" to="paths/path/board_path_follow/board_container" method="board_area_exited"]
 [connection signal="area_entered" from="paths/path/board_path_follow/board_container/split_boards/full_board_s07_AAABAAB/Area3D" to="paths/path/board_path_follow/board_container" method="board_area_entered"]
 [connection signal="area_exited" from="paths/path/board_path_follow/board_container/split_boards/full_board_s07_AAABAAB/Area3D" to="paths/path/board_path_follow/board_container" method="board_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_01/Saw" to="paths/path/stage_points/splits/SplitCenter_01/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_01/Saw" to="paths/path/stage_points/splits/SplitCenter_01/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_02/Saw" to="paths/path/stage_points/splits/SplitCenter_02/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_02/Saw" to="paths/path/stage_points/splits/SplitCenter_02/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_03/Saw" to="paths/path/stage_points/splits/SplitCenter_03/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_03/Saw" to="paths/path/stage_points/splits/SplitCenter_03/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_04/Saw" to="paths/path/stage_points/splits/SplitCenter_04/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_04/Saw" to="paths/path/stage_points/splits/SplitCenter_04/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_05/Saw" to="paths/path/stage_points/splits/SplitCenter_05/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_05/Saw" to="paths/path/stage_points/splits/SplitCenter_05/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_06/Saw" to="paths/path/stage_points/splits/SplitCenter_06/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_06/Saw" to="paths/path/stage_points/splits/SplitCenter_06/Saw" method="_on_area_exited"]
-[connection signal="area_entered" from="paths/path/stage_points/splits/SplitCenter_07/Saw" to="paths/path/stage_points/splits/SplitCenter_07/Saw" method="_on_area_entered"]
-[connection signal="area_exited" from="paths/path/stage_points/splits/SplitCenter_07/Saw" to="paths/path/stage_points/splits/SplitCenter_07/Saw" method="_on_area_exited"]
 
 [editable path="paths/path"]
 [editable path="paths/path/board_path_follow/spider"]
