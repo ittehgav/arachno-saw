@@ -88,7 +88,7 @@ size = Vector3(1000, 100, 100)
 size = Vector3(50, 50, 50)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_kddjp"]
-size = Vector3(1100, 200, 200)
+size = Vector3(1100, 250, 250)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kddjp"]
 transparency = 1
@@ -307,7 +307,6 @@ spawner_box = NodePath("spawner_box")
 splitter = NodePath("../../..")
 
 [node name="spawner_box" type="CollisionShape3D" parent="board_path_follow/detectors/fly_spawner" unique_id=1268910502]
-visible = false
 shape = SubResource("BoxShape3D_kddjp")
 
 [node name="stage_points" type="Node3D" parent="." unique_id=1646018957]

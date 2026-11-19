@@ -68,13 +68,13 @@ func apply_effect(spider:Crawler)->void:
 	animation.play("consume")
 	match type:
 		Type.speed:
-			spider.bonus_speed = 100 * (1 + Run.current_fly_combo * .1)
+			spider.bonus_speed = 1 + (.5 + Run.current_fly_combo * .1)
 			## creating it on spider so fly can queue free whenever
 			if spider.speed_up_tween and spider.speed_up_tween.is_running():
 				spider.speed_up_tween.kill()
 			spider.speed_up_tween = spider.create_tween(); 
 			spider.speed_up_tween.set_trans(Tween.TRANS_CUBIC)
-			spider.speed_up_tween.tween_property(spider, "bonus_speed", 0, 5)
+			spider.speed_up_tween.tween_property(spider, "bonus_speed", 1, 5)
 		Type.shield:
 			GLB.spider.has_shield = true;
 		Type.teleport:

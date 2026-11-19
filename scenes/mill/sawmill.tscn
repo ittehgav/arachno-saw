@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cguqlvyowpfxy" path="res://scenes/mill/saw/x_saw.tscn" id="6_y704n"]
 [ext_resource type="Script" uid="uid://ckkc4ecygyp4a" path="res://scenes/mill/generator/split_cut.gd" id="7_245by"]
 [ext_resource type="Script" uid="uid://dlxh8fkselkgm" path="res://scenes/mill/generator/level_gen.gd" id="8_x4ak7"]
+[ext_resource type="PackedScene" uid="uid://buqgypq5cfa8i" path="res://scenes/mill/saw/chipper.tscn" id="10_hhtew"]
 [ext_resource type="PackedScene" uid="uid://bvcg57qgd847s" path="res://scenes/spider/spider.tscn" id="12_sccxs"]
 [ext_resource type="Script" uid="uid://br0f4rygyj7vb" path="res://scenes/mill/pause_overlay.gd" id="12_wrxns"]
 [ext_resource type="AudioStream" uid="uid://ctkeihy12nqv5" path="res://assets/sound/ui/post_game/score_display/DSGNMisc_MELEE-Sword Slash_HY_PC-001.ogg" id="13_sccxs"]
@@ -44,7 +45,7 @@
 [ext_resource type="Script" uid="uid://bvt0s475x7eti" path="res://scenes/mill/next_stage_pointer.gd" id="37_2n3pc"]
 [ext_resource type="PackedScene" uid="uid://c7kiuhg6ojw8y" path="res://scenes/mill/path.tscn" id="37_w0lpd"]
 [ext_resource type="Texture2D" uid="uid://b4ckxkeuxn8vn" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_shutters_pt_1.png" id="41_pk54b"]
-[ext_resource type="Texture2D" uid="uid://bxhf1rk4tjjx2" path="res://assets/textures/psx normals/Normal Maps II/metal_shutters_pt_1_normal.png" id="42_figey"]
+[ext_resource type="Texture2D" uid="uid://bxhf1rk4tjjx2" path="res://assets/textures/psx normals/metal_shutters_pt_1_normal.png" id="42_figey"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_22887"]
 seed = 1857033988
@@ -2502,6 +2503,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1000, 0)
 curve = SubResource("Curve3D_fxilk")
 cuts = Array[ExtResource("7_245by")]([SubResource("Resource_dqlgv"), SubResource("Resource_2fvhf"), SubResource("Resource_eclp4"), SubResource("Resource_2n3pc"), SubResource("Resource_xeok3"), SubResource("Resource_b44dx"), SubResource("Resource_fksie")])
 positioning_seed = 1857033988
+chipper_scene = ExtResource("10_hhtew")
 
 [node name="splitter" parent="paths/path" index="0" unique_id=1039285426]
 split_map = {
@@ -2515,7 +2517,7 @@ NodePath("../board_path_follow/board_container/split_boards/full_board_s06_AAABA
 }
 
 [node name="spider" parent="paths/path/board_path_follow" parent_id_path=PackedInt32Array(1417468114, 1708095201) index="0" unique_id=177370040 node_paths=PackedStringArray("pcam") instance=ExtResource("12_sccxs")]
-transform = Transform3D(-1.07284414e-07, 0, -1, 0, 1, 0, 1, 0, -1.07284414e-07, -403.3454, 71.572876, 13.926044)
+transform = Transform3D(-1.07284414e-07, 0, -1, 0, 1, 0, 1, 0, -1.07284414e-07, -403.3454, 70.2793, 13.926044)
 collision_mask = 33
 pcam = NodePath("camera_control/PhantomCamera3D")
 
@@ -2547,15 +2549,11 @@ camera_3d_resource = SubResource("Resource_vgn88")
 follow_distance = 80.0
 spring_length = 80.0
 noise = SubResource("Resource_pg34l")
-align_transform_with_view = Callable()
-align_position_with_view = Callable()
-align_rotation_with_view = Callable()
 metadata/_custom_type_script = "uid://csjccrhj5wnx7"
 
 [node name="Camera3D" type="Camera3D" parent="paths/path/board_path_follow/spider/camera_control" unique_id=926432065]
 physics_interpolation_mode = 1
-transform = Transform3D(-1.192093e-07, 0, -1, 0, 1, 0, 1, 0, -1.192093e-07, -483.3454, 1077.2947, 13.926036)
-top_level = true
+transform = Transform3D(-1.192093e-07, 0, -1, 0, 1, 0, 1, 0, -1.192093e-07, -483.3454, 1076.0011, 13.926036)
 current = true
 
 [node name="PhantomCameraHost" type="Node" parent="paths/path/board_path_follow/spider/camera_control/Camera3D" unique_id=606158341]

@@ -571,9 +571,9 @@ func _free_now(n: Node) -> void:
 	n.queue_free()
 
 
-func _final_point_global(path: Path3D) -> Vector3:
-	return path.to_global(path.curve.get_point_position(path.curve.point_count - 1))
-
+## The path's final point (where its last trigger area sits). The chipper's point and the run-out past it don't count.
+func _final_point_global(path: BodySplitPath) -> Vector3:
+	return path.to_global(path.curve.get_point_position(maxi(path.curve.point_count - 3, 0)))
 
 ## Local position of the first curve point a path generates from (pre_curve's first point, or the origin).
 func _start_point_local(path: BodySplitPath) -> Vector3:

@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://ih1vugv0aarf" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_roofing_pt_1.png" id="6_bsod6"]
 [ext_resource type="AudioStream" uid="uid://gng87f6fsbdd" path="res://assets/sound/saw/saw_end.ogg" id="6_mdwkj"]
 [ext_resource type="Texture2D" uid="uid://b3ry0krkujkbk" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/beam_panels_pt_2.png" id="6_tqcbo"]
-[ext_resource type="Texture2D" uid="uid://bvox6pcv37yf0" path="res://assets/textures/psx normals/Normal Maps/metal_wall_tx_3_1_normal.png" id="7_dxihh"]
+[ext_resource type="Texture2D" uid="uid://bvox6pcv37yf0" path="res://assets/textures/psx normals/metal_wall_tx_3_1_normal.png" id="7_dxihh"]
 [ext_resource type="Texture2D" uid="uid://b50sxs15v5mjh" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_4.png" id="8_mdwkj"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i02ns"]

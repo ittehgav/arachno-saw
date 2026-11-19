@@ -72,6 +72,9 @@ const POINT_AREA_SIZE := 50.0
 ## Node the roller line instances are added under. Falls back to `markers` if empty.
 @export var roller_root: Node3D
 
+## Scene placed on the extra point past the final point. Its origin sits on the point.
+@export var chipper_scene: PackedScene
+
 @export var roller_line: PackedScene
 ## Distance between roller line instances along the path, which should match the scene's length.
 @export var roller_spacing := 450.0
@@ -161,7 +164,8 @@ func _remaining_bounds_per_cut(valid_cuts: Array[SplitCut], start: AABB) -> Arra
 			size[cut.axis] = hi - cut.offset
 		elif positive_falls and not negative_falls:
 			size[cut.axis] = cut.offset - lo
-		remaining = AABB(pos, size)
+			remaining = AABB(pos, size)
+	result.append(remaining)  # the last entry is the board left after every cut
 	return result
 
 
@@ -215,7 +219,18 @@ func create_split_markers() -> void:
 	# One extra, empty point past the last saw, spaced like a further cut would be.
 	pos.x += base_point_spacing + extra_point_spacing+ length * rng.randf_range(1.25, 1.5)
 	new_curve.add_point(pos)
+	
 	var final_point_index := new_curve.point_count - 1
+
+	# The chipper's point: 1.5x the length of the board left after the last cut, past the final point.
+	var end_length: float = remaining_before.back().size.x
+	pos.x += end_length * 1.5
+	new_curve.add_point(pos)
+	var chipper_point_index := new_curve.point_count - 1
+
+	# The path runs on past the chipper for one more board length.
+	pos.x += end_length
+	new_curve.add_point(pos)
 	curve = new_curve
 	
 	# Markers and saws: one per cut, at that cut's point (the run-out points get none).
@@ -328,6 +343,23 @@ func create_split_markers() -> void:
 	if scene_root:
 		final_area.owner = scene_root
 		final_shape_node.owner = scene_root
+		
+	# The chipper sits on the extra point (no trigger area there). Its scene keeps its authored rotation
+	# relative to the direction the board travels.
+	if chipper_scene != null:
+		var chipper := chipper_scene.instantiate() as Node3D
+		if chipper == null:
+			push_warning("BodySplitPath: the chipper scene's root isn't a Node3D.")
+		else:
+			var native_basis := chipper.basis
+			chipper.name = "chipper"
+			chipper.set_meta(MARKER_META, true)
+			chipper.add_to_group("chippers", true)
+			markers.add_child(chipper)
+			chipper.global_transform = Transform3D(_board_basis_at(chipper_point_index) * native_basis,
+					to_global(curve.get_point_position(chipper_point_index)))
+			if scene_root:
+				chipper.owner = scene_root
 	
 	_create_rollers(scene_root)
 	
@@ -409,7 +441,7 @@ func get_room_boxes(to_local_xform: Transform3D) -> Array[AABB]:
 		))
 	if markers != null:
 		for saw: Node in markers.find_children("*", "Node3D", true, false):
-			if not saw.is_in_group("saws"):
+			if not (saw.is_in_group("saws") or saw.is_in_group("chippers")):
 				continue
 			boxes.append(AABB(to_local_xform * (saw as Node3D).global_position, Vector3.ZERO))
 			var visuals: Array = saw.find_children("*", "VisualInstance3D", true, false)

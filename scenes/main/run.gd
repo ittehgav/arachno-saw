@@ -171,7 +171,7 @@ func _on_accelerate_timeout() -> void:
 		## the same acceleration curve for any given seed
 		pf.accel *= 1.05
 		score_ticker.wait_time /= 1.05
-		GLB.spider.SPEED *= 1.05
+		GLB.spider.base_speed *= 1.05
 		score_multiplier *= 1.05
 	
 

@@ -5,7 +5,7 @@ extends Node3D
 
 var current_flies:Array[Fly];
 
-const surface_mask = 3
+const surface_mask = 1
 
 func _ready()->void:
 	await Run.run_started;
@@ -149,8 +149,7 @@ func get_random_surface_point(
 		for j in max_steps:
 			var query := PhysicsRayQueryParameters3D.create(pos, center)
 			query.collision_mask = surface_mask
-			# query.collide_with_areas = true   # if you're using Area3Ds
-			# query.collide_with_bodies = false
+
 
 			var hit := space.intersect_ray(query)
 			if hit and _is_far_enough(hit.position, avoid_nodes, min_dist_sq):

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://nr4jyguwa2oj"]
+
+[ext_resource type="PackedScene" uid="uid://bvcg57qgd847s" path="res://scenes/spider/spider.tscn" id="1_2g3jc"]
+[ext_resource type="Texture2D" uid="uid://cfj7f62bqlbtg" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_floor_1.png" id="2_gkj0l"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
+size = Vector3(864.77246, 1, 1968.041)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tncfs"]
+albedo_texture = ExtResource("2_gkj0l")
+
+[sub_resource type="BoxMesh" id="BoxMesh_u5bk5"]
+size = Vector3(736.0342, 1, 1656.2676)
+
+[node name="Walkbroplease" type="Node3D" unique_id=1435427055]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1033664372]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=569837819]
+shape = SubResource("BoxShape3D_u5bk5")
+
+[node name="spider" parent="StaticBody3D" unique_id=177370040 instance=ExtResource("1_2g3jc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.646082, 22.281494, 3.2279887)
+
+[node name="Camera3D" type="Camera3D" parent="StaticBody3D/spider" unique_id=2036486473]
+transform = Transform3D(1, 0, 0, 0, 0.8242069, 0.56628877, 0, -0.56628877, 0.8242069, 0, 61.016953, 49.205772)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=731366849]
+material_override = SubResource("StandardMaterial3D_tncfs")
+mesh = SubResource("BoxMesh_u5bk5")

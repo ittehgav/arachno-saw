@@ -1,5 +1,382 @@
 [gd_scene format=3 uid="uid://c31lietrgxcg5"]
 
 [ext_resource type="PackedScene" uid="uid://baq0rr0n4dwiy" path="res://assets/3D/new folder/grinder_foundation.blend" id="1_ptpcy"]
+[ext_resource type="Texture2D" uid="uid://c3k5ha0s2lr0v" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_roof_tx_1_1.png" id="2_a2ye6"]
+[ext_resource type="Texture2D" uid="uid://ih1vugv0aarf" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_roofing_pt_1.png" id="2_vwbc3"]
+[ext_resource type="Texture2D" uid="uid://bx75yr3lmexly" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/painted_concrete_wall_pt_5_3.png" id="2_wt3fj"]
+[ext_resource type="Texture2D" uid="uid://drcdpidte36kf" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_floor_3.png" id="3_6pvwo"]
+[ext_resource type="Texture2D" uid="uid://cu2a5exsswbf7" path="res://assets/textures/psx normals/metal_roofing_pt_1_normal.png" id="3_yk8k6"]
+[ext_resource type="Texture2D" uid="uid://ltfc0xfv45wk" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/roof_pt_1.png" id="5_wt3fj"]
+[ext_resource type="Texture2D" uid="uid://c5oon1bffy10i" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/painted_concrete_wall_pt_10.png" id="7_xtalt"]
+[ext_resource type="Texture2D" uid="uid://b3558iwoxacm" path="res://assets/textures/psx/PSX Textures/256/Color Maps/roofing_2_1.png" id="7_yk8k6"]
+[ext_resource type="Texture2D" uid="uid://dhsai1qplg6jb" path="res://assets/textures/psx normals/roofing_2_1_normal.png" id="8_64w3s"]
+[ext_resource type="Texture2D" uid="uid://b3qru74muyox8" path="res://assets/textures/psx/PSX Textures/256/Color Maps/water_1.png" id="10_wyysu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_64w3s"]
+albedo_texture = ExtResource("2_vwbc3")
+normal_enabled = true
+normal_texture = ExtResource("3_yk8k6")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xtalt"]
+albedo_texture = ExtResource("2_wt3fj")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tgeom"]
+albedo_texture = ExtResource("2_a2ye6")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_roajc"]
+albedo_texture = ExtResource("3_6pvwo")
+uv1_scale = Vector3(6.595, 6.595, 6.595)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wt3fj"]
+albedo_color = Color(1.3262677, 1.3262677, 1.3262677, 1)
+albedo_texture = ExtResource("7_yk8k6")
+normal_enabled = true
+normal_texture = ExtResource("8_64w3s")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vwbc3"]
+albedo_texture = ExtResource("5_wt3fj")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_66qpa"]
+albedo_texture = ExtResource("10_wyysu")
+uv1_scale = Vector3(0.01, 0.01, 0.01)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yk8k6"]
+albedo_texture = ExtResource("7_xtalt")
 
 [node name="grinder_foundation" unique_id=1632359424 instance=ExtResource("1_ptpcy")]
+
+[node name="Cylinder" parent="." index="0" unique_id=306446386]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -115.342766, -13.936094)
+
+[node name="Cylinder_001" parent="." index="1" unique_id=27185534]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 134.65723, -13.936106)
+
+[node name="tooth" parent="." index="2" unique_id=1617131222]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -229.83786, -113.50589)
+
+[node name="tooth_001" parent="." index="3" unique_id=439039843]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -229.83786, -13.505883)
+
+[node name="tooth_002" parent="." index="4" unique_id=1215284680]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -229.83786, 86.49411)
+
+[node name="tooth_004" parent="." index="5" unique_id=929511190]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, -214.49843, -163.50587)
+
+[node name="tooth_005" parent="." index="6" unique_id=590234097]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, -214.49843, -63.505886)
+
+[node name="tooth_006" parent="." index="7" unique_id=1843508807]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, -214.49843, 36.494114)
+
+[node name="tooth_007" parent="." index="8" unique_id=1574953535]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, -214.49843, 136.49413)
+
+[node name="tooth_008" parent="." index="9" unique_id=124920588]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, -172.59032, -113.50589)
+
+[node name="tooth_009" parent="." index="10" unique_id=936278320]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, -172.59032, -13.505885)
+
+[node name="tooth_010" parent="." index="11" unique_id=872032565]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, -172.59032, 86.49411)
+
+[node name="tooth_012" parent="." index="12" unique_id=1542666446]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, -115.34277, -163.50589)
+
+[node name="tooth_013" parent="." index="13" unique_id=1500221288]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, -115.342766, -63.50589)
+
+[node name="tooth_014" parent="." index="14" unique_id=460634111]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, -115.342766, 36.49411)
+
+[node name="tooth_015" parent="." index="15" unique_id=1960673698]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, -115.34276, 136.49411)
+
+[node name="tooth_016" parent="." index="16" unique_id=306090625]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, -58.095222, -113.5059)
+
+[node name="tooth_017" parent="." index="17" unique_id=1474455190]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, -58.09522, -13.505891)
+
+[node name="tooth_018" parent="." index="18" unique_id=192524389]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, -58.095215, 86.4941)
+
+[node name="tooth_020" parent="." index="19" unique_id=1649765744]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, -16.187115, -163.50589)
+
+[node name="tooth_021" parent="." index="20" unique_id=394189068]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, -16.18711, -63.505894)
+
+[node name="tooth_022" parent="." index="21" unique_id=19128150]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, -16.187107, 36.494106)
+
+[node name="tooth_023" parent="." index="22" unique_id=1315044742]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, -16.187101, 136.49411)
+
+[node name="tooth_024" parent="." index="23" unique_id=651704938]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, -0.8476809, -113.5059)
+
+[node name="tooth_025" parent="." index="24" unique_id=146958150]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, -0.84767663, -13.505893)
+
+[node name="tooth_026" parent="." index="25" unique_id=1280797968]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, -0.8476722, 86.4941)
+
+[node name="tooth_028" parent="." index="26" unique_id=1882483019]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, -16.187115, -163.50589)
+
+[node name="tooth_029" parent="." index="27" unique_id=935976286]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, -16.18711, -63.505894)
+
+[node name="tooth_030" parent="." index="28" unique_id=1206553130]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, -16.187107, 36.494106)
+
+[node name="tooth_031" parent="." index="29" unique_id=1744362622]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, -16.187101, 136.49411)
+
+[node name="tooth_032" parent="." index="30" unique_id=1541736453]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, -58.095222, -113.5059)
+
+[node name="tooth_033" parent="." index="31" unique_id=608757925]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, -58.09522, -13.505891)
+
+[node name="tooth_034" parent="." index="32" unique_id=1476781900]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, -58.095215, 86.4941)
+
+[node name="tooth_036" parent="." index="33" unique_id=958352667]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, -115.34277, -163.50589)
+
+[node name="tooth_037" parent="." index="34" unique_id=1541901393]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, -115.342766, -63.50589)
+
+[node name="tooth_038" parent="." index="35" unique_id=1260015527]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, -115.342766, 36.49411)
+
+[node name="tooth_039" parent="." index="36" unique_id=1746796550]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, -115.34276, 136.49411)
+
+[node name="tooth_040" parent="." index="37" unique_id=2034558586]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, -172.59032, -113.50589)
+
+[node name="tooth_041" parent="." index="38" unique_id=1725611020]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, -172.59032, -13.505885)
+
+[node name="tooth_042" parent="." index="39" unique_id=2077927860]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, -172.59032, 86.49411)
+
+[node name="tooth_044" parent="." index="40" unique_id=946199260]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, -214.49843, -163.50587)
+
+[node name="tooth_045" parent="." index="41" unique_id=2087732289]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, -214.49843, -63.505886)
+
+[node name="tooth_046" parent="." index="42" unique_id=387877702]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, -214.49843, 36.494114)
+
+[node name="tooth_047" parent="." index="43" unique_id=1631943575]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, -214.49843, 136.49413)
+
+[node name="tooth_003" parent="." index="44" unique_id=1158226183]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 20.162148, -113.5059)
+
+[node name="tooth_011" parent="." index="45" unique_id=442555904]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 20.162151, -13.505894)
+
+[node name="tooth_019" parent="." index="46" unique_id=1284100897]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 20.162155, 86.4941)
+
+[node name="tooth_027" parent="." index="47" unique_id=1495212249]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, 35.501575, -163.50589)
+
+[node name="tooth_035" parent="." index="48" unique_id=1966052660]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, 35.50158, -63.505894)
+
+[node name="tooth_043" parent="." index="49" unique_id=239857024]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, 35.501587, 36.494106)
+
+[node name="tooth_048" parent="." index="50" unique_id=1264284477]
+transform = Transform3D(0.8660254, 0, -0.5, 0.5, -4.371139e-08, 0.8660254, -2.1855694e-08, -1, -3.7855173e-08, 57.247543, 35.50159, 136.49411)
+
+[node name="tooth_049" parent="." index="51" unique_id=645215208]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, 77.40968, -113.5059)
+
+[node name="tooth_050" parent="." index="52" unique_id=2582320]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, 77.40969, -13.505897)
+
+[node name="tooth_051" parent="." index="53" unique_id=1645953887]
+transform = Transform3D(0.5, 0, -0.8660254, 0.8660254, -4.371139e-08, 0.5, -3.7855173e-08, -1, -2.1855694e-08, 99.155655, 77.4097, 86.4941)
+
+[node name="tooth_052" parent="." index="54" unique_id=510856775]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, 134.65723, -163.50589)
+
+[node name="tooth_053" parent="." index="55" unique_id=555377559]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, 134.65723, -63.5059)
+
+[node name="tooth_054" parent="." index="56" unique_id=454662033]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, 134.65723, 36.4941)
+
+[node name="tooth_055" parent="." index="57" unique_id=208009637]
+transform = Transform3D(0, 0, -1, 1, -4.371139e-08, 0, -4.371139e-08, -1, 0, 114.49509, 134.65723, 136.49411)
+
+[node name="tooth_056" parent="." index="58" unique_id=1041707379]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, 191.90477, -113.505905)
+
+[node name="tooth_057" parent="." index="59" unique_id=717931085]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, 191.90477, -13.505901)
+
+[node name="tooth_058" parent="." index="60" unique_id=1176784508]
+transform = Transform3D(-0.5, 0, -0.8660253, 0.8660253, -4.371139e-08, -0.5, -3.785517e-08, -1, 2.1855694e-08, 99.155655, 191.90477, 86.494095)
+
+[node name="tooth_059" parent="." index="61" unique_id=442667708]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, 233.81288, -163.5059)
+
+[node name="tooth_060" parent="." index="62" unique_id=1162060519]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, 233.81288, -63.505905)
+
+[node name="tooth_061" parent="." index="63" unique_id=634851884]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, 233.81288, 36.494095)
+
+[node name="tooth_062" parent="." index="64" unique_id=150499973]
+transform = Transform3D(-0.86602545, 0, -0.5000001, 0.50000006, -4.371139e-08, -0.8660253, -2.1855698e-08, -1.0000001, 3.7855173e-08, 57.247543, 233.81288, 136.4941)
+
+[node name="tooth_063" parent="." index="65" unique_id=1276042536]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, 249.15231, -113.505905)
+
+[node name="tooth_064" parent="." index="66" unique_id=242704612]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, 249.15231, -13.505904)
+
+[node name="tooth_065" parent="." index="67" unique_id=2115434491]
+transform = Transform3D(-1, 0, -1.509958e-07, 1.509958e-07, -4.371139e-08, -1, -6.600236e-15, -1, 4.371139e-08, 0, 249.15231, 86.494095)
+
+[node name="tooth_066" parent="." index="68" unique_id=2066506121]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, 233.81288, -163.5059)
+
+[node name="tooth_067" parent="." index="69" unique_id=799366170]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, 233.81288, -63.505905)
+
+[node name="tooth_068" parent="." index="70" unique_id=579331375]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, 233.81288, 36.494095)
+
+[node name="tooth_069" parent="." index="71" unique_id=1172366943]
+transform = Transform3D(-0.8660253, 0, 0.4999999, -0.4999999, -4.371139e-08, -0.8660253, 2.1855692e-08, -1, 3.785517e-08, -57.247543, 233.81288, 136.4941)
+
+[node name="tooth_070" parent="." index="72" unique_id=328144547]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, 191.90477, -113.505905)
+
+[node name="tooth_071" parent="." index="73" unique_id=393281439]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, 191.90477, -13.505901)
+
+[node name="tooth_072" parent="." index="74" unique_id=280164822]
+transform = Transform3D(-0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, -0.5, 3.7855173e-08, -1, 2.1855694e-08, -99.155655, 191.90477, 86.494095)
+
+[node name="tooth_073" parent="." index="75" unique_id=1556525377]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, 134.65723, -163.50589)
+
+[node name="tooth_074" parent="." index="76" unique_id=1976454147]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, 134.65723, -63.5059)
+
+[node name="tooth_075" parent="." index="77" unique_id=1085725700]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, 134.65723, 36.4941)
+
+[node name="tooth_076" parent="." index="78" unique_id=951182557]
+transform = Transform3D(0, 0, 1, -1, -4.371139e-08, 0, 4.371139e-08, -1, 0, -114.49509, 134.65723, 136.49411)
+
+[node name="tooth_077" parent="." index="79" unique_id=351284536]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, 77.40968, -113.5059)
+
+[node name="tooth_078" parent="." index="80" unique_id=1293615363]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, 77.40969, -13.505897)
+
+[node name="tooth_079" parent="." index="81" unique_id=204171318]
+transform = Transform3D(0.5, 0, 0.8660254, -0.8660254, -4.371139e-08, 0.5, 3.7855173e-08, -1, -2.1855694e-08, -99.155655, 77.4097, 86.4941)
+
+[node name="tooth_080" parent="." index="82" unique_id=811570976]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, 35.501575, -163.50589)
+
+[node name="tooth_081" parent="." index="83" unique_id=1016752037]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, 35.50158, -63.505894)
+
+[node name="tooth_082" parent="." index="84" unique_id=641512900]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, 35.501587, 36.494106)
+
+[node name="tooth_083" parent="." index="85" unique_id=1811018269]
+transform = Transform3D(0.8660255, 0, 0.4999998, -0.4999998, -4.371139e-08, 0.8660255, 2.1855685e-08, -1, -3.7855177e-08, -57.247543, 35.50159, 136.49411)
+
+[node name="Cube_001" parent="." index="86" unique_id=1188248317]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -40, -440.34277, -223.93608)
+
+[node name="Cube_002" parent="." index="87" unique_id=1200192949]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 40, -440.34277, -223.93608)
+
+[node name="Cube_003" parent="." index="88" unique_id=1227970408]
+transform = Transform3D(-1, 0, 0, 0, 4.371139e-08, 1, 0, 1, -4.371139e-08, 40, -440.34277, 196.06392)
+
+[node name="Cube_004" parent="." index="89" unique_id=879422187]
+transform = Transform3D(1, 0, 0, 0, 4.371139e-08, 1, 0, 1, -4.371139e-08, -40, -440.34277, 196.06392)
+
+[node name="Cube" parent="." index="90" unique_id=5886982]
+transform = Transform3D(5.3644175e-07, -0.9999999, 0, -4.371138e-08, -2.3448615e-14, 0.99999994, -0.99999994, -5.364418e-07, -4.371139e-08, 12.235685, -77.30118, 309.043)
+
+[node name="Cylinder_002" parent="." index="91" unique_id=630815024]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, -9.715546, -77.30118, 372.5506)
+
+[node name="Cube_005" parent="." index="92" unique_id=426056537]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, -9.6461315, -77.30118, 403.87274)
+
+[node name="Cube_006" parent="." index="93" unique_id=88173184]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, -9.6461315, -77.30118, 403.87274)
+
+[node name="Cube_007" parent="." index="94" unique_id=1708017616]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, 12.235695, 29.51351, 366.03693)
+
+[node name="Cube_008" parent="." index="95" unique_id=805948816]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, 27.875443, -65.13692, 269.04675)
+
+[node name="Cylinder_003" parent="." index="96" unique_id=1774866778]
+transform = Transform3D(-1, 1.509958e-07, 0, 6.600236e-15, 4.371139e-08, 1, 1.509958e-07, 1, -4.371139e-08, 27.875443, -65.13692, 261.93494)
+
+[node name="Cube_009" parent="." index="97" unique_id=2053312668]
+transform = Transform3D(1.192093e-07, -1, 0, 4.371139e-08, 5.210804e-15, 1, 1, 1.192093e-07, -4.371139e-08, 12.235685, 141.02419, -310.2916)
+surface_material_override/0 = SubResource("StandardMaterial3D_64w3s")
+
+[node name="Cylinder_004" parent="." index="98" unique_id=103610815]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -9.715546, 141.02419, -373.7992)
+surface_material_override/0 = SubResource("StandardMaterial3D_xtalt")
+
+[node name="Cube_010" parent="." index="99" unique_id=754511533]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -9.6461315, 141.02419, -405.12134)
+surface_material_override/0 = SubResource("StandardMaterial3D_tgeom")
+surface_material_override/1 = SubResource("StandardMaterial3D_roajc")
+
+[node name="Cube_011" parent="." index="100" unique_id=1525708847]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -9.6461315, 141.02419, -405.12134)
+
+[node name="Cube_012" parent="." index="101" unique_id=463362516]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 12.235695, 247.83888, -367.28552)
+surface_material_override/0 = SubResource("StandardMaterial3D_wt3fj")
+surface_material_override/1 = SubResource("StandardMaterial3D_vwbc3")
+surface_material_override/2 = SubResource("StandardMaterial3D_66qpa")
+surface_material_override/3 = SubResource("StandardMaterial3D_yk8k6")
+
+[node name="Cube_013" parent="." index="102" unique_id=719056019]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 27.875443, 153.18846, -270.29535)
+
+[node name="Cylinder_005" parent="." index="103" unique_id=1541021570]
+transform = Transform3D(-1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 27.875443, 153.18846, -263.18353)
