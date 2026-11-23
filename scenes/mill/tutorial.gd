@@ -28,6 +28,4 @@ func _on_board_path_follow_point_reached(_i: int, split_center: Node3D) -> void:
 		## ugly bad referencing will probably case trouble in the future and i deser it
 		var next_path:BodySplitPath = path.get_parent().get_node("path_02")
 		cc.pcam.look_at(next_path.global_position)
-		print(len(GLB.board_path_follow.point_reached.get_connections()))
 		GLB.board_path_follow.point_reached.disconnect(_on_board_path_follow_point_reached)
-		print(len(GLB.board_path_follow.point_reached.get_connections()))

@@ -1,12 +1,18 @@
 [gd_scene format=4 uid="uid://buqgypq5cfa8i"]
 
 [ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="1_fv37d"]
-[ext_resource type="Script" uid="uid://cuwwq63us6p74" path="res://scenes/mill/saw/material_stylizer.gd" id="1_j65mr"]
+[ext_resource type="Script" uid="uid://u16kq3l88cam" path="res://scenes/mill/saw/chipper.gd" id="1_xt687"]
+[ext_resource type="AudioStream" uid="uid://38jd85yu6xoo" path="res://assets/sound/saw/grinder/grinder1.ogg" id="2_2ovri"]
 [ext_resource type="Texture2D" uid="uid://ccxq74nxus6bu" path="res://assets/textures/metal_roofing_pt_1_90.png" id="2_j65mr"]
 [ext_resource type="Texture2D" uid="uid://bw2la6bp08rqm" path="res://assets/textures/psx normals/metal_panels_pt_1_3_normal.png" id="3_dywue"]
+[ext_resource type="AudioStream" uid="uid://chuon0jnrnaqr" path="res://assets/sound/saw/grinder/grinder2.ogg" id="3_eybqy"]
 [ext_resource type="Texture2D" uid="uid://b4ckxkeuxn8vn" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_shutters_pt_1.png" id="3_eyumc"]
+[ext_resource type="AudioStream" uid="uid://bc8xv1acbrd4v" path="res://assets/sound/saw/grinder/grinder3.ogg" id="4_buu32"]
+[ext_resource type="AudioStream" uid="uid://jpujwnwdjrbd" path="res://assets/sound/saw/grinder/grinder4.ogg" id="5_1qknl"]
 [ext_resource type="Texture2D" uid="uid://3yqjv1b36mpt" path="res://assets/textures/psx normals/metal_roofing_pt_1_90_normal.png" id="5_uew5s"]
+[ext_resource type="AudioStream" uid="uid://25cu6xpkw45x" path="res://assets/sound/saw/grinder/grinder5.ogg" id="6_k12ba"]
 [ext_resource type="Texture2D" uid="uid://bxhf1rk4tjjx2" path="res://assets/textures/psx normals/metal_shutters_pt_1_normal.png" id="6_uew5s"]
+[ext_resource type="AudioStream" uid="uid://cqldcxjjmcipw" path="res://assets/sound/saw/grinder/grinder6.ogg" id="7_kls7i"]
 [ext_resource type="Texture2D" uid="uid://b5g073hfef08c" path="res://assets/textures/psx/PSX Textures/256/metal_wall_tx_3_1.png" id="8_ywq3m"]
 [ext_resource type="Texture2D" uid="uid://bvox6pcv37yf0" path="res://assets/textures/psx normals/metal_wall_tx_3_1_normal.png" id="9_wskal"]
 [ext_resource type="Texture2D" uid="uid://cfj7f62bqlbtg" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_floor_1.png" id="10_wskal"]
@@ -271,11 +277,23 @@ _data = {
 &"grinder_motion": SubResource("Animation_74v50")
 }
 
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_4jr3e"]
+streams_count = 6
+stream_0/stream = ExtResource("2_2ovri")
+stream_1/stream = ExtResource("3_eybqy")
+stream_2/stream = ExtResource("4_buu32")
+stream_3/stream = ExtResource("5_1qknl")
+stream_4/stream = ExtResource("6_k12ba")
+stream_5/stream = ExtResource("7_kls7i")
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7b35t"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1n8h4"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_utv31"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_hxhli"]
 _surfaces = [{
@@ -356,8 +374,10 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fwl0q"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vi68q"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_338cs"]
 _surfaces = [{
@@ -421,11 +441,18 @@ normal_enabled = true
 normal_texture = ExtResource("5_uew5s")
 texture_filter = 0
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_74v50"]
+height = 400.0
+radius = 125.0
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6trv"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rbvxh"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ct50u"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_si06y"]
 _surfaces = [{
@@ -514,8 +541,10 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ty8jo"]
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c5hw7"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_jc34w"]
 _surfaces = [{
@@ -568,6 +597,7 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_jc34w")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5muoi"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_qsxor"]
 _surfaces = [{
@@ -609,6 +639,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jcx8r"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_kqjcf"]
 _surfaces = [{
@@ -652,6 +683,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jgxbm"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_knrm3"]
 _surfaces = [{
@@ -694,6 +726,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ox206"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_5rx4e"]
 _surfaces = [{
@@ -734,6 +767,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_54jhc"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_d1awb"]
 _surfaces = [{
@@ -793,6 +827,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vnbyu"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_o0cof"]
 _surfaces = [{
@@ -836,6 +871,7 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8cvj4"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_lky1q"]
 _surfaces = [{
@@ -869,15 +905,23 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_lky1q")
 
-[node name="grinder_foundation" type="Node3D" unique_id=1942419366]
+[node name="grinder_foundation" type="Area3D" unique_id=1594460649 node_paths=PackedStringArray("sfx")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+script = ExtResource("1_xt687")
+sfx = NodePath("surface_material_override_0/AudioStreamPlayer3D")
 
-[node name="material_stylizer" type="Node" parent="." unique_id=323307576]
-script = ExtResource("1_j65mr")
+[node name="surface_material_override_0" type="Node3D" parent="." unique_id=1431342069]
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=165600713]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="surface_material_override_0" unique_id=165600713]
+root_node = NodePath("../..")
 libraries/ = SubResource("AnimationLibrary_xt687")
 autoplay = &"grinder_motion"
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="surface_material_override_0" unique_id=36533026]
+stream = SubResource("AudioStreamRandomizer_4jr3e")
+volume_db = 20.0
+unit_size = 30.0
+max_polyphony = 5
 
 [node name="Cylinder" type="MeshInstance3D" parent="." unique_id=1391529939]
 transform = Transform3D(-0.99999994, 1.509958e-07, 0, -1.5099579e-07, -1, -1.432224e-08, -2.1625981e-15, -1.4322241e-08, 0.99999994, 0, 0, -125)
@@ -1137,6 +1181,14 @@ transform = Transform3D(0.8660255, 0, 0.4999998, 0, 1, 0, -0.4999998, 0, 0.86602
 mesh = SubResource("ArrayMesh_gq7ha")
 surface_material_override/0 = SubResource("StandardMaterial3D_dywue")
 surface_material_override/1 = SubResource("StandardMaterial3D_uew5s")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1040767613]
+transform = Transform3D(-0.99999994, 1.509958e-07, 0, -1.5099579e-07, -1, -1.432224e-08, -2.1625981e-15, -1.4322241e-08, 0.99999994, 0, 0, -125)
+shape = SubResource("CylinderShape3D_74v50")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1024697490]
+transform = Transform3D(-0.99999994, 1.509958e-07, 0, -1.5099579e-07, -1, -1.432224e-08, -2.1625981e-15, -1.4322241e-08, 0.99999994, 0, 0, 125)
+shape = SubResource("CylinderShape3D_74v50")
 
 [node name="Cylinder_001" type="MeshInstance3D" parent="." unique_id=389590306]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 125)
@@ -1506,3 +1558,6 @@ surface_material_override/0 = SubResource("StandardMaterial3D_ngg40")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 289, -117.1207)
 mesh = SubResource("ArrayMesh_wpsm7")
 surface_material_override/0 = SubResource("StandardMaterial3D_ngg40")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

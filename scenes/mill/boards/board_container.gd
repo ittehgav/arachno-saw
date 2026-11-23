@@ -7,6 +7,8 @@ signal boards_changed;
 
 signal board_dropped(board:StaticBody3D);
 
+signal chipper_touched;
+
 
 @export var spider:Crawler
 
@@ -64,6 +66,9 @@ func board_area_entered(area:Area3D)->void:
 	if area is Saw and not touching:
 		touching = true;
 		saw_touched.emit(area)
+	elif area is Chipper and not touching:
+		touching = true;
+		chipper_touched.emit()
 		
 
 func board_area_exited(area:Area3D)->void:
@@ -76,11 +81,14 @@ var to_drop:Array[StaticBody3D]
 func _on_saw_touched(_saw: Saw) -> void:
 	for n:Node3D in to_drop:
 		var to_glow:Array[MeshInstance3D] = get_board_meshes(n)
-		for mesh:MeshInstance3D in to_glow:
-				generate_glow_material(mesh)
-				glowing.append(mesh)
-				glow_loop(mesh)
+		apply_glow_loop(to_glow)
 	current_stage += 1;
+
+func apply_glow_loop(meshes:Array[MeshInstance3D])->void:
+	for mesh:MeshInstance3D in meshes:
+		generate_glow_material(mesh)
+		glowing.append(mesh)
+		glow_loop(mesh)
 
 func get_board_meshes(board:StaticBody3D)->Array[MeshInstance3D]:
 	var meshes:Array[MeshInstance3D];
@@ -112,10 +120,6 @@ func generate_glow_material(m:MeshInstance3D)->void:
 	else: ## m.mesh is ArrayMesh
 		m.material_override = m.mesh.surface_get_material(0).duplicate()
 		#m.mesh.surface_set_material(0, null)
-
-
-
-
 
 
 func filter_dropped_boards(b:StaticBody3D)->bool:
@@ -319,3 +323,9 @@ func _is_face_free(space: PhysicsDirectSpaceState3D, f: FaceData, offset: float)
 func _on_path_stage_started() -> void:
 	for t:StaticBody3D in quarter_trunks:
 		t.set_collision_layer_value(8, false)
+
+
+func _on_board_path_follow_point_reached(_i: int, area: Area3D) -> void:
+	if area.name == "final_point":
+		print("isfp?")
+		apply_glow_loop(get_board_meshes(GLB.current_path.final_board))

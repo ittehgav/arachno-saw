@@ -9,7 +9,10 @@
 [ext_resource type="Texture2D" uid="uid://c3k5ha0s2lr0v" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_roof_tx_1_1.png" id="7_i2m38"]
 [ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="7_lbsdk"]
 [ext_resource type="Texture2D" uid="uid://dvxt40qecb1xj" path="res://assets/textures/psx/foundation_up.png" id="7_pnntk"]
+[ext_resource type="Texture2D" uid="uid://bw2la6bp08rqm" path="res://assets/textures/psx normals/metal_panels_pt_1_3_normal.png" id="9_4ud8t"]
 [ext_resource type="Texture2D" uid="uid://bdm5wlmlamvg5" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_4.png" id="10_6cskv"]
+[ext_resource type="Texture2D" uid="uid://b5agrcjytib4m" path="res://assets/textures/psx normals/metal_roof_tx_1_1_normal.png" id="11_x6nj1"]
+[ext_resource type="Texture2D" uid="uid://vuf3q2xym3sk" path="res://assets/textures/psx normals/metal_panels_pt_4_normal.png" id="13_v7jdy"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iunnw"]
 albedo_color = Color(0.4, 0.4, 0.4, 1)
@@ -113,28 +116,38 @@ texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pnntk"]
 albedo_texture = ExtResource("7_lbsdk")
+normal_enabled = true
+normal_texture = ExtResource("9_4ud8t")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i2m38"]
 albedo_texture = ExtResource("7_i2m38")
+normal_enabled = true
+normal_texture = ExtResource("11_x6nj1")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbsdk"]
 albedo_texture = ExtResource("7_i2m38")
+normal_enabled = true
+normal_texture = ExtResource("11_x6nj1")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gqp6g"]
 albedo_texture = ExtResource("10_6cskv")
+normal_enabled = true
+normal_texture = ExtResource("13_v7jdy")
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n2p4t"]
 albedo_texture = ExtResource("10_6cskv")
+normal_enabled = true
+normal_texture = ExtResource("13_v7jdy")
 texture_filter = 0
 
 [sub_resource type="Animation" id="Animation_i2m38"]

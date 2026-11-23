@@ -2277,7 +2277,7 @@ blink_animation = NodePath("blink")
 cheat_death_sfx = NodePath("sfx/cheat_death")
 buff_glow_mesh = NodePath("buff_glow_mesh")
 buff_glow_animation = NodePath("buff_glow_mesh/buff_glow")
-speed = 100.0
+speed = 70.0
 gravity = 80.0
 align_speed = 20.0
 probe_length = 12.0
@@ -4161,7 +4161,6 @@ transform = Transform3D(-1, 8.742278e-08, -3.821371e-15, 0, -4.371139e-08, -1, -
 mesh = SubResource("PrismMesh_u5bk5")
 
 [node name="surface_stick" type="Node3D" parent="." unique_id=1305565370 node_paths=PackedStringArray("surface_check", "surface_finder", "spider", "ticker")]
-process_mode = 4
 script = ExtResource("6_ydlul")
 surface_check = NodePath("surface_check")
 surface_finder = NodePath("surface_finder")
@@ -4172,6 +4171,7 @@ ticker = NodePath("stick_ticker")
 autostart = true
 
 [node name="surface_check" type="RayCast3D" parent="surface_stick" unique_id=965379519]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0890112, 0)
 target_position = Vector3(0, -10, 0)
 debug_shape_thickness = 5
 

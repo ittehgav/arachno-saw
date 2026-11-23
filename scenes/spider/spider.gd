@@ -5,13 +5,17 @@ signal fly_consumed(fly:Fly)
 signal died(source:DeathType)
 signal shield_lost;
 
+signal stage_switch_started;
+signal stage_switch_ended;
+
 signal run_won;
 
 enum DeathType{
 	saw,
 	board,
 	skull,
-	roller
+	roller,
+	grinder
 }
 @export var pcam:PhantomCamera3D
 
@@ -47,15 +51,9 @@ func teleport_to(t:Transform3D)->void:
 
 
 
-## not claude
-## some stuff goes here so the signals become less scattered
-const shaking_amp = 5;
-func _on_board_container_saw_touched(_saw: Saw) -> void:
-	pcam.noise.amplitude = shaking_amp
-	pcam.noise.frequency = 50 ## editor thingy only goes to 10 
 
-func _on_board_container_saw_left(_saw: Saw) -> void:
-	pcam.noise.amplitude = 0;
+
+
 
 
 func win_run()->void:
@@ -72,6 +70,8 @@ func board_death(board:StaticBody3D)->void:
 func _on_collision_scan_area_entered(area: Area3D) -> void:
 	if area is Saw:
 		die(DeathType.saw);
+	elif area is Chipper:
+		die(DeathType.grinder)
 	elif area is Fly:
 		fly_consumed.emit(area)
 		area.apply_effect(self)
@@ -96,7 +96,7 @@ func cheat_death(type:DeathType)->void:
 	cheat_death_sfx.play()
 	blink_animation.play("blink");
 	match type:
-		DeathType.saw, DeathType.board, DeathType.roller:
+		DeathType.saw, DeathType.board, DeathType.roller, DeathType.grinder:
 			tp_to_safety()
 
 func tp_to_safety()->void:

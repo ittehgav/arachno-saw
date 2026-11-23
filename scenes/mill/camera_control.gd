@@ -190,3 +190,25 @@ func reset_camera()->void:
 
 func _on_spider_died(_source: Crawler.DeathType) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+const chipper_shaking_amp = 10
+func _on_board_container_chipper_touched() -> void:
+	pcam.noise.amplitude = chipper_shaking_amp;
+
+
+func _on_board_container_saw_left(_saw: Saw) -> void:
+	pcam.noise.amplitude = 0;
+
+
+## not claude
+## some stuff goes here so the signals become less scattered
+const saw_shaking_amp = 5;
+func _on_board_container_saw_touched(_saw: Saw) -> void:
+	pcam.noise.amplitude = saw_shaking_amp
+	pcam.noise.frequency = 50 ## editor thingy only goes to 10 
+
+
+func _on_spider_stage_switch_started() -> void:
+	pcam.noise.amplitude = 0;
+	GLB.board_container.chipper_touched.disconnect(_on_board_container_chipper_touched)

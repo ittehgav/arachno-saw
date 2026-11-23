@@ -29,15 +29,16 @@ var aim_valid:bool;
 
 const web_speed = 2000.0
 func shoot_web(target:Vector3, body:StaticBody3D)->void:
-	print("\nSHOOT WEB")
 	web_shoot_sfx.play()
 	reset_web()
 	await get_tree().process_frame
 	show()
-	print("SHOW shoot")
 	shoot_web_cylinder(target)
 	camera_control.move_camera_toward(target, web_speed)
 	spider.disable_movement();
+
+	
+	spider.stage_switch_started.emit()
 	
 	await web_tween.finished
 	var p:Node = body.get_parent();
@@ -56,11 +57,15 @@ func web_hit(target:Vector3, path:BodySplitPath)->void:
 	var t:= create_tween();
 	spider.process_mode = Node.PROCESS_MODE_ALWAYS
 	t.tween_property(spider, "global_position", target.move_toward(spider.global_position, 3), 1);
+		
+	spider.look_at(target, Vector3.UP)
+	spider.rotate_object_local(Vector3.RIGHT, PI / 2.0)
 	
 	await t.finished;
 	spider.process_mode = Node.PROCESS_MODE_INHERIT
 	LevelControl.next_level(path)
 	spider.enable_movement()
+	spider.stage_switch_ended.emit()
 	reset_web()
 
 	

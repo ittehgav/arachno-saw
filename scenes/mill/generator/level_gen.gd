@@ -41,8 +41,8 @@ var paths: Array[BodySplitPath] = []
 ## Minimum size (meters) of a piece that stays attached after a cut. The piece that falls can be any size.
 @export var min_piece_size := 0.05
 
-## The most a single saw may cut off, as a fraction of the board still attached along that cut's axis.
-## 1 = no limit. Y cuts drop the top, X and Z cuts drop the smaller side, so below 0.5 the
+## The most a single saw may cut off, as a fraction of the original board's length along that saw's axis
+## (X, Y or Z). 1 = no limit. Y cuts drop the top, X and Z cuts drop the smaller side, so below 0.5 the
 ## X and Z cuts have to sit close to one end of the board.
 @export_range(0.01, 1.0, 0.01) var max_cut_fraction := 1.0
 
@@ -194,7 +194,7 @@ func _generate_cuts_for(target: BodySplitPath) -> Array[SplitCut]:
 		var p0 := remaining.position[axis]
 		var p1 := remaining.end[axis]
 		var mid := (p0 + p1) * 0.5
-		var max_drop := max_cut_fraction * remaining.size[axis]
+		var max_drop := max_cut_fraction * bounds.size[axis]
 		var u := _unit(noise.get_noise_2d(t, sample_origin.y + 1000.0))
 		var lo: float
 		var hi: float
@@ -617,7 +617,6 @@ func _cover_only_exit(level: int) -> void:
 ## Sizes and places the room planes around every path that exists. grow_only keeps the room from
 ## shrinking when a path has been freed.
 func _fit_room(grow_only := false) -> void:
-	print("froom?")
 	if splitter == null:
 		return
 	var to_local := splitter.global_transform.affine_inverse()

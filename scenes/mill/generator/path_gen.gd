@@ -38,6 +38,21 @@ var _dividers := {}
 @export var y_saw: PackedScene  # Y cuts
 @export var z_saw: PackedScene  # Z cuts
 
+## The board that stays attached after the last cut and never drops. It's the non-falling piece of the
+## highest generated stage. Falls back to the source body if no splits have been generated yet.
+var final_board: StaticBody3D:
+	get:
+		var best: StaticBody3D = null
+		var best_stage := 0
+		for body in get_pieces():
+			if body.get_meta(BoardSplitter.FALLS_KEY, false):
+				continue
+			var stage: int = body.get_meta(BoardSplitter.STAGE_KEY, 0)
+			if stage > best_stage:
+				best_stage = stage
+				best = body
+		return best if best != null else source_body
+
 ## Mirrors saw positions across the point along the board's X and Z axes. Turn this on if the
 ## board faces the opposite way at each point.
 @export var mirror_saws_xz := true
@@ -74,6 +89,8 @@ const POINT_AREA_SIZE := 50.0
 
 ## Scene placed on the extra point past the final point. Its origin sits on the point.
 @export var chipper_scene: PackedScene
+## Extra distance, in meters, between the final point and the chipper, on top of the 1.5x board length.
+@export var chipper_extra_distance := 0.0
 
 @export var roller_line: PackedScene
 ## Distance between roller line instances along the path, which should match the scene's length.
@@ -229,7 +246,7 @@ func create_split_markers() -> void:
 	var chipper_point_index := new_curve.point_count - 1
 
 	# The path runs on past the chipper for one more board length.
-	pos.x += end_length
+	pos.x += end_length * 1.5 + chipper_extra_distance
 	new_curve.add_point(pos)
 	curve = new_curve
 	
@@ -358,6 +375,7 @@ func create_split_markers() -> void:
 			markers.add_child(chipper)
 			chipper.global_transform = Transform3D(_board_basis_at(chipper_point_index) * native_basis,
 					to_global(curve.get_point_position(chipper_point_index)))
+			
 			if scene_root:
 				chipper.owner = scene_root
 	

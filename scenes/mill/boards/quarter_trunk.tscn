@@ -1,11 +1,15 @@
 [gd_scene format=4 uid="uid://r5phmsuxm2wu"]
 
 [ext_resource type="Texture2D" uid="uid://becb3thuogsx5" path="res://assets/textures/used/wood_3.png" id="1_kj3fq"]
+[ext_resource type="Texture2D" uid="uid://8frteyk60uei" path="res://assets/textures/psx normals/wood_3_normal.png" id="2_081up"]
+[ext_resource type="Script" uid="uid://cuwwq63us6p74" path="res://scenes/mill/saw/material_stylizer.gd" id="2_kj3fq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rrqsk"]
 transparency = 1
 albedo_color = Color(2.055, 2.055, 2.055, 1)
 albedo_texture = ExtResource("1_kj3fq")
+normal_enabled = true
+normal_texture = ExtResource("2_081up")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -44,3 +48,7 @@ mesh = SubResource("ArrayMesh_rrqsk")
 transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 13.513283, 0, 1)
 visible = false
 shape = SubResource("ConcavePolygonShape3D_rrqsk")
+
+[node name="MaterialStylizer" type="Node" parent="." unique_id=1953988392]
+script = ExtResource("2_kj3fq")
+metadata/_custom_type_script = "uid://cuwwq63us6p74"

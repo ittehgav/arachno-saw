@@ -1,5 +1,6 @@
 @tool
 extends Node
+class_name MaterialStylizer;
 
 const normals_dir = "res://assets/textures/psx normals"
 @export_tool_button("Apply Material Settings")
@@ -21,15 +22,33 @@ func _process_node(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mesh_instance := node as MeshInstance3D
 
-		var surface_count := mesh_instance.get_surface_override_material_count()
-		for i in surface_count:
+		# Material Override
+		if mesh_instance.material_override is StandardMaterial3D:
+			_process_material(mesh_instance.material_override)
+
+		# Surface Override Materials
+		for i in mesh_instance.get_surface_override_material_count():
 			var material := mesh_instance.get_surface_override_material(i)
 			if material is StandardMaterial3D:
 				_process_material(material)
 
+		if mesh_instance.mesh:
+			# PrimitiveMesh.material (BoxMesh, SphereMesh, etc.)
+			if mesh_instance.mesh is PrimitiveMesh:
+				print("ispri???")
+				var primitive := mesh_instance.mesh as PrimitiveMesh
+				if primitive.material is StandardMaterial3D:
+					print(primitive, primitive.material)
+					_process_material(primitive.material)
+
+			# Imported mesh / ArrayMesh surface materials
+			for i in mesh_instance.mesh.get_surface_count():
+				var material := mesh_instance.mesh.surface_get_material(i)
+				if material is StandardMaterial3D:
+					_process_material(material)
+
 	for child in node.get_children():
 		_process_node(child)
-
 func _process_material(material: StandardMaterial3D) -> void:
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 

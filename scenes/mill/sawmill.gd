@@ -13,8 +13,6 @@ func _ready() -> void:
 	GLB.sawmill = self;
 
 
-
-
 func _on_spider_fly_consumed(_fly: Fly) -> void:
 	Engine.time_scale = 0;
 	freeze_frame_timer.start()

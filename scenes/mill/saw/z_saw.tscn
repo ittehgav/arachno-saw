@@ -9,7 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://dvxt40qecb1xj" path="res://assets/textures/psx/foundation_up.png" id="7_1yhpp"]
 [ext_resource type="Texture2D" uid="uid://pd4e6u6ffo8s" path="res://assets/textures/psx/coil_90.png" id="8_mci6j"]
 [ext_resource type="Texture2D" uid="uid://cibe7k6pqm66l" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_3.png" id="9_i3yc6"]
+[ext_resource type="Texture2D" uid="uid://bw2la6bp08rqm" path="res://assets/textures/psx normals/metal_panels_pt_1_3_normal.png" id="10_j2tcd"]
 [ext_resource type="Texture2D" uid="uid://b50sxs15v5mjh" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_4.png" id="10_vrp24"]
+[ext_resource type="Texture2D" uid="uid://wdac2idtpkmx" path="res://assets/textures/psx normals/metal_panels_pt_1_4_normal.png" id="12_k6n8q"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iunnw"]
 albedo_color = Color(0.4, 0.4, 0.4, 1)
@@ -129,6 +131,8 @@ texture_filter = 0
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j2tcd"]
 albedo_color = Color(2.4061394, 2.4061394, 2.4061394, 1)
 albedo_texture = ExtResource("9_i3yc6")
+normal_enabled = true
+normal_texture = ExtResource("10_j2tcd")
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i3yc6"]
@@ -145,6 +149,8 @@ texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k6n8q"]
 albedo_texture = ExtResource("10_vrp24")
+normal_enabled = true
+normal_texture = ExtResource("12_k6n8q")
 texture_filter = 0
 
 [sub_resource type="Animation" id="Animation_fwmqo"]

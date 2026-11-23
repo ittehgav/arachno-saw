@@ -162,17 +162,17 @@ var score_multiplier:float = 1.0;
 func _on_score_time_ticker_timeout() -> void:
 	score += 1 * score_multiplier;
 
-
+const base_accel = 1.035
 func _on_accelerate_timeout() -> void:
 	var pf:BoardPathFollow = GLB.board_path_follow;
 	if not pf:return
 	if pf.moving:
 		## might skip some beats but still outputs
 		## the same acceleration curve for any given seed
-		pf.accel *= 1.05
-		score_ticker.wait_time /= 1.05
-		GLB.spider.base_speed *= 1.05
-		score_multiplier *= 1.05
+		pf.accel *= base_accel
+		score_ticker.wait_time /= base_accel
+		GLB.spider.base_speed *= base_accel
+		score_multiplier *= base_accel
 	
 
 ## time tracking

@@ -10,7 +10,8 @@
 [ext_resource type="Script" uid="uid://crjdwk8k3kfch" path="res://scenes/mill/board_path_follow.gd" id="8_8r78h"]
 [ext_resource type="Script" uid="uid://6wxw8oturho2" path="res://scenes/mill/boards/board_container.gd" id="9_lths8"]
 [ext_resource type="PackedScene" uid="uid://r5phmsuxm2wu" path="res://scenes/mill/boards/quarter_trunk.tscn" id="10_bvy3a"]
-[ext_resource type="Texture2D" uid="uid://tuohxsub4iwc" path="res://assets/textures/used/wood_cut.png" id="11_i6xit"]
+[ext_resource type="Texture2D" uid="uid://dx6wdef5q0jox" path="res://assets/textures/psx/PSX Textures/256/Color Maps/wood_floor_3.png" id="11_um4f1"]
+[ext_resource type="Texture2D" uid="uid://bperl4dh3uvgq" path="res://assets/textures/psx normals/wood_floor_3_normal.png" id="12_7iwb6"]
 [ext_resource type="Script" uid="uid://dooalqyxx5kwg" path="res://scenes/mill/generator/fly_spawner.gd" id="12_x8ewv"]
 [ext_resource type="Script" uid="uid://dg063n8cqmeta" path="res://scenes/mill/roller_killbox_warning.gd" id="13_1x8js"]
 [ext_resource type="Script" uid="uid://c02btu3ve6jb6" path="res://scenes/mill/saw/circular_saw.gd" id="14_wwx74"]
@@ -71,8 +72,10 @@ drop_side = 1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y704n"]
 transparency = 1
-albedo_color = Color(1.3945211, 1.3945211, 1.3945211, 1)
-albedo_texture = ExtResource("11_i6xit")
+albedo_color = Color(4.165, 4.165, 4.165, 1)
+albedo_texture = ExtResource("11_um4f1")
+normal_enabled = true
+normal_texture = ExtResource("12_7iwb6")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -93,6 +96,7 @@ size = Vector3(1100, 250, 250)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kddjp"]
 transparency = 1
 albedo_color = Color(0.8, 0, 0, 1)
+texture_filter = 0
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_u5bk5"]
 material = SubResource("StandardMaterial3D_kddjp")
@@ -715,6 +719,7 @@ scale_amount_curve = SubResource("Curve_7q4vo")
 [connection signal="stage_started" from="." to="board_path_follow/board_container" method="_on_path_stage_started"]
 [connection signal="stage_started" from="." to="board_path_follow/detectors/fly_spawner" method="_on_path_stage_started"]
 [connection signal="point_reached" from="board_path_follow" to="board_path_follow" method="_on_point_reached"]
+[connection signal="point_reached" from="board_path_follow" to="board_path_follow/board_container" method="_on_board_path_follow_point_reached"]
 [connection signal="saw_left" from="board_path_follow/board_container" to="board_path_follow" method="_on_board_container_saw_left"]
 [connection signal="saw_left" from="board_path_follow/board_container" to="board_path_follow/board_container" method="_on_saw_left"]
 [connection signal="saw_left" from="board_path_follow/board_container" to="board_path_follow/detectors/fly_spawner" method="_on_board_container_saw_left"]
