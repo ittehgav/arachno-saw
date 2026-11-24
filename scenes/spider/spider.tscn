@@ -38,6 +38,7 @@ stencil_color = Color(0.5, 0, 0, 1)
 stencil_outline_thickness = 0.089
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o1eda"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ntq6t"]
 _surfaces = [{
@@ -87,6 +88,7 @@ albedo_color = Color(0.8, 0, 0, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fit34"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ph23v"]
 _surfaces = [{
@@ -134,6 +136,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bed7y"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_44vdx"]
 _surfaces = [{
@@ -181,6 +184,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nl8vc"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_kfh3b"]
 _surfaces = [{
@@ -226,6 +230,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_no45q"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_74nrq"]
 _surfaces = [{
@@ -271,6 +276,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eii02"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_tai74"]
 _surfaces = [{
@@ -316,6 +322,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dafpj"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_7pm37"]
 _surfaces = [{
@@ -363,6 +370,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fcs38"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_eqtl2"]
 _surfaces = [{
@@ -410,6 +418,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ja6ww"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_idf8f"]
 _surfaces = [{
@@ -457,6 +466,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7clhs"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_pqco2"]
 _surfaces = [{
@@ -502,6 +512,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_56eml"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_6qctj"]
 _surfaces = [{
@@ -549,6 +560,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ihcnq"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2vi6x"]
 _surfaces = [{
@@ -596,6 +608,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mk0md"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_v28sa"]
 _surfaces = [{
@@ -641,6 +654,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ap7vg"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_nfo3q"]
 _surfaces = [{
@@ -686,6 +700,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wnrup"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_0ico6"]
 _surfaces = [{
@@ -733,6 +748,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mpd2l"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_evbv1"]
 _surfaces = [{
@@ -780,6 +796,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_77m8g"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_tfuqn"]
 _surfaces = [{
@@ -827,6 +844,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g0d3s"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_m2ryp"]
 _surfaces = [{
@@ -872,6 +890,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nr3h3"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_wbxsr"]
 _surfaces = [{
@@ -919,6 +938,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d85cn"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_jg0bs"]
 _surfaces = [{
@@ -966,6 +986,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_meuuy"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_dbho4"]
 _surfaces = [{
@@ -1013,6 +1034,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3p1p8"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_bt0mg"]
 _surfaces = [{
@@ -1060,6 +1082,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_474w0"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_88t5w"]
 _surfaces = [{
@@ -1107,6 +1130,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_miepm"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_eybvs"]
 _surfaces = [{
@@ -1152,6 +1176,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kv54r"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2g3el"]
 _surfaces = [{
@@ -1197,6 +1222,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vf727"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_3sec8"]
 _surfaces = [{
@@ -1244,6 +1270,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r3xc8"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_k05j1"]
 _surfaces = [{
@@ -1291,6 +1318,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f357t"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_gkj8c"]
 _surfaces = [{
@@ -1338,6 +1366,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6aau6"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_gcvb8"]
 _surfaces = [{
@@ -1383,6 +1412,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1t2ue"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_yftex"]
 _surfaces = [{
@@ -1430,6 +1460,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ubqxq"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_3rt1w"]
 _surfaces = [{
@@ -1477,6 +1508,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hnwhh"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_pc6p4"]
 _surfaces = [{
@@ -1524,6 +1556,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iiupf"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_57gfk"]
 _surfaces = [{
@@ -1571,6 +1604,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bht4o"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2yfnv"]
 _surfaces = [{
@@ -1618,6 +1652,7 @@ _surfaces = [{
 }]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d1xh0"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ico8b"]
 _surfaces = [{
@@ -2108,6 +2143,7 @@ texture_filter = 0
 billboard_keep_scale = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blbir"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_p06qt"]
 _surfaces = [{
@@ -2147,6 +2183,7 @@ texture_filter = 0
 billboard_keep_scale = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qd6c5"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_i8n5j"]
 _surfaces = [{
@@ -2216,6 +2253,7 @@ _data = {
 }
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rytpu"]
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_4xxme"]
 _surfaces = [{
@@ -2260,6 +2298,7 @@ rim_enabled = true
 rim_tint = 0.8
 clearcoat_enabled = true
 clearcoat = 0.0
+texture_filter = 0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_uj1gu"]
 material = SubResource("StandardMaterial3D_2fvhf")

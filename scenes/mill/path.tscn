@@ -72,7 +72,7 @@ drop_side = 1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y704n"]
 transparency = 1
-albedo_color = Color(4.165, 4.165, 4.165, 1)
+albedo_color = Color(4.415934, 4.415934, 4.415934, 1)
 albedo_texture = ExtResource("11_um4f1")
 normal_enabled = true
 normal_texture = ExtResource("12_7iwb6")
@@ -257,16 +257,16 @@ full_board = NodePath("full_board")
 [node name="quarters" type="Node3D" parent="board_path_follow/board_container" unique_id=838732527]
 
 [node name="left" parent="board_path_follow/board_container/quarters" unique_id=2106515936 instance=ExtResource("10_bvy3a")]
-transform = Transform3D(0.9999999, 1.0442229e-07, 2.9802322e-07, -4.1722828e-07, -5.1982035e-08, 0.9999999, 1.0442233e-07, -1, -5.198201e-08, 50, 0, 0)
+transform = Transform3D(0.9999999, 1.0442229e-07, 2.9802322e-07, -4.1722828e-07, -5.1982035e-08, 0.9999999, 1.0442233e-07, -1, -5.198201e-08, 51, 0, 0)
 
 [node name="right" parent="board_path_follow/board_container/quarters" unique_id=786138999 instance=ExtResource("10_bvy3a")]
-transform = Transform3D(-1, 8.7422755e-08, 4.371139e-08, -4.371139e-08, 1.910685e-15, -1, -8.742278e-08, -0.99999976, 1.9106855e-15, -50, 0, 0)
+transform = Transform3D(-1, 8.7422755e-08, 4.371139e-08, -4.371139e-08, 1.910685e-15, -1, -8.742278e-08, -0.99999976, 1.9106855e-15, -51, 0, 0)
 
 [node name="bottom" parent="board_path_follow/board_container/quarters" unique_id=1239284481 instance=ExtResource("10_bvy3a")]
-transform = Transform3D(-2.0861626e-07, -2.611517e-07, 1, -0.9999999, -1.1810292e-07, -2.980202e-07, 1.1810297e-07, -0.99999976, -2.611517e-07, 0, -50, 0)
+transform = Transform3D(-2.0861626e-07, -2.611517e-07, 1, -0.9999999, -1.1810292e-07, -2.980202e-07, 1.1810297e-07, -0.99999976, -2.611517e-07, 0, -51, 0)
 
 [node name="top" parent="board_path_follow/board_container/quarters" unique_id=2035689332 instance=ExtResource("10_bvy3a")]
-transform = Transform3D(-2.682209e-07, 3.3876194e-08, -1, 1.0000001, 1.1063003e-09, -2.3841616e-07, 1.1062926e-09, -0.9999998, -3.3876198e-08, 0, 50, 0)
+transform = Transform3D(-2.682209e-07, 3.3876194e-08, -1, 1.0000001, 1.1063003e-09, -2.3841616e-07, 1.1062926e-09, -0.9999998, -3.3876198e-08, 0, 51, 0)
 
 [node name="safe" type="Node3D" parent="board_path_follow/board_container/quarters/top" unique_id=321718291]
 transform = Transform3D(1, 1.3397308e-17, 0, -2.6533095e-17, 1, 0, -2.5579538e-13, -7.993606e-15, 1, 24.387695, 1.3411045e-07, 8.608267)
@@ -715,6 +715,8 @@ initial_velocity_max = 55.79
 scale_amount_min = 5.0
 scale_amount_max = 17.87
 scale_amount_curve = SubResource("Curve_7q4vo")
+
+[node name="lamps" type="Node3D" parent="stage_points" unique_id=1307998736]
 
 [connection signal="stage_started" from="." to="board_path_follow/board_container" method="_on_path_stage_started"]
 [connection signal="stage_started" from="." to="board_path_follow/detectors/fly_spawner" method="_on_path_stage_started"]

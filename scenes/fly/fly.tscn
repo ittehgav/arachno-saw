@@ -283,7 +283,6 @@ _data = {
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6is8"]
 emission_enabled = true
 emission = Color(0, 1, 0, 1)
-emission_energy_multiplier = 5.0
 rim_tint = 0.28
 texture_filter = 0
 
@@ -355,7 +354,6 @@ shadow_mesh = SubResource("ArrayMesh_5mfgm")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5wqnd"]
 emission_enabled = true
 emission = Color(0.045999996, 0.23, 0.21466665, 1)
-emission_energy_multiplier = 5.0
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blbir"]
@@ -393,7 +391,6 @@ shadow_mesh = SubResource("ArrayMesh_l82k8")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3l1ea"]
 emission_enabled = true
 emission = Color(0.13599999, 0.68, 0.6346666, 1)
-emission_energy_multiplier = 8.57
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qd6c5"]
@@ -432,7 +429,6 @@ shadow_mesh = SubResource("ArrayMesh_yvyh8")
 albedo_color = Color(0.58400005, 0.12, 0.6, 1)
 emission_enabled = true
 emission = Color(0.84000015, 0.19999999, 1, 1)
-emission_energy_multiplier = 5.0
 rim_tint = 0.28
 texture_filter = 0
 
@@ -473,7 +469,6 @@ shadow_mesh = SubResource("ArrayMesh_v0224")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwawe"]
 emission_enabled = true
 emission = Color(0.98333335, 1, 0, 1)
-emission_energy_multiplier = 2.0
 rim_tint = 0.28
 texture_filter = 0
 
@@ -514,7 +509,6 @@ shadow_mesh = SubResource("ArrayMesh_bc322")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3bc5p"]
 emission_enabled = true
 emission = Color(0.8, 0, 0, 1)
-emission_energy_multiplier = 5.0
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_obp37"]

@@ -51,6 +51,8 @@ func _process_node(node: Node) -> void:
 		_process_node(child)
 func _process_material(material: StandardMaterial3D) -> void:
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	
 
 	var albedo := material.albedo_texture
 	if albedo == null:

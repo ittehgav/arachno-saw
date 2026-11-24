@@ -110,6 +110,8 @@ material = SubResource("StandardMaterial3D_7q4vo")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6cskv"]
 albedo_texture = ExtResource("7_pnntk")
+metallic_specular = 0.7
+roughness = 0.99
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -359,22 +361,22 @@ scale_amount_curve = SubResource("Curve_7q4vo")
 [node name="y_saw_foundation" parent="." unique_id=1578240970 instance=ExtResource("6_34mwk")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 48.216003, -88.869736, 2.8321947e-06)
 
-[node name="foundation" parent="y_saw_foundation" index="0" unique_id=1828508586]
+[node name="foundation" parent="y_saw_foundation" index="0" unique_id=1630862970]
 transform = Transform3D(1, 0, 0, 0, 1, 8.351872e-23, 0, 8.351872e-23, 1, 0, 2.2737368e-12, -470.60785)
 surface_material_override/0 = SubResource("StandardMaterial3D_6cskv")
 surface_material_override/2 = SubResource("StandardMaterial3D_pnntk")
 
-[node name="band_l" parent="y_saw_foundation" index="1" unique_id=2058870008]
+[node name="band_l" parent="y_saw_foundation" index="1" unique_id=342765325]
 surface_material_override/0 = SubResource("StandardMaterial3D_i2m38")
 
-[node name="band_r" parent="y_saw_foundation" index="2" unique_id=884626234]
+[node name="band_r" parent="y_saw_foundation" index="2" unique_id=833157733]
 surface_material_override/0 = SubResource("StandardMaterial3D_lbsdk")
 
-[node name="spinner_big" parent="y_saw_foundation" index="3" unique_id=888549256]
+[node name="spinner_big" parent="y_saw_foundation" index="3" unique_id=1721222817]
 transform = Transform3D(0.96359783, 3.4488985e-09, 0.2673557, 0, 1, -1.2900037e-08, -0.26735568, 1.2430448e-08, 0.9635979, 211, 0, 140)
 surface_material_override/0 = SubResource("StandardMaterial3D_gqp6g")
 
-[node name="spinner_small" parent="y_saw_foundation" index="4" unique_id=1857488736]
+[node name="spinner_small" parent="y_saw_foundation" index="4" unique_id=780260086]
 surface_material_override/0 = SubResource("StandardMaterial3D_n2p4t")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="y_saw_foundation" unique_id=2043981402]

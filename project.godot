@@ -36,6 +36,7 @@ gdscript/warnings/untyped_declaration=2
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/size/always_on_top=true
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 
@@ -111,18 +112,31 @@ common/physics_interpolation=true
 
 [rendering]
 
+occlusion_culling/bvh_build_quality=0
 textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
 textures/vram_compression/import_s3tc_bptc=true
 textures/vram_compression/import_etc2_astc=true
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/size.mobile=1024
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0
 lights_and_shadows/positional_shadow/soft_shadow_filter_quality=0
+lights_and_shadows/positional_shadow/atlas_16_bits=false
+global_illumination/gi/use_half_resolution=true
+shading/overrides/force_vertex_shading=true
 textures/default_filters/use_nearest_mipmap_filter=true
+anti_aliasing/quality/use_debanding=true
 scaling_3d/mode=5
 scaling_3d/mode.ios=5
 scaling_3d/mode.macos=5
 scaling_3d/scale=0.5
 textures/decals/filter=0
 textures/light_projectors/filter=0
+global_illumination/sdfgi/probe_ray_count=0
+global_illumination/sdfgi/frames_to_converge=0
+global_illumination/sdfgi/frames_to_update_lights=4
 environment/volumetric_fog/use_filter=0
+limits/opengl/max_renderable_lights=256
+limits/opengl/max_lights_per_object=32
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)

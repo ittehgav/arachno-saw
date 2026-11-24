@@ -6,6 +6,8 @@ extends Node
 const EXTRA_GROUP := &"extra_path_copy"
 ## Meta on each top-level copy: the level number it belongs to (the first path is level 1).
 const LEVEL_META := &"level_number"
+const LAMP_META := &"lamp_level"
+
 ## Smallest a falling piece may be, in meters. It only keeps a cut from sitting exactly on a face.
 const MIN_FALLING_PIECE := 0.001
 ## Never copied from the first path to a new one (each path makes its own).
@@ -83,7 +85,13 @@ var paths: Array[BodySplitPath] = []
 @export var divider_opening_height := 0.0
 ## Fills the openings (needed to see anything in them).
 @export var cover_material: Material
-
+@export_group("Lamps")
+## Lamp scene instanced along every path, exactly above it at the height of the ceiling.
+@export var lamp_scene: PackedScene
+## Node the lamps are added under.
+@export var lamp_root: Node3D
+## Distance between lamps along the path, in meters.
+@export var lamp_spacing := 500.0
 const DIVIDER_GROUP := &"room_divider"
 const DIVIDER_GAP := 0.5
 const EXIT_META := &"exit_level"
@@ -293,6 +301,7 @@ func generate_level(level_seed: int = 0) -> int:
 
 	# Levels from an earlier run go first.
 	_clear_extra_paths()
+	_clear_lamps()
 	paths = [splitter]
 
 	_apply_seed(level_seed)
@@ -303,6 +312,7 @@ func generate_level(level_seed: int = 0) -> int:
 	splitter.generate_splits()
 	splitter.create_split_markers()
 	_build_first_room()
+	_create_lamps(splitter, 1)
 
 	current_seed = level_seed
 	level_generated.emit(level_seed)
@@ -379,6 +389,7 @@ func _build_next_path(from: BodySplitPath) -> BodySplitPath:
 	path.create_split_markers()
 	
 	paths.append(path)
+	_create_lamps(path, n)
 	_watch(path)
 	if _has_next(n):
 		_register_exit(n, path)
@@ -389,6 +400,8 @@ func _build_next_path(from: BodySplitPath) -> BodySplitPath:
 ## Frees the path in slot `index` with all its nodes. The first path's nodes belong to the
 ## scene, so only what was generated for them is cleared.
 func _free_path(index: int) -> void:
+	_clear_lamps(index + 1)
+	paths[index] = null
 	var path := paths[index]
 	if path != null and is_instance_valid(path):
 		if path == splitter:
@@ -866,3 +879,34 @@ func _fit_wall_texture(node: MeshInstance3D, mesh: PlaneMesh, size: Vector2) -> 
 		1: node.material_override = material
 		2: node.set_surface_override_material(0, material)
 		3: mesh.material = material
+## Puts a lamp every lamp_spacing meters along `path`, exactly above it at the height of the ceiling
+## (room_height above the floor at world Y = 0), as children of lamp_root. Replaces that level's old lamps.
+func _create_lamps(path: BodySplitPath, level: int) -> void:
+	_clear_lamps(level)
+	if lamp_scene == null or lamp_root == null or lamp_spacing <= 0.0 or path == null or path.curve == null:
+		return
+	var length := path.curve.get_baked_length()
+	var scene_root := _tree.edited_scene_root if Engine.is_editor_hint() else null
+	var i := 0
+	while (i + 0.5) * lamp_spacing <= length:  # centered in its slot, like the rollers
+		var point := path.to_global(path.curve.sample_baked((i + 0.5) * lamp_spacing))
+		var lamp := lamp_scene.instantiate() as Node3D
+		if lamp == null:
+			push_warning("NoiseSplitSequence: the lamp scene's root isn't a Node3D.")
+			return
+		lamp.name = "Lamp_%02d_%02d" % [level, i + 1]
+		lamp.set_meta(LAMP_META, level)
+		lamp_root.add_child(lamp)
+		lamp.global_position = Vector3(point.x, room_height, point.z)
+		if scene_root:
+			lamp.owner = scene_root
+		i += 1
+
+
+## Frees the lamps of one level (0 = every level).
+func _clear_lamps(level := 0) -> void:
+	if lamp_root == null:
+		return
+	for c in lamp_root.get_children():
+		if c.has_meta(LAMP_META) and (level == 0 or c.get_meta(LAMP_META) == level):
+			_free_now(c)
