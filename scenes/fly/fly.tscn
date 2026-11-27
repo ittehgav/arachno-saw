@@ -11,9 +11,7 @@
 resource_local_to_scene = true
 render_priority = 10
 no_depth_test = true
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 1.7
+shading_mode = 0
 refraction_scale = 1.0
 texture_filter = 0
 
@@ -281,9 +279,8 @@ _data = {
 }
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6is8"]
-emission_enabled = true
-emission = Color(0, 1, 0, 1)
-rim_tint = 0.28
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_somjv"]
@@ -352,8 +349,8 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_5mfgm")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5wqnd"]
-emission_enabled = true
-emission = Color(0.045999996, 0.23, 0.21466665, 1)
+shading_mode = 0
+albedo_color = Color(0, 1, 0.83333325, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blbir"]
@@ -390,7 +387,7 @@ shadow_mesh = SubResource("ArrayMesh_l82k8")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3l1ea"]
 emission_enabled = true
-emission = Color(0.13599999, 0.68, 0.6346666, 1)
+emission = Color(0.12, 0.6, 0.55999994, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qd6c5"]
@@ -426,10 +423,8 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_yvyh8")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gyjgb"]
-albedo_color = Color(0.58400005, 0.12, 0.6, 1)
-emission_enabled = true
-emission = Color(0.84000015, 0.19999999, 1, 1)
-rim_tint = 0.28
+shading_mode = 0
+albedo_color = Color(0.9666667, 0, 1, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vijeh"]
@@ -467,9 +462,8 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_v0224")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mwawe"]
-emission_enabled = true
-emission = Color(0.98333335, 1, 0, 1)
-rim_tint = 0.28
+shading_mode = 0
+albedo_color = Color(1, 1, 0, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u7xva"]
@@ -507,8 +501,8 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_bc322")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3bc5p"]
-emission_enabled = true
-emission = Color(0.8, 0, 0, 1)
+shading_mode = 0
+albedo_color = Color(1, 0, 0, 1)
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_obp37"]
@@ -669,7 +663,6 @@ material_override = SubResource("StandardMaterial3D_mwawe")
 mesh = SubResource("ArrayMesh_gyjgb")
 
 [node name="death" type="Node3D" parent="buff_icon" unique_id=2120930977]
-visible = false
 
 [node name="skull" type="MeshInstance3D" parent="buff_icon/death" unique_id=1762488014]
 transform = Transform3D(3.49691e-06, -1.0490732e-05, 79.99999, 79.99999, -1.0490734e-05, -3.4969116e-06, 1.0490735e-05, 79.99999, 1.0490733e-05, 0, 0, 0)

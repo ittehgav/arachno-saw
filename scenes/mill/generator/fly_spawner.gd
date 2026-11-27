@@ -9,6 +9,7 @@ const surface_mask = 1
 
 func _ready()->void:
 	await Run.run_started;
+	if not is_inside_tree():return;
 	if splitter.process_mode == ProcessMode.PROCESS_MODE_INHERIT:
 		refresh_flies();
 	else:
@@ -39,7 +40,7 @@ func refresh_flies()->void:
 		else:
 			current_flies.pop_front()
 
-	var fly_count:int = max(2, 6 - GLB.board_container.current_stage)
+	var fly_count:int = max(2, 10 - GLB.board_container.current_stage)
 	for _i:int in range(fly_count):
 		current_flies.append(generate_fly())
 	

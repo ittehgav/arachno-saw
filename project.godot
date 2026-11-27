@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [audio]
 
 buses/default_bus_layout="uid://l1uoya2f140n"
+general/default_playback_type.web=0
 
 [autoload]
 
@@ -27,6 +28,7 @@ Run="*uid://spy0k20c7020"
 HighScores="*uid://bajq2sppqob5s"
 SceneIndex="*uid://cbgjnc4y3dtjn"
 LevelControl="*uid://by36sn2vddxcd"
+Dev="*uid://bridoox23m3jb"
 
 [debug]
 
@@ -36,7 +38,6 @@ gdscript/warnings/untyped_declaration=2
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/always_on_top=true
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 

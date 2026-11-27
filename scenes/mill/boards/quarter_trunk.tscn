@@ -1,15 +1,11 @@
 [gd_scene format=4 uid="uid://r5phmsuxm2wu"]
 
 [ext_resource type="Texture2D" uid="uid://becb3thuogsx5" path="res://assets/textures/used/wood_3.png" id="1_kj3fq"]
-[ext_resource type="Texture2D" uid="uid://8frteyk60uei" path="res://assets/textures/psx normals/wood_3_normal.png" id="2_081up"]
-[ext_resource type="Script" uid="uid://cuwwq63us6p74" path="res://scenes/mill/saw/material_stylizer.gd" id="2_kj3fq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rrqsk"]
 transparency = 1
-albedo_color = Color(2.055, 2.055, 2.055, 1)
+albedo_color = Color(2.1168277, 2.1168277, 2.1168277, 1)
 albedo_texture = ExtResource("1_kj3fq")
-normal_enabled = true
-normal_texture = ExtResource("2_081up")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -31,9 +27,8 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_rrqsk"]
-margin = 0.5
-data = PackedVector3Array(-17.3186, 500, -22.704199, 6.3086, -500, -7.6885996, 6.3086, 500, -7.6885996, -17.3186, 500, -22.704199, -17.3186, -500, -22.704199, 6.3086, -500, -7.6885996, 6.3086, 500, -7.6885996, 21.324299, -500, 15.9386, 21.324299, 500, 15.9386, 6.3086, 500, -7.6885996, 6.3086, -500, -7.6885996, 21.324299, -500, 15.9386, 21.324299, 500, 15.9386, 25.441599, -500, 44.5797, 25.4405, 500, 44.5808, 21.324299, 500, 15.9386, 21.324299, -500, 15.9386, 25.441599, -500, 44.5797, -17.3186, 500, -22.704199, 25.4405, 500, 44.5808, -45.959698, 500, -26.8204, 25.4405, 500, 44.5808, -17.3186, 500, -22.704199, 6.3086, 500, -7.6885996, 25.4405, 500, 44.5808, 6.3086, 500, -7.6885996, 21.324299, 500, 15.9386, -45.959698, -500, -26.8204, 25.4405, 500, 44.5808, 25.441599, -500, 44.5797, -45.959698, -500, -26.8204, -45.959698, 500, -26.8204, 25.4405, 500, 44.5808, 25.441599, -500, 44.5797, -17.3186, -500, -22.704199, -45.959698, -500, -26.8204, -17.3186, -500, -22.704199, 25.441599, -500, 44.5797, 21.324299, -500, 15.9386, -17.3186, -500, -22.704199, 21.324299, -500, 15.9386, 6.3086, -500, -7.6885996, -45.959698, 500, -26.8204, -17.3186, -500, -22.704199, -17.3186, 500, -22.704199, -45.959698, 500, -26.8204, -45.959698, -500, -26.8204, -17.3186, -500, -22.704199)
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_081up"]
+points = PackedVector3Array(-45.95971, -500, -26.8204, -17.325117, -500, -22.710775, 25.441559, -500, 44.57384, 25.43457, 499.99994, 44.58083, -45.95971, 499.99994, -26.8204, 6.305237, -500, -7.6910763, -17.325117, 499.99994, -22.710775, 21.317955, -500, 15.932274, 21.317955, 499.99994, 15.932274, 6.305237, 499.99994, -7.6910763)
 
 [node name="quarter_trunk" type="StaticBody3D" unique_id=2106515936]
 process_mode = 3
@@ -41,14 +36,9 @@ collision_layer = 145
 collision_mask = 0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1395734841]
-transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 13.513283, 0, 1)
+transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 63, 0, 0)
 mesh = SubResource("ArrayMesh_rrqsk")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=121427649]
-transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 13.513283, 0, 1)
-visible = false
-shape = SubResource("ConcavePolygonShape3D_rrqsk")
-
-[node name="MaterialStylizer" type="Node" parent="." unique_id=1953988392]
-script = ExtResource("2_kj3fq")
-metadata/_custom_type_script = "uid://cuwwq63us6p74"
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=906947979]
+transform = Transform3D(0.7071067, -3.0908616e-08, -0.7071067, 1.28027615e-08, 0.9999999, -3.0908623e-08, 0.7071067, 1.2802777e-08, 0.7071067, 63, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_081up")

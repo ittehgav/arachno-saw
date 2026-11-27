@@ -49,10 +49,9 @@ uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kh5iw"]
-metallic_specular = 0.65
 emission_enabled = true
-emission = Color(2.055, 1.7910001, 1.395, 1)
-emission_energy_multiplier = 7.18
+emission = Color(1.3807716, 1.1993155, 0.9324683, 1)
+emission_energy_multiplier = 100.0
 texture_filter = 0
 
 [sub_resource type="SphereMesh" id="SphereMesh_kddjp"]
@@ -68,26 +67,6 @@ transform = Transform3D(-4.371139e-08, 4.371139e-08, -1, -1, -4.371139e-08, 4.37
 mesh = SubResource("ArrayMesh_s35di")
 surface_material_override/0 = SubResource("StandardMaterial3D_0in62")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Cylinder" unique_id=1621318907]
+[node name="bulb" type="MeshInstance3D" parent="Cylinder" unique_id=1621318907]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -62.506622, -2.732263e-06)
 mesh = SubResource("SphereMesh_kddjp")
-
-[node name="SpotLight3D" type="SpotLight3D" parent="Cylinder/MeshInstance3D" unique_id=564024869]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -108.7648, -6.0284183e-05)
-light_color = Color(3.4255767, 3.1957374, 3.0626729, 1)
-light_energy = 16.0
-shadow_enabled = true
-shadow_blur = 0.0
-spot_range = 10000.0
-spot_attenuation = 0.8
-spot_angle = 90.06
-
-[node name="SpotLight3D2" type="SpotLight3D" parent="Cylinder/MeshInstance3D" unique_id=1998553565]
-transform = Transform3D(1, 0, 1.9106855e-15, 0, -4.3711392e-08, 1, 0, -1, -4.371139e-08, -4.5474735e-12, -2554.0823, -0.0001671724)
-light_color = Color(3.4255767, 3.1957374, 3.0626729, 1)
-light_energy = 16.0
-shadow_enabled = true
-shadow_blur = 0.0
-spot_range = 10000.0
-spot_attenuation = 0.8
-spot_angle = 50.06

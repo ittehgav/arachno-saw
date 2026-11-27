@@ -327,5 +327,10 @@ func _on_path_stage_started() -> void:
 
 func _on_board_path_follow_point_reached(_i: int, area: Area3D) -> void:
 	if area.name == "final_point":
-		print("isfp?")
-		apply_glow_loop(get_board_meshes(GLB.current_path.final_board))
+		var board:StaticBody3D;
+		var p:Node = get_parent();
+		while not p is BodySplitPath:
+			p = p.get_parent();
+		
+		
+		apply_glow_loop(get_board_meshes(p.final_board))

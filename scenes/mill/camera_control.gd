@@ -4,6 +4,9 @@ class_name CameraControl
 signal started_aiming
 signal stopped_aiming
 
+signal mouse_released;
+signal mouse_caught
+
 @export var pcam: PhantomCamera3D
 @export var player: Node3D
 
@@ -99,8 +102,10 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_camera_lock"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			mouse_released.emit()
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			mouse_caught.emit()
 	elif event.is_action_pressed("aim_web"):
 		aiming = true
 	elif event.is_action_released("aim_web"):

@@ -1,6 +1,7 @@
 extends Node
 class_name Level;
 
+@warning_ignore("unused_signal")
 signal level_transition_started;
 
 

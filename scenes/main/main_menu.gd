@@ -4,24 +4,29 @@ extends UIRoot;
 @export var fade_out_rect:ColorRect
 
 @export var high_scores:VBoxContainer;
-@export var loader:AssetPreloader;
-@export var preload_overlay:ColorRect;
+
 
 @export var clear_high_scores_confirmation:Control;
 @export var new_game_btn:Button
 
+@export var bgm:AudioStreamPlayer
+@export var bgm_loop:AudioStreamPlayer
 
+@export var splash:ColorRect
 
 func _ready()->void:
+	splash.show();
 	super()
 	if len(HighScores.current_high_scores):
 		high_scores.show()
 		refresh_high_scores();
 	HighScores.highscores_changed.connect(refresh_high_scores)
-	await loader.finished;
-	fade_out(preload_overlay)
+	
+
 
 func _on_new_game_pressed() -> void:
+	bgm.stop();
+	bgm_loop.stop()
 	new_game_btn.disabled = true
 	var t:= create_tween();
 	t.tween_property(main_menu_camera, "position:z", main_menu_camera.position.z + 250, 5)
@@ -65,3 +70,7 @@ func _on_confirm_pressed() -> void:
 
 func _on_cancel_pressed() -> void:
 	fade_out(clear_high_scores_confirmation)
+
+
+func _on_resource_warmup_all_loaded() -> void:
+	fade_out(splash)

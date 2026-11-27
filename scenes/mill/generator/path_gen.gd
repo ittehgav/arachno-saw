@@ -28,11 +28,6 @@ const DIVIDER_GAP := 0.5
 const DIVIDER_META := &"divider_pair"
 
 
-var _opening_width := 0.0
-var _opening_height := 0.0
-## pair number -> {"z", "x", "covered", "cover"} for every divider that exists.
-## Pair p stands between path p - 1 and path p of the generator's `paths` list.
-var _dividers := {}
 
 @export var x_saw: PackedScene  # X cuts
 @export var y_saw: PackedScene  # Y cuts
@@ -93,8 +88,7 @@ const POINT_AREA_SIZE := 50.0
 @export var chipper_extra_distance := 0.0
 
 @export var roller_line: PackedScene
-## Distance between roller line instances along the path, which should match the scene's length.
-@export var roller_spacing := 450.0
+
 ## Offset from the path along its own Y axis (negative = below).
 @export var roller_y_offset := -80.0
 
@@ -478,20 +472,67 @@ func get_remaining_board(stage: int) -> StaticBody3D:
 func get_split_count()->int:
 	return len(split_gen.split_map)
 	
-## Lays roller_line instances end to end along the whole path. Each one is centered on its
-## slot, with its local Z axis running along the path.
+## Lays the rollers along the whole path with ONE roller_line instance. Its root is a MultiMeshInstance3D
+## whose multimesh holds a CylinderMesh; one cylinder goes in each slot, side by side (a slot is one
+## diameter wide), lying flat across the path. The roller_killbox shape is sized to the whole row.
 func _create_rollers(scene_root: Node) -> void:
 	_clear_rollers()
-	if roller_line == null:
+	if roller_line == null or roller_root == null:
 		return
 	var length := curve.get_baked_length()
-	if length <= 0.0 or roller_spacing <= 0.0:
+	if length <= 0.0:
 		return
 
-	var up := global_transform.basis.y.normalized()
-	var count := ceili(length / roller_spacing - EPS)
+	var roller := roller_line.instantiate() as MultiMeshInstance3D
+	if roller == null or roller.multimesh == null:
+		push_warning("BodySplitPath: the roller_line scene's root must be a MultiMeshInstance3D with a multimesh.")
+		if roller != null:
+			roller.free()
+		return
+	var cylinder := roller.multimesh.mesh as CylinderMesh
+	if cylinder == null or cylinder.top_radius <= 0.0:
+		push_warning("BodySplitPath: the roller_line's multimesh needs a CylinderMesh with a radius above 0.")
+		roller.free()
+		return
+
+	var spacing := cylinder.top_radius * 2.0  # side by side: one diameter apart
+	var count := ceili(length / spacing - EPS)
+
+	# The multimesh resource is shared by every instance of the scene, so this path gets its own copy.
+	var mm := roller.multimesh.duplicate() as MultiMesh
+	mm.instance_count = 0  # the format can only change while there are no instances
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.instance_count = count
+
+		# Lay the cylinder down by baking the turn into a copy of the mesh: its axis (Y) is turned to run
+	# across the path (Z in this path's space). The instances then only need positions.
+	var lay_down := Basis(Vector3.RIGHT, PI / 2.0)
+	var arrays := cylinder.get_mesh_arrays()
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	for v in verts.size():
+		verts[v] = lay_down * verts[v]
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	for v in normals.size():
+		normals[v] = lay_down * normals[v]
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	if arrays[Mesh.ARRAY_TANGENT] != null:
+		var tangents: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
+		for v in range(0, tangents.size(), 4):
+			var t := lay_down * Vector3(tangents[v], tangents[v + 1], tangents[v + 2])
+			tangents[v] = t.x
+			tangents[v + 1] = t.y
+			tangents[v + 2] = t.z
+		arrays[Mesh.ARRAY_TANGENT] = tangents
+	var laid_mesh := ArrayMesh.new()
+	laid_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	laid_mesh.surface_set_material(0, cylinder.material)
+	mm.mesh = laid_mesh
+
+	var cylinder_box := laid_mesh.get_aabb()
+	var region := AABB()  # every cylinder, in this path's space
 	for i in count:
-		var offset := (i + 0.5) * roller_spacing
+		var offset := (i + 0.5) * spacing
 		# A slot past the end of the path continues straight on from the last point.
 		var clamped := minf(offset, length)
 		var dir := (curve.sample_baked(minf(clamped + 1.0, length))
@@ -499,23 +540,33 @@ func _create_rollers(scene_root: Node) -> void:
 		var local_pos := curve.sample_baked(clamped) + dir * (offset - clamped) \
 				+ Vector3(0.0, roller_y_offset, 0.0)
 
-		# Basis whose local +Z points along the path and whose Y stays the path's up.
-		var z_axis := (global_transform.basis * dir).normalized()
-		var x_axis := up.cross(z_axis).normalized()
-		var y_axis := z_axis.cross(x_axis)
+		# Every roller has the same orientation, so they are all parallel; they only move along the path.
+		var xform := Transform3D(Basis.IDENTITY, local_pos)
+		mm.set_instance_transform(i, xform)
+		region = (xform * cylinder_box) if i == 0 else region.merge(xform * cylinder_box)
+	roller.multimesh = mm
 
-		var roller := roller_line.instantiate() as Node3D
-		if roller == null:
-			push_warning("BodySplitPath: the roller_line scene's root isn't a Node3D.")
-			return
-		roller.name = "RollerLine_%02d" % (i + 1)
-		roller.set_meta(MARKER_META, true)
-		roller_root.add_child(roller)
-		roller.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis), to_global(local_pos))
-		if scene_root:
-			roller.owner = scene_root
+	roller.name = "RollerLine"
+	roller.set_meta(MARKER_META, true)
+	roller_root.add_child(roller)
+	roller.global_transform = global_transform  # the instance transforms above are in this path's space
+	if scene_root:
+		roller.owner = scene_root
 
-
+	# One box around the whole row of cylinders.
+	var killbox := roller.get_node_or_null("roller_killbox") as Area3D
+	if killbox == null:
+		return
+	var shapes := killbox.find_children("*", "CollisionShape3D", true, false)
+	var shape_node := shapes[0] as CollisionShape3D if not shapes.is_empty() else null
+	var source_box := shape_node.shape as BoxShape3D if shape_node != null else null
+	if source_box == null:
+		push_warning("BodySplitPath: roller_killbox needs a CollisionShape3D with a BoxShape3D.")
+		return
+	var box := source_box.duplicate() as BoxShape3D  # the scene's shape is shared by every path
+	box.size = region.size
+	shape_node.shape = box
+	shape_node.global_transform = global_transform * Transform3D(Basis.IDENTITY, region.get_center())
 func _clear_rollers() -> void:
 	if roller_root == null:
 		return

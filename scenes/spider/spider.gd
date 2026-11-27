@@ -4,8 +4,11 @@ class_name Crawler;
 signal fly_consumed(fly:Fly)
 signal died(source:DeathType)
 signal shield_lost;
+signal web_hit
 
+@warning_ignore("unused_signal")
 signal stage_switch_started;
+@warning_ignore("unused_signal")
 signal stage_switch_ended;
 
 signal run_won;
@@ -26,8 +29,7 @@ enum DeathType{
 @export var blink_animation:AnimationPlayer;
 @export var cheat_death_sfx:AudioStreamPlayer;
 
-@export var buff_glow_mesh:MeshInstance3D
-@export var buff_glow_animation:AnimationPlayer
+
 
 var moving:bool=false;
 ## bc board deaths can be async and on drop board i need to know
@@ -45,15 +47,8 @@ func _ready()->void:
 func teleport_to(t:Transform3D)->void:
 	disable_movement();
 	global_transform = t;
-	await get_tree().physics_frame;
-	await get_tree().physics_frame;
+	await get_tree().create_timer(.25).timeout
 	enable_movement()
-
-
-
-
-
-
 
 
 func win_run()->void:
@@ -119,9 +114,3 @@ func _on_fly_consumed(fly: Fly) -> void:
 	body.scale *= 1.25;
 	var t:= create_tween();
 	t.tween_property(body, "scale", body_scale, .5)
-
-	var m:StandardMaterial3D = buff_glow_mesh.mesh.material;
-	var color:Color = Fly.buff_colors[fly.type];
-	m.albedo_color = color
-	m.emission = color;
-	buff_glow_animation.play("buff_glow")

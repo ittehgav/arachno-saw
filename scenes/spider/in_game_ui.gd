@@ -54,6 +54,9 @@ func score_pop(change:float)->void:
 @export var you_died_message:Label
 @export var you_died_continue_btn:Button
 
+@export var mouse_toggle_icon:TextureRect
+@export var mouse_camera_icon:TextureRect;
+
 func _process(_delta: float) -> void:
 	combo_timeout_bar.value = Run.fly_combo_timeout.time_left
 
@@ -153,3 +156,13 @@ func _on_play_again_pressed() -> void:
 	new_run.ready.connect(Run.start_run)
 	GLB.sawmill.queue_free();
 	get_tree().current_scene.add_child(new_run);
+
+
+func _on_camera_control_mouse_caught() -> void:
+	press_grow(mouse_toggle_icon)
+	mouse_camera_icon.show()
+
+
+func _on_camera_control_mouse_released() -> void:
+	press_grow(mouse_toggle_icon)
+	mouse_camera_icon.hide()

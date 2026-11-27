@@ -8,10 +8,13 @@
 [ext_resource type="Texture2D" uid="uid://tuohxsub4iwc" path="res://assets/textures/used/wood_cut.png" id="6_b1x3f"]
 [ext_resource type="AudioStream" uid="uid://crcyaxpwbplsy" path="res://assets/sound/music/main_menu_loop.ogg" id="6_ow5a4"]
 [ext_resource type="Texture2D" uid="uid://bqdhck2n0q68k" path="res://assets/textures/used/brick_wall_pt_2.png" id="6_yyfjg"]
-[ext_resource type="Script" uid="uid://bc8ln0c4bo41d" path="res://scenes/main/loader.gd" id="9_b1x3f"]
 [ext_resource type="Script" uid="uid://xc3v4qpll1dl" path="res://scenes/main/sound_control.gd" id="10_blune"]
-[ext_resource type="Texture2D" uid="uid://bcamumii62pti" path="res://assets/textures/IconGodotNode/node/icon_audio.png" id="10_ouso4"]
+[ext_resource type="Texture2D" uid="uid://bcamumii62pti" path="res://assets/textures/icon_audio.png" id="10_ouso4"]
 [ext_resource type="Texture2D" uid="uid://bjfp4c5tvdk28" path="res://assets/textures/icon_audio_disabled.png" id="11_blune"]
+[ext_resource type="Script" uid="uid://bfib7pxoa2pjx" path="res://scenes/main/resource_warmup.gd" id="12_blune"]
+[ext_resource type="Texture2D" uid="uid://e1w6nfnf2cmq" path="res://assets/vodo/disclaimer.png" id="12_raeie"]
+[ext_resource type="Texture2D" uid="uid://mqsldco5hqms" path="res://icon.svg" id="13_th5th"]
+[ext_resource type="Texture2D" uid="uid://dn28xsgeqm5wy" path="res://assets/vodo/memabye64.jpg" id="14_7smn1"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a8run"]
 albedo_texture = ExtResource("6_b1x3f")
@@ -175,11 +178,21 @@ _data = {
 &"preload_glow": SubResource("Animation_ouso4")
 }
 
+[sub_resource type="Gradient" id="Gradient_raeie"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u5bk5"]
+gradient = SubResource("Gradient_raeie")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [node name="main" type="Node3D" unique_id=1245566075 node_paths=PackedStringArray("main_menu_spider")]
 script = ExtResource("1_bsumw")
 main_menu_spider = NodePath("main_menu/main_menu_bg/spider")
 
-[node name="main_menu" type="Control" parent="." unique_id=1547910714 node_paths=PackedStringArray("main_menu_camera", "fade_out_rect", "high_scores", "loader", "preload_overlay", "clear_high_scores_confirmation", "new_game_btn", "ui_sfx")]
+[node name="main_menu" type="Control" parent="." unique_id=1547910714 node_paths=PackedStringArray("main_menu_camera", "fade_out_rect", "high_scores", "clear_high_scores_confirmation", "new_game_btn", "bgm", "bgm_loop", "splash", "ui_sfx")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -190,10 +203,11 @@ script = ExtResource("2_iuonh")
 main_menu_camera = NodePath("main_menu_bg/spider/Camera3D")
 fade_out_rect = NodePath("overlays/fade_out")
 high_scores = NodePath("high_scores")
-loader = NodePath("../loader")
-preload_overlay = NodePath("overlays/pre_load_overlay")
 clear_high_scores_confirmation = NodePath("overlays/clear_hs_overlay")
 new_game_btn = NodePath("VBoxContainer/new_game")
+bgm = NodePath("bgm")
+bgm_loop = NodePath("bgm/bgm_loop")
+splash = NodePath("../splash")
 ui_sfx = NodePath("UISFX")
 
 [node name="UISFX" parent="main_menu" unique_id=1290045078 instance=ExtResource("4_b1x3f")]
@@ -231,13 +245,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.41686, 0.22615433, 0)
 [node name="AnimationPlayer" parent="main_menu/main_menu_bg/spider/body" parent_id_path=PackedInt32Array(177370040, 1279159701) index="1" unique_id=948962471]
 speed_scale = 1.0
 
-[node name="MeshInstance3D" parent="main_menu/main_menu_bg/spider" index="7" unique_id=514737973]
+[node name="forward_arrow" parent="main_menu/main_menu_bg/spider" index="6" unique_id=514737973]
 visible = false
 
 [node name="stick_ticker" parent="main_menu/main_menu_bg/spider/surface_stick" parent_id_path=PackedInt32Array(177370040, 1305565370) index="0" unique_id=1463672595]
 process_mode = 4
 
-[node name="web_shooter" parent="main_menu/main_menu_bg/spider" index="10" unique_id=248283182]
+[node name="web_shooter" parent="main_menu/main_menu_bg/spider" index="9" unique_id=248283182]
 process_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="main_menu/main_menu_bg/spider" unique_id=1987818891]
@@ -453,11 +467,136 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("11_blune")
 
-[node name="loader" type="Node" parent="." unique_id=1659978574]
-process_priority = -5
-process_physics_priority = -5
-script = ExtResource("9_b1x3f")
-scene_paths = Array[String](["uid://blcd732gwqct6"])
+[node name="HBoxContainer" type="HBoxContainer" parent="main_menu" unique_id=544308811]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -215.0
+offset_right = 208.0
+grow_vertical = 0
+
+[node name="TextureRect" type="TextureRect" parent="main_menu/HBoxContainer" unique_id=2138384949]
+texture_filter = 4
+custom_maximum_size = Vector2(277, 287)
+layout_mode = 2
+texture = ExtResource("12_raeie")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="main_menu/HBoxContainer" unique_id=1291611745]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Label" type="Label" parent="main_menu/HBoxContainer/VBoxContainer" unique_id=1715654743]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Work in progress!"
+
+[node name="Label2" type="Label" parent="main_menu/HBoxContainer/VBoxContainer" unique_id=1687791971]
+layout_mode = 2
+text = "Arachnosaw is in early development,
+you may exerience some glitches and
+freezes, mostly in the first few runs.
+Thank you for your patience!"
+
+[node name="ResourceWarmup" type="Node" parent="." unique_id=757821199]
+script = ExtResource("12_blune")
+excluded_dirs = PackedStringArray("res://addons/")
+excluded_extensions = PackedStringArray("gd", "cs", "uid", "import", "md", "txt", "json", "cfg", "csv", "translation", "blend", "fbx")
+extra_roots = PackedStringArray()
+registered_uids = PackedStringArray("uid://13l3w3agw3a1", "uid://25cu6xpkw45x", "uid://38jd85yu6xoo", "uid://3w0xjjq204gs", "uid://b3ry0krkujkbk", "uid://b3sfvj1ysio2c", "uid://b4ckxkeuxn8vn", "uid://b4quf1vhvnaep", "uid://b50sxs15v5mjh", "uid://b5g073hfef08c", "uid://b5j6dlq4ru1h", "uid://bc8xv1acbrd4v", "uid://bcamumii62pti", "uid://bdm5wlmlamvg5", "uid://becb3thuogsx5", "uid://bed1mjyxtxva6", "uid://bfolbtyqose1g", "uid://bg0x6oj4flqdw", "uid://bgqqfvpghfrlq", "uid://bixc3ug10kayr", "uid://bje5271r0wumk", "uid://bjfp4c5tvdk28", "uid://blcd732gwqct6", "uid://bqdhck2n0q68k", "uid://bqecvsa2iydan", "uid://bu8h5entyjl6s", "uid://buqgypq5cfa8i", "uid://bvcg57qgd847s", "uid://c3k5ha0s2lr0v", "uid://c47eyaehvxxo6", "uid://c6nmohpbosf72", "uid://c7kiuhg6ojw8y", "uid://ca6jisidhrtl3", "uid://cbgjnc4y3dtjn", "uid://ccxq74nxus6bu", "uid://ce163qwxhwl0q", "uid://cfj7f62bqlbtg", "uid://cggqrp4mf17k7", "uid://cguqlvyowpfxy", "uid://chuon0jnrnaqr", "uid://cibe7k6pqm66l", "uid://cnfirqnynqhx8", "uid://cqldcxjjmcipw", "uid://crcyaxpwbplsy", "uid://cs2dj5ipidnnt", "uid://cta7pvyk7b66a", "uid://ctkeihy12nqv5", "uid://cw3i1bksgwevs", "uid://cx42esswunuws", "uid://cxv5gcl3848oy", "uid://d8n7m2j8luyu", "uid://de63tjrqnn0n4", "uid://delo7m1mq5st", "uid://dk8r66yervkt0", "uid://dkvu3xr0spcke", "uid://dn1lrs7107xr4", "uid://dna8dmdkoqa2r", "uid://dovuacs7yr1wt", "uid://dsdcpu4k2u35x", "uid://dsh7r541brjnv", "uid://dug8hmxoj2aki", "uid://dv8p1nq4gnme6", "uid://dvxt40qecb1xj", "uid://dwhfpr1qvga6p", "uid://dwhsry62p2k42", "uid://dyfyyp01kps72", "uid://fepx5u730ds3", "uid://gng87f6fsbdd", "uid://h4moaku7jyl8", "uid://ih1vugv0aarf", "uid://jpujwnwdjrbd", "uid://llcbwnd35aee", "uid://m7ebtt2775ws", "uid://nlv3daytphj0", "uid://pd4e6u6ffo8s", "uid://r5phmsuxm2wu", "uid://rmlr1mtmgmpu", "uid://spy0k20c7020", "uid://tuohxsub4iwc", "uid://vh44v8vwrr3y")
+warm_on_ready = true
+frame_budget_ms = 16.0
+render_frames_per_item = 8
+metadata/_custom_type_script = "uid://bfib7pxoa2pjx"
+
+[node name="splash" type="ColorRect" parent="." unique_id=281138896]
+visible = false
+z_index = 65
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.080000006, 0.080000006, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="splash" unique_id=599850552]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -127.0
+offset_top = -240.0
+offset_right = -21.0
+offset_bottom = -134.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="TextureRect" type="TextureRect" parent="splash/VBoxContainer" unique_id=812122823]
+custom_maximum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("13_th5th")
+
+[node name="Label" type="RichTextLabel" parent="splash/VBoxContainer" unique_id=768356836]
+layout_mode = 2
+size_flags_vertical = 4
+bbcode_enabled = true
+text = "Powered 
+by [pulse]Godot"
+fit_content = true
+horizontal_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="splash" unique_id=80958604]
+layout_mode = 0
+offset_left = 116.0
+offset_top = 69.0
+offset_right = 266.0
+offset_bottom = 242.0
+
+[node name="TextureRect2" type="TextureRect" parent="splash/VBoxContainer2" unique_id=2061887425]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = SubResource("GradientTexture2D_u5bk5")
+
+[node name="TextureRect" type="TextureRect" parent="splash/VBoxContainer2/TextureRect2" unique_id=401189238]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("14_7smn1")
+
+[node name="Label" type="Label" parent="splash/VBoxContainer2" unique_id=356996099]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "A game by 
+Vodok"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="splash" unique_id=246054006]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 75.0
+offset_top = -118.0
+offset_right = 235.0
+offset_bottom = -99.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 47
+text = "Loading assets..."
 
 [connection signal="pressed" from="main_menu/VBoxContainer/new_game" to="main_menu" method="_on_new_game_pressed"]
 [connection signal="finished" from="main_menu/bgm" to="main_menu/bgm/bgm_loop" method="play"]
@@ -466,5 +605,7 @@ scene_paths = Array[String](["uid://blcd732gwqct6"])
 [connection signal="pressed" from="main_menu/overlays/clear_hs_overlay/clear_hs_confirm/VBoxContainer/HBoxContainer/cancel" to="main_menu" method="_on_cancel_pressed"]
 [connection signal="visibility_changed" from="main_menu/sound_control" to="main_menu/sound_control" method="_on_visibility_changed"]
 [connection signal="pressed" from="main_menu/sound_control/toggle_bgm" to="main_menu/sound_control" method="_on_toggle_music_pressed"]
+[connection signal="all_loaded" from="ResourceWarmup" to="." method="_on_resource_warmup_all_loaded"]
+[connection signal="all_loaded" from="ResourceWarmup" to="main_menu" method="_on_resource_warmup_all_loaded"]
 
 [editable path="main_menu/main_menu_bg/spider"]

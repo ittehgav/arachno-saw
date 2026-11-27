@@ -22,11 +22,13 @@ class_name RunControl;
 signal run_started;
 signal finished(won:bool)
 
-var current_stage:int:
+var current_stage:int=0:
 	set(val):
+
 		current_stage = val;
-		GLB.board_container.board_dropped.connect(_on_board_dropped)
-		
+		if val:
+			score *= 1.25
+			GLB.board_container.board_dropped.connect(_on_board_dropped);
 
 ## score system
 @export var progress_timers:Array[Timer]
@@ -37,6 +39,7 @@ var score:float:
 		if val != score:
 			score = val;
 			score_changed.emit()
+			
 
 @export var score_ticker:Timer;
 
@@ -54,7 +57,7 @@ var placeholder:=true;
 ## skull fly (when shielded) gives 5x
 ## combo bar type shit for getting flies
 
-
+var gen:NoiseSplitSequence
 func start_run()->void:
 	## WILL COMPUTE ALL RUNS IN A GIVEN GAME WINDOW IN THE SAME INSTANCEa
 	current_fly_combo = 0;
@@ -63,6 +66,15 @@ func start_run()->void:
 	set_progress_timers(true)
 	_reset_counters();
 	run_started.emit();
+
+	gen = GLB.sawmill.gen;
+
+
+
+
+
+
+
 
 @onready var initial_score_ticker_wait_time:float=score_ticker.wait_time;
 func _reset_counters()->void:
@@ -79,7 +91,6 @@ func _reset_counters()->void:
 	
 func setup_signals()->void:
 	GLB.spider.fly_consumed.connect(_on_fly_consumed)
-	GLB.board_container.board_dropped.connect(_on_board_dropped)
 
 func finish_run(won:bool)->void:
 	set_progress_timers(false)

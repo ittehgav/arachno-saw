@@ -42,7 +42,7 @@ const buff_colors:Dictionary[Type, Color] = {
 
 func roll_type(current_types:Array[Type])->void:
 	type = Type.values().pick_random();
-	while type == Type.teleport and Type.teleport in current_types:
+	while type == Type.teleport: ## tp disabled bc its buggy and can instantly kill the playter
 		type = Type.values().pick_random();
 
 var original:bool=true;

@@ -35,10 +35,8 @@ func _process_node(node: Node) -> void:
 		if mesh_instance.mesh:
 			# PrimitiveMesh.material (BoxMesh, SphereMesh, etc.)
 			if mesh_instance.mesh is PrimitiveMesh:
-				print("ispri???")
 				var primitive := mesh_instance.mesh as PrimitiveMesh
 				if primitive.material is StandardMaterial3D:
-					print(primitive, primitive.material)
 					_process_material(primitive.material)
 
 			# Imported mesh / ArrayMesh surface materials
@@ -62,11 +60,13 @@ func _process_material(material: StandardMaterial3D) -> void:
 	if texture_path.is_empty():
 		return
 
-	var filename := texture_path.get_file().get_basename()
-	var normal_path := normals_dir.path_join(filename + "_normal.png")
-
-	if ResourceLoader.exists(normal_path):
-		var normal := load(normal_path) as Texture2D
-		if normal:
-			material.normal_enabled = true
-			material.normal_texture = normal
+	#var filename := texture_path.get_file().get_basename()
+	#var normal_path := normals_dir.path_join(filename + "_normal.png")
+#
+	#if ResourceLoader.exists(normal_path):
+		#var normal := load(normal_path) as Texture2D
+		#if normal:
+			#material.normal_enabled = true
+			#material.normal_texture = normal
+	material.normal_enabled = false;
+	material.normal_texture = null;

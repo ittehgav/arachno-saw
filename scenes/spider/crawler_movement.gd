@@ -16,6 +16,8 @@ signal movement_disabled;
 @export var stick_force: float = 12.0   # pull toward the surface while rotating around an edge
 @export var sharp_angle: float = 30.0   # degrees; movement slows to a stop past this
 @export var radius_snap_min: float = 8.0
+@export var normal_smoothing: float = 30.0   # higher = reacts faster, lower = ignores seam glitches better
+var _smooth_up: Vector3 = Vector3.UP
 
 var _last_dir: Vector3 = Vector3.FORWARD
 var _probe_len: float = 0.0
@@ -24,6 +26,8 @@ var _probe_len: float = 0.0
 var speed_up_tween:Tween;
 
 func _ready() -> void:
+	_smooth_up = global_basis.y
+	safe_margin = 0.1   # default 0.001 is too tight for a 4m body and catches on internal edges
 	floor_max_angle = deg_to_rad(80.0)
 	floor_snap_length = 0.5
 	floor_constant_speed = true
@@ -72,11 +76,20 @@ func _physics_process(delta: float) -> void:
 	var target_up: Vector3 = up
 	var has_surface: bool = false
 	if is_on_floor():
-		target_up = get_floor_normal()
+		var contact: Vector3 = _contact_normal(up)
+		target_up = contact if contact != Vector3.ZERO else get_floor_normal()
 		has_surface = true
 	elif not hit.is_empty():
 		target_up = hit.normal
 		has_surface = true
+
+	# Low-pass filter the target so a one-frame bad normal at a seam can't stop the body
+	if has_surface:
+		var blended: Vector3 = _smooth_up.lerp(target_up, clampf(normal_smoothing * delta, 0.0, 1.0))
+		_smooth_up = blended.normalized() if blended.length_squared() > 0.0001 else target_up
+		target_up = _smooth_up
+	else:
+		_smooth_up = up
 
 	# Slow to a stop while the surface is turning sharply, until we've caught up
 	var misalign: float = up.angle_to(target_up)
@@ -100,6 +113,15 @@ func _physics_process(delta: float) -> void:
 			pivot = hit.position
 		_align_to_normal(target_up, pivot, delta, speed_mult)
 
+func _contact_normal(up: Vector3) -> Vector3:
+	# Average every floor-ish contact, so at a seam both surfaces contribute
+	# instead of the solver picking one of them arbitrarily
+	var sum: Vector3 = Vector3.ZERO
+	for i: int in get_slide_collision_count():
+		var n: Vector3 = get_slide_collision(i).get_normal()
+		if n.dot(up) > 0.2:
+			sum += n
+	return sum.normalized() if sum.length_squared() > 0.0001 else Vector3.ZERO
 
 func _align_to_normal(target_up: Vector3, pivot: Vector3, delta: float, speed_mult: float) -> void:
 	var current_up: Vector3 = global_basis.y

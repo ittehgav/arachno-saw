@@ -15,7 +15,7 @@ class_name Spider;
 @export var body_materials:Array[Material];
 @export var explosion:MeshExploder
 
-const anim_scale = 1.5
+const anim_scale = 3
 const rotation_speed = 20
 ## TODO add a raycast to the tip of each leg and 
 ## make them pivot in a way where when the spiter is at the corner of a plank,

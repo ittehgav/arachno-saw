@@ -40,9 +40,6 @@ func _physics_process(delta: float) -> void:
 		else:
 			progress += delta * base_speed * z_meters_per_second * accel;
 
-func _input(e: InputEvent) -> void:
-	if e.is_action_pressed("autowin"):
-		progress_ratio = .95;
 
 func _on_turn_scan_area_entered(area: Area3D) -> void:
 	## turn = switch from x to z movement
@@ -60,7 +57,7 @@ func board_fall()->void:
 
 
 func _on_board_container_saw_left(saw: Saw) -> void:
-	if saw.name == "trunk_bottom":
+	if saw.name == "trunk_bottom" or saw.name == "trunk_top":
 		board_fall();
 		GLB.board_container.saw_left.disconnect(_on_board_container_saw_left)
 	

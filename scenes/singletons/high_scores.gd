@@ -23,13 +23,17 @@ func _ready() -> void:
 	
 
 func load_scoreboard()->void:
-	var sb:Variant= FileAccess.open(save_path, FileAccess.READ).get_var();
-	if sb != null and sb != {}:
-		current_high_scores = sb.high_scores
-		current_high_scores.sort_custom(func(a:Dictionary, b:Dictionary)->bool:return a.score > b.score);
-		highest_score = current_high_scores[0].score;
-		
-		highscores_loaded.emit()
+	if FileAccess.file_exists(save_path):
+		var sb:Variant= FileAccess.open(save_path, FileAccess.READ).get_var();
+		if sb != null and sb != {}:
+			current_high_scores = sb.high_scores
+			current_high_scores.sort_custom(func(a:Dictionary, b:Dictionary)->bool:return a.score > b.score);
+			highest_score = current_high_scores[0].score;
+			
+			highscores_loaded.emit()
+	else:
+		clear_record();
+		load_scoreboard()
 
 func clear_record()->void:
 	highest_score = 0;

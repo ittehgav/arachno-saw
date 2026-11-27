@@ -6,16 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://c3k5ha0s2lr0v" path="res://assets/textures/psx/PSX Textures/256/Color Maps/metal_roof_tx_1_1.png" id="5_875s6"]
 [ext_resource type="Texture2D" uid="uid://nlv3daytphj0" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_3.png" id="5_mdwkj"]
 [ext_resource type="Texture2D" uid="uid://dvxt40qecb1xj" path="res://assets/textures/psx/foundation_up.png" id="6_6a5t5"]
-[ext_resource type="Texture2D" uid="uid://b3f8j7jdou0lr" path="res://assets/textures/psx normals/metal_panels_pt_3_normal.png" id="6_6yfwv"]
 [ext_resource type="Texture2D" uid="uid://ih1vugv0aarf" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_roofing_pt_1.png" id="6_bsod6"]
 [ext_resource type="AudioStream" uid="uid://gng87f6fsbdd" path="res://assets/sound/saw/saw_end.ogg" id="6_mdwkj"]
 [ext_resource type="Texture2D" uid="uid://b3ry0krkujkbk" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/beam_panels_pt_2.png" id="6_tqcbo"]
-[ext_resource type="Texture2D" uid="uid://bvox6pcv37yf0" path="res://assets/textures/psx normals/metal_wall_tx_3_1_normal.png" id="7_dxihh"]
 [ext_resource type="Texture2D" uid="uid://b50sxs15v5mjh" path="res://assets/textures/psx/PSX Textures II/256/Color Maps/metal_panels_pt_1_4.png" id="8_mdwkj"]
-[ext_resource type="Texture2D" uid="uid://tesk2xfwdj2s" path="res://assets/textures/psx normals/beam_panels_pt_2_normal.png" id="10_4fp5b"]
-[ext_resource type="Texture2D" uid="uid://b5agrcjytib4m" path="res://assets/textures/psx normals/metal_roof_tx_1_1_normal.png" id="12_i5sqc"]
-[ext_resource type="Texture2D" uid="uid://wdac2idtpkmx" path="res://assets/textures/psx normals/metal_panels_pt_1_4_normal.png" id="14_gohux"]
-[ext_resource type="Texture2D" uid="uid://cu2a5exsswbf7" path="res://assets/textures/psx normals/metal_roofing_pt_1_normal.png" id="16_idmrh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i02ns"]
 albedo_color = Color(0.22, 0.20562667, 0.1122, 1)
@@ -44,18 +38,21 @@ resource_name = "Material"
 cull_mode = 2
 albedo_color = Color(0.9063355, 0.21631427, 0.13107808, 1)
 roughness = 0.5
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rnuqa"]
 resource_name = "Material.001"
 cull_mode = 2
 albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 1)
 roughness = 0.5
+texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pcfd1"]
 resource_name = "Material.003"
 cull_mode = 2
 albedo_color = Color(0, 0, 0, 1)
 roughness = 0.5
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_8moaq"]
 _surfaces = [{
@@ -135,16 +132,12 @@ shadow_mesh = SubResource("ArrayMesh_8moaq")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6a5t5"]
 albedo_texture = ExtResource("5_mdwkj")
-normal_enabled = true
-normal_texture = ExtResource("6_6yfwv")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0ywc"]
 albedo_texture = ExtResource("6_6a5t5")
-normal_enabled = true
-detail_normal = ExtResource("7_dxihh")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -219,8 +212,6 @@ shadow_mesh = SubResource("ArrayMesh_yyojq")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dxihh"]
 albedo_texture = ExtResource("6_tqcbo")
-normal_enabled = true
-normal_texture = ExtResource("10_4fp5b")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -305,8 +296,6 @@ shadow_mesh = SubResource("ArrayMesh_asloj")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mdwkj"]
 albedo_texture = ExtResource("5_875s6")
-normal_enabled = true
-normal_texture = ExtResource("12_i5sqc")
 uv1_scale = Vector3(0.01, 0.01, 0.01)
 uv1_triplanar = true
 texture_filter = 0
@@ -354,8 +343,6 @@ size = Vector3(20, 30, 336.74445)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_osdcf"]
 albedo_texture = ExtResource("8_mdwkj")
 metallic = 0.2
-normal_enabled = true
-normal_texture = ExtResource("14_gohux")
 uv1_triplanar = true
 texture_filter = 0
 
@@ -378,8 +365,6 @@ blend_shape_mode = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_875s6"]
 albedo_texture = ExtResource("6_bsod6")
-normal_enabled = true
-normal_texture = ExtResource("16_idmrh")
 uv1_triplanar = true
 texture_filter = 0
 

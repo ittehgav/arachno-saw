@@ -27,6 +27,8 @@ var aim_valid:bool;
 @onready var web_origin: = web.position
 @onready var raycast_origin: = raycast.position
 
+
+
 const web_speed = 2000.0
 func shoot_web(target:Vector3, body:StaticBody3D)->void:
 	web_shoot_sfx.play()
@@ -49,9 +51,10 @@ func shoot_web(target:Vector3, body:StaticBody3D)->void:
 	web_hit(target, p)
 
 func web_hit(target:Vector3, path:BodySplitPath)->void:
+	GLB.spider.web_hit.emit()
 	LevelControl.level_transition_started.emit()
 	spider.reparent.bind(path.get_node("board_path_follow")).call_deferred()
-	
+
 	web_hit_sfx.play()
 	camera_control.reset_camera();
 	var t:= create_tween();

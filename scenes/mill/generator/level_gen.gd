@@ -107,6 +107,7 @@ func _enter_tree() -> void:
 	_tree = get_tree()
 
 
+
 func _ready() -> void:
 	if Engine.is_editor_hint() or splitter == null:
 		return
@@ -324,6 +325,7 @@ func _apply_seed(s: int) -> void:
 	if noise is FastNoiseLite:
 		(noise as FastNoiseLite).seed = s
 	else:
+		@warning_ignore("integer_division")
 		sample_origin = Vector2(s % 100000, (s / 100000) % 100000)
 
 

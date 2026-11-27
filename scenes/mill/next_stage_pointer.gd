@@ -56,16 +56,29 @@ func update_target_pointers() -> void:
 
 
 func _on_board_path_follow_point_reached(_i: int, area: Area3D) -> void:
+	var path:BodySplitPath;
+	
 	if area.name == "final_point":
-		var next_path:BodySplitPath = GLB.next_path;
-		target = next_path.global_position
-		show()
-		ticker.start()
-		await next_path.stage_started;
-		hide();
-		ticker.stop()
+		var p:Node = get_parent();
+		while not p is BodySplitPath:
+			p = p.get_parent();
+		path = p;
+		if path.is_ancestor_of(GLB.spider):
+			var next_path:BodySplitPath = GLB.next_path;
+			target = next_path.global_position
+			show()
+			ticker.start()
+			await next_path.stage_started;
+			hide();
+			ticker.stop()
+
+
 
 
 func _on_ticker_timeout() -> void:
 	update_target_pointers()
 	
+
+
+func _on_spider_web_hit() -> void:
+	hide()
